@@ -34,10 +34,7 @@
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       color: var(--text);
 
-      background-image: url("background.png");
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
+      background: url("background.png") center / cover no-repeat;
 
       padding-top:    calc(10px + env(safe-area-inset-top));
       padding-left:   calc(14px + env(safe-area-inset-left));
@@ -64,47 +61,48 @@
     .card{
       position:relative;
       width:min(420px, 92vw);
-
-      padding: 14px 14px 12px;
+      padding: 16px 14px 14px;
 
       background: var(--glass);
       border: 1px solid var(--glass-border);
-      -webkit-backdrop-filter: blur(12px);
       backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
 
       border-radius: 18px;
       box-shadow: var(--shadow);
-
       margin-bottom: 6px;
     }
 
-    /* Instagram icon */
+    /* 🔥 Instagram animated button */
     .ig-link{
       position:absolute;
-      top:10px;
-      right:10px;
+      top:12px;
+      right:12px;
 
-      width:34px;
-      height:34px;
+      width:48px;
+      height:48px;
 
       display:flex;
       align-items:center;
       justify-content:center;
 
       border-radius:50%;
-      text-decoration:none;
-      font-size:18px;
+      background: rgba(255,255,255,.65);
+      border:1px solid rgba(255,255,255,.45);
 
-      background: rgba(255,255,255,.55);
-      color:#000;
-
-      border:1px solid rgba(255,255,255,.4);
       backdrop-filter: blur(6px);
       -webkit-backdrop-filter: blur(6px);
 
       box-shadow: 0 6px 16px rgba(0,0,0,.18);
       transition: transform .12s ease, filter .12s ease;
       -webkit-tap-highlight-color: transparent;
+      overflow:hidden;
+    }
+
+    .ig-link img{
+      width:72%;
+      height:72%;
+      object-fit: contain;
     }
 
     .ig-link:hover{ filter: brightness(1.05); }
@@ -162,11 +160,6 @@
     .btn:active{ transform: scale(.985); }
     .btn:hover{ filter: brightness(1.03); }
 
-    @media (max-width: 360px){
-      .title{ font-size: 16px; }
-      .btn{ padding: 11px 11px; border-radius: 11px; }
-    }
-
     @media (orientation: landscape) and (max-height: 430px){
       body{ justify-content: center; }
       .card{ margin-bottom: 0; }
@@ -177,19 +170,19 @@
 <body>
   <div class="card">
 
-    <!-- Instagram -->
+    <!-- Instagram animated GIF -->
     <a href="https://www.instagram.com/little.things.artdecor"
        class="ig-link"
        target="_blank"
        aria-label="Instagram">
-      📸
+      <img src="instagram.gif" alt="Instagram">
     </a>
 
     <div class="header">
       <div class="title">
-        <div class="line">🇵🇹 <span>Escolhe o teu idioma</span></div>
-        <div class="line">🇪🇸 <span>Elige tu idioma</span></div>
-        <div class="line">🇬🇧 <span>Choose your language</span></div>
+        <div class="line">🇵🇹 Escolhe o teu idioma</div>
+        <div class="line">🇪🇸 Elige tu idioma</div>
+        <div class="line">🇬🇧 Choose your language</div>
       </div>
       <p class="subtitle">WhatsApp</p>
     </div>
