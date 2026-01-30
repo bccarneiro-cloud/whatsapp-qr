@@ -15,7 +15,7 @@
       --shadow: 0 18px 50px rgba(0,0,0,.18);
       --text: rgba(10,10,10,.90);
 
-      /* overlay (não apagar fundo) */
+      /* overlay leve (não “apaga” fundo) */
       --overlay1: rgba(255,255,255,.04);
       --overlay2: rgba(0,0,0,.10);
     }
@@ -38,6 +38,7 @@
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       color: var(--text);
 
+      /* mobile: cover é perfeito */
       background: url("./background.png") center / cover no-repeat;
 
       padding-top:    calc(10px + env(safe-area-inset-top));
@@ -132,12 +133,27 @@
 
     /* ---------- HEADER ---------- */
 
+    /* ✅ Este wrapper garante que o header fica alinhado ao centro
+       com a mesma “largura visual” dos botões */
     .header{
+      margin: 0 auto 10px;
+      width: 100%;
+      max-width: 100%;
+      padding: 0 2px; /* micro ajuste para bater com os botões */
       text-align:center;
-      margin-bottom: 10px;
+    }
+
+    /* ✅ “inner” centra o grid e evita que pareça puxado à esquerda */
+    .header-inner{
+      width: 100%;
+      margin: 0 auto;
+      display:flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     .lang-row{
+      width: 100%;
       display:grid;
       grid-template-columns: 1fr 1fr 1fr;
       gap: 10px;
@@ -145,16 +161,14 @@
       margin-bottom: 6px;
     }
 
-    /* cada coluna centrada */
     .lang-row .item{
       display:flex;
       justify-content:center;
     }
 
-    /* ✅ bandeira colada ao texto em TODAS (incluindo UK) */
     .lang-row .wrap{
       display:flex;
-      align-items:center; /* <-- AQUI está a correção principal */
+      align-items:center;
       gap:6px;
       max-width: 100%;
     }
@@ -177,10 +191,11 @@
     }
 
     .subtitle{
+      width: 100%;
+      text-align: left; /* WhatsApp igual ao alinhamento dos botões */
       font-size: 12px;
       opacity: .78;
       margin: 0;
-      text-align:center;
     }
 
     @media (max-width: 380px){
@@ -190,17 +205,23 @@
       .ig-icon{ width: 20px; height: 20px; }
     }
 
+    /* ---------- DESKTOP ---------- */
     @media (min-width: 900px){
       body{
         justify-content: center;
-        background: url("./background.png") center / cover no-repeat;
+
+        /* ✅ desktop: SEM esticar */
+        background:
+          radial-gradient(circle at center, rgba(255,255,255,.25), rgba(255,255,255,.08)),
+          url("./background.png") center / contain no-repeat;
       }
 
+      /* manter glass */
       :root{
         --glass: rgba(255,255,255,.22);
         --glass-border: rgba(255,255,255,.32);
         --overlay1: rgba(255,255,255,.02);
-        --overlay2: rgba(0,0,0,.10);
+        --overlay2: rgba(0,0,0,.08);
       }
 
       .card{
@@ -229,6 +250,9 @@
       .lang-row img{
         width: 20px;
       }
+
+      /* No desktop, dá um bocadinho mais de respiro */
+      .header{ padding: 0 6px; }
     }
 
     @media (orientation: landscape) and (max-height: 430px){
@@ -249,30 +273,32 @@
     </a>
 
     <div class="header">
-      <div class="lang-row">
-        <div class="item">
-          <div class="wrap">
-            <img src="./flag-pt.png" alt="PT">
-            <span>Escolhe o teu idioma</span>
+      <div class="header-inner">
+        <div class="lang-row">
+          <div class="item">
+            <div class="wrap">
+              <img src="./flag-pt.png" alt="PT">
+              <span>Escolhe o teu idioma</span>
+            </div>
+          </div>
+
+          <div class="item">
+            <div class="wrap">
+              <img src="./flag-es.png" alt="ES">
+              <span>Elige tu idioma</span>
+            </div>
+          </div>
+
+          <div class="item">
+            <div class="wrap">
+              <img src="./flag-gb.png" alt="EN">
+              <span>Choose your language</span>
+            </div>
           </div>
         </div>
 
-        <div class="item">
-          <div class="wrap">
-            <img src="./flag-es.png" alt="ES">
-            <span>Elige tu idioma</span>
-          </div>
-        </div>
-
-        <div class="item">
-          <div class="wrap">
-            <img src="./flag-gb.png" alt="EN">
-            <span>Choose your language</span>
-          </div>
-        </div>
+        <p class="subtitle">WhatsApp</p>
       </div>
-
-      <p class="subtitle">WhatsApp</p>
     </div>
 
     <a class="btn" href="https://wa.me/351918373423?text=Ol%C3%A1%2C%20gostaria%20de%20mais%20informa%C3%A7%C3%B5es.">Português</a>
