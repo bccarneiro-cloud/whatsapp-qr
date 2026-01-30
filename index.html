@@ -1,71 +1,150 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt">
 <head>
-  <meta charset="UTF-8">
-  <title>Contact via WhatsApp</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
- <style>
-  body {
-    font-family: Arial, sans-serif;
-    background-image: url("background.png");
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    min-height: 100vh;
-    margin: 0;
+  <meta charset="UTF-8" />
+  <title>WhatsApp Contact</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
+  <style>
+    :root{
+      --wa: #25D366;
+      --glass: rgba(255,255,255,.38);
+      --glass-border: rgba(255,255,255,.35);
+      --shadow: 0 18px 50px rgba(0,0,0,.18);
+      --text: rgba(10,10,10,.88);
+    }
 
-   .box {
-    background: rgba(255, 255, 255, 0.88); /* fundo branco com transparência */
-    padding: 24px;
-    border-radius: 12px;
-    text-align: center;
-    width: 100%;
-    max-width: 360px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-  }
+    /* background */
+    body{
+      margin:0;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
 
-  .title-line {
-    font-weight: bold;
-    margin: 4px 0;
-  }
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--text);
 
-  a {
-    display: block;
-    margin: 10px 0;
-    padding: 14px;
-    text-decoration: none;
-    color: white;
-    background: #25D366;
-    border-radius: 6px;
-    font-weight: bold;
-  }
-</style>
+      /* troca aqui pelo nome exato do ficheiro */
+      background: url("background.png") center / cover no-repeat fixed;
+      position: relative;
+      padding: 28px 16px;
+    }
+
+    /* overlay muito leve só para garantir legibilidade sem "matar" a imagem */
+    body::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background: radial-gradient(
+        circle at 50% 40%,
+        rgba(255,255,255,.10),
+        rgba(255,255,255,.04) 35%,
+        rgba(0,0,0,.10) 100%
+      );
+      pointer-events:none;
+    }
+
+    .card{
+      position:relative;
+      width:min(420px, 92vw);
+
+      /* vidro */
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 18px 16px 16px;
+    }
+
+    .header{
+      text-align:center;
+      margin-bottom: 12px;
+    }
+
+    .title{
+      font-weight: 800;
+      letter-spacing: .2px;
+      font-size: 18px;
+      line-height: 1.25;
+      margin: 0 0 10px;
+    }
+
+    .title .line{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:center;
+      margin: 4px 0;
+    }
+
+    .subtitle{
+      font-size: 13px;
+      opacity: .78;
+      margin: 0;
+    }
+
+    .btn{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+
+      margin: 10px 0;
+      padding: 14px 14px;
+
+      border-radius: 14px;
+      text-decoration:none;
+      font-weight: 800;
+
+      /* botão mais premium e leve (não “tapa” tanto o background) */
+      background: rgba(37, 211, 102, .88);
+      border: 1px solid rgba(255,255,255,.35);
+      color: white;
+
+      box-shadow: 0 10px 22px rgba(37, 211, 102, .22);
+      transition: transform .08s ease, filter .12s ease, background .12s ease;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn:hover{ filter: brightness(1.03); }
+    .btn:active{ transform: scale(.985); }
+
+    .footer-note{
+      text-align:center;
+      font-size: 12px;
+      opacity: .70;
+      margin-top: 10px;
+    }
+
+    /* melhora em ecrãs muito pequenos */
+    @media (max-width: 360px){
+      .title{ font-size: 16px; }
+      .btn{ padding: 13px 12px; border-radius: 12px; }
+    }
+  </style>
 </head>
+
 <body>
-  <div class="box">
-    <div class="title-line">🇵🇹 Escolhe o teu idioma</div>
-    <div class="title-line">🇪🇸 Elige tu idioma</div>
-    <div class="title-line">🇬🇧 Choose your language</div>
+  <div class="card">
+    <div class="header">
+      <div class="title">
+        <div class="line">🇵🇹 <span>Escolhe o teu idioma</span></div>
+        <div class="line">🇪🇸 <span>Elige tu idioma</span></div>
+        <div class="line">🇬🇧 <span>Choose your language</span></div>
+      </div>
+      <p class="subtitle">WhatsApp</p>
+    </div>
 
-    <div class="subtitle">WhatsApp</div>
+    <a class="btn" href="https://wa.me/351918373423?text=Ol%C3%A1%2C%20gostaria%20de%20mais%20informa%C3%A7%C3%B5es.">🇵🇹 Português</a>
+    <a class="btn" href="https://wa.me/351918373423?text=Hola%2C%20me%20gustar%C3%ADa%20recibir%20m%C3%A1s%20informaci%C3%B3n.">🇪🇸 Español</a>
+    <a class="btn" href="https://wa.me/351918373423?text=Hello%2C%20I%20would%20like%20more%20information.">🇬🇧 English</a>
 
-    <a href="https://wa.me/351918373423?text=Ol%C3%A1%2C%20gostaria%20de%20mais%20informa%C3%A7%C3%B5es.">
-      🇵🇹 Português
-    </a>
-
-    <a href="https://wa.me/351918373423?text=Hola%2C%20me%20gustar%C3%ADa%20recibir%20m%C3%A1s%20informaci%C3%B3n.">
-      🇪🇸 Español
-    </a>
-
-    <a href="https://wa.me/351918373423?text=Hello%2C%20I%20would%20like%20more%20information.">
-      🇬🇧 English
-    </a>
+    <div class="footer-note">Tap to open WhatsApp</div>
   </div>
 </body>
 </html>
-
