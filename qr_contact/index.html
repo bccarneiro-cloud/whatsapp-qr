@@ -59,7 +59,7 @@
     .card{
       position:relative;
       width:min(420px, 92vw);
-      padding: 14px 14px 14px;
+      padding: 12px 14px 14px;
 
       background: var(--glass);
       border: 1px solid var(--glass-border);
@@ -71,47 +71,14 @@
       margin-bottom: 6px;
     }
 
-    .header{
-      text-align:center;
-      margin-bottom: 10px;
-    }
-
-    /* 3 línguas lado a lado */
-    .lang-row{
-      display:grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 10px;
-      align-items:center;
-      justify-items:center;
-
-      font-weight: 800;
-      font-size: 13px;     /* mais pequeno */
-      line-height: 1.15;
-      margin-bottom: 6px;
-    }
-
-    .lang-row .item{
-      display:flex;
-      gap:6px;
-      align-items:center;
-      justify-content:center;
-      text-align:center;
-      white-space: nowrap;
-    }
-
-    .subtitle{
-      font-size: 12px;
-      opacity: .78;
-      margin: 0;
-    }
-
+    /* Instagram bar no topo */
     .btn{
       display:flex;
       align-items:center;
       justify-content:center;
       gap:10px;
 
-      margin: 8px 0;
+      margin: 10px 0;
       padding: 12px 12px;
 
       border-radius: 12px;
@@ -131,15 +98,14 @@
     .btn:active{ transform: scale(.985); }
     .btn:hover{ filter: brightness(1.03); }
 
-    /* Botão Instagram (mesmo estilo, mas mais “leve” e com GIF a rodar) */
     .btn-instagram{
+      margin-top: 0;        /* topo */
+      margin-bottom: 10px;  /* separação do header */
+
       background: rgba(255,255,255,.70);
       color: rgba(10,10,10,.92);
       border: 1px solid rgba(255,255,255,.55);
       box-shadow: 0 10px 22px rgba(0,0,0,.10);
-      padding: 10px 12px;           /* ligeiramente mais pequeno */
-      margin-top: 6px;
-      margin-bottom: 10px;          /* espaço antes dos botões de língua */
     }
 
     .ig-icon{
@@ -147,7 +113,7 @@
       height: 22px;
       object-fit: contain;
       border-radius: 6px;
-      animation: igspin 2.8s linear infinite; /* GIF a “girar” */
+      animation: igspin 2.8s linear infinite;
     }
 
     @keyframes igspin{
@@ -155,11 +121,46 @@
       to   { transform: rotate(360deg); }
     }
 
-    /* Ajuste em ecrãs muito pequenos */
-    @media (max-width: 360px){
-      .lang-row{ font-size: 12px; gap: 8px; }
-      .btn{ padding: 11px 11px; border-radius: 11px; }
-      .ig-icon{ width: 20px; height: 20px; }
+    /* Header com frases completas e SEM cortar */
+    .header{
+      text-align:center;
+      margin-bottom: 10px;
+    }
+
+    .lang-row{
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      align-items:start;
+      justify-items:center;
+      margin-bottom: 6px;
+    }
+
+    .lang-row .item{
+      display:flex;
+      gap:6px;
+      align-items:flex-start;
+      justify-content:center;
+      text-align:center;
+
+      font-weight: 800;
+      font-size: 12px;          /* pequeno */
+      line-height: 1.15;
+      white-space: normal;       /* deixa quebrar */
+      word-break: break-word;    /* evita cortar feio */
+    }
+
+    .subtitle{
+      font-size: 12px;
+      opacity: .78;
+      margin: 0;
+    }
+
+    /* Ajustes pequenos em ecrãs estreitos (iPhone) */
+    @media (max-width: 380px){
+      .lang-row{ gap: 8px; }
+      .lang-row .item{ font-size: 11px; }
+      .btn{ padding: 11px 11px; }
     }
 
     /* Landscape: se faltar altura, recentra */
@@ -172,16 +173,8 @@
 
 <body>
   <div class="card">
-    <div class="header">
-      <div class="lang-row">
-        <div class="item">🇵🇹 <span>Escolhe</span></div>
-        <div class="item">🇪🇸 <span>Elige</span></div>
-        <div class="item">🇬🇧 <span>Choose</span></div>
-      </div>
-      <p class="subtitle">WhatsApp</p>
-    </div>
 
-    <!-- Botão Instagram por cima dos botões de língua -->
+    <!-- Instagram no topo -->
     <a class="btn btn-instagram"
        href="https://www.instagram.com/little.things.artdecor"
        target="_blank"
@@ -190,10 +183,21 @@
       <span>Instagram</span>
     </a>
 
+    <!-- Header com frases completas -->
+    <div class="header">
+      <div class="lang-row">
+        <div class="item">🇵🇹 <span>Escolhe o teu idioma</span></div>
+        <div class="item">🇪🇸 <span>Elige tu idioma</span></div>
+        <div class="item">🇬🇧 <span>Choose your language</span></div>
+      </div>
+      <p class="subtitle">WhatsApp</p>
+    </div>
+
     <!-- Botões de língua -->
     <a class="btn" href="https://wa.me/351918373423?text=Ol%C3%A1%2C%20gostaria%20de%20mais%20informa%C3%A7%C3%B5es.">🇵🇹 Português</a>
     <a class="btn" href="https://wa.me/351918373423?text=Hola%2C%20me%20gustar%C3%ADa%20recibir%20m%C3%A1s%20informaci%C3%B3n.">🇪🇸 Español</a>
     <a class="btn" href="https://wa.me/351918373423?text=Hello%2C%20I%20would%20like%20more%20information.">🇬🇧 English</a>
+
   </div>
 </body>
 </html>
