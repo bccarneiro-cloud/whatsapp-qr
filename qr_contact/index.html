@@ -15,7 +15,7 @@
       --shadow: 0 18px 50px rgba(0,0,0,.18);
       --text: rgba(10,10,10,.90);
 
-      /* overlay leve (não “apaga” fundo) */
+      /* overlay leve (não apaga fundo) */
       --overlay1: rgba(255,255,255,.04);
       --overlay2: rgba(0,0,0,.10);
     }
@@ -38,7 +38,7 @@
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       color: var(--text);
 
-      /* mobile: cover é perfeito */
+      /* mobile */
       background: url("./background.png") center / cover no-repeat;
 
       padding-top:    calc(10px + env(safe-area-inset-top));
@@ -133,27 +133,12 @@
 
     /* ---------- HEADER ---------- */
 
-    /* ✅ Este wrapper garante que o header fica alinhado ao centro
-       com a mesma “largura visual” dos botões */
     .header{
-      margin: 0 auto 10px;
-      width: 100%;
-      max-width: 100%;
-      padding: 0 2px; /* micro ajuste para bater com os botões */
       text-align:center;
-    }
-
-    /* ✅ “inner” centra o grid e evita que pareça puxado à esquerda */
-    .header-inner{
-      width: 100%;
-      margin: 0 auto;
-      display:flex;
-      flex-direction: column;
-      align-items: center;
+      margin-bottom: 10px;
     }
 
     .lang-row{
-      width: 100%;
       display:grid;
       grid-template-columns: 1fr 1fr 1fr;
       gap: 10px;
@@ -166,11 +151,11 @@
       justify-content:center;
     }
 
+    /* 🔧 ajuste: remover largura extra do texto e colar bandeira */
     .lang-row .wrap{
-      display:flex;
+      display:inline-flex;          /* <- importante */
       align-items:center;
       gap:6px;
-      max-width: 100%;
     }
 
     .lang-row img{
@@ -182,25 +167,27 @@
     }
 
     .lang-row .wrap span{
+      display:inline-block;         /* <- importante */
       font-weight: 800;
       font-size: 12px;
       line-height: 1.15;
       color: rgba(20,20,20,.90);
       text-align:center;
-      word-break: break-word;
+      white-space: normal;
+      max-width: 120px;             /* controla o wrap de forma consistente */
     }
 
+    /* ✅ WhatsApp centrado (como estava) */
     .subtitle{
-      width: 100%;
-      text-align: left; /* WhatsApp igual ao alinhamento dos botões */
       font-size: 12px;
       opacity: .78;
       margin: 0;
+      text-align:center;
     }
 
     @media (max-width: 380px){
       .lang-row{ gap: 8px; }
-      .lang-row .wrap span{ font-size: 11px; }
+      .lang-row .wrap span{ font-size: 11px; max-width: 105px; }
       .btn{ padding: 11px 11px; }
       .ig-icon{ width: 20px; height: 20px; }
     }
@@ -210,13 +197,12 @@
       body{
         justify-content: center;
 
-        /* ✅ desktop: SEM esticar */
+        /* ✅ sem esticar */
         background:
           radial-gradient(circle at center, rgba(255,255,255,.25), rgba(255,255,255,.08)),
           url("./background.png") center / contain no-repeat;
       }
 
-      /* manter glass */
       :root{
         --glass: rgba(255,255,255,.22);
         --glass-border: rgba(255,255,255,.32);
@@ -227,10 +213,14 @@
       .card{
         width: 520px;
         padding: 16px 16px 16px;
+
+        /* ✅ baixar a box no desktop */
+        transform: translateY(46px);
       }
 
       .lang-row .wrap span{
         font-size: 13px;
+        max-width: 150px;
       }
 
       .btn{
@@ -250,9 +240,6 @@
       .lang-row img{
         width: 20px;
       }
-
-      /* No desktop, dá um bocadinho mais de respiro */
-      .header{ padding: 0 6px; }
     }
 
     @media (orientation: landscape) and (max-height: 430px){
@@ -273,32 +260,30 @@
     </a>
 
     <div class="header">
-      <div class="header-inner">
-        <div class="lang-row">
-          <div class="item">
-            <div class="wrap">
-              <img src="./flag-pt.png" alt="PT">
-              <span>Escolhe o teu idioma</span>
-            </div>
-          </div>
-
-          <div class="item">
-            <div class="wrap">
-              <img src="./flag-es.png" alt="ES">
-              <span>Elige tu idioma</span>
-            </div>
-          </div>
-
-          <div class="item">
-            <div class="wrap">
-              <img src="./flag-gb.png" alt="EN">
-              <span>Choose your language</span>
-            </div>
+      <div class="lang-row">
+        <div class="item">
+          <div class="wrap">
+            <img src="./flag-pt.png" alt="PT">
+            <span>Escolhe o teu idioma</span>
           </div>
         </div>
 
-        <p class="subtitle">WhatsApp</p>
+        <div class="item">
+          <div class="wrap">
+            <img src="./flag-es.png" alt="ES">
+            <span>Elige tu idioma</span>
+          </div>
+        </div>
+
+        <div class="item">
+          <div class="wrap">
+            <img src="./flag-gb.png" alt="EN">
+            <span>Choose your language</span>
+          </div>
+        </div>
       </div>
+
+      <p class="subtitle">WhatsApp</p>
     </div>
 
     <a class="btn" href="https://wa.me/351918373423?text=Ol%C3%A1%2C%20gostaria%20de%20mais%20informa%C3%A7%C3%B5es.">Português</a>
