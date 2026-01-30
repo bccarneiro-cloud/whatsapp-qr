@@ -4,22 +4,21 @@
   <meta charset="UTF-8" />
   <title>Little Things</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
   <style>
     html, body {
       margin: 0;
-      padding: 0;
-      width: 100%;
       height: 100%;
-      overflow: hidden; /* sem scroll */
+      overflow: hidden;
+      background: #ffffff; /* cor de fundo caso sobrem margens */
     }
 
     body {
-      background: url("background.png") center / cover no-repeat fixed;
+      background-image: url("background.png");
+      background-repeat: no-repeat;
+      background-position: center top;   /* laço no topo */
+      background-size: contain;          /* 👈 NÃO estica */
     }
   </style>
 </head>
-
-<body>
-</body>
+<body></body>
 </html>
