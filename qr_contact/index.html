@@ -9,13 +9,13 @@
     :root{
       --wa: #25D366;
 
-      /* glass (mobile + desktop) */
+      /* glass */
       --glass: rgba(255,255,255,.30);
       --glass-border: rgba(255,255,255,.35);
       --shadow: 0 18px 50px rgba(0,0,0,.18);
       --text: rgba(10,10,10,.90);
 
-      /* overlay (não “apagar” o background) */
+      /* overlay (não apagar fundo) */
       --overlay1: rgba(255,255,255,.04);
       --overlay2: rgba(0,0,0,.10);
     }
@@ -32,7 +32,7 @@
 
       display:flex;
       flex-direction: column;
-      justify-content: flex-end; /* mobile: em baixo */
+      justify-content: flex-end;
       align-items: center;
 
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
@@ -49,7 +49,6 @@
       overflow-x: hidden;
     }
 
-    /* overlay MUITO suave para não “lavar” o fundo */
     body::before{
       content:"";
       position:absolute;
@@ -71,7 +70,6 @@
       background: var(--glass);
       border: 1px solid var(--glass-border);
 
-      /* glass blur */
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
 
@@ -108,7 +106,6 @@
     .btn:hover{ filter: brightness(1.03); }
     .btn:active{ transform: scale(.985); }
 
-    /* Instagram no topo (estilo botão) */
     .btn-instagram{
       margin-top: 0;
       margin-bottom: 12px;
@@ -136,7 +133,7 @@
     /* ---------- HEADER ---------- */
 
     .header{
-      text-align:center; /* mantém como estava */
+      text-align:center;
       margin-bottom: 10px;
     }
 
@@ -144,32 +141,22 @@
       display:grid;
       grid-template-columns: 1fr 1fr 1fr;
       gap: 10px;
-      align-items:start;
+      align-items:center;
       margin-bottom: 6px;
     }
 
-    /* ✅ frases centradas (como antes) */
+    /* cada coluna centrada */
     .lang-row .item{
       display:flex;
-      justify-content:center; /* centro da “coluna” */
-      align-items:flex-start; /* bandeira alinha com 1ª linha */
+      justify-content:center;
     }
 
-    /* ✅ bandeira no início do texto (não no meio) */
-    .lang-row .item .wrap{
+    /* ✅ bandeira colada ao texto em TODAS (incluindo UK) */
+    .lang-row .wrap{
       display:flex;
-      align-items:flex-start;
+      align-items:center; /* <-- AQUI está a correção principal */
       gap:6px;
       max-width: 100%;
-    }
-
-    .lang-row .item span{
-      font-weight: 800;
-      font-size: 12px;
-      line-height: 1.15;
-      color: rgba(20,20,20,.90);
-      text-align:center;       /* texto centrado */
-      word-break: break-word;  /* se precisar de quebrar */
     }
 
     .lang-row img{
@@ -178,7 +165,15 @@
       flex-shrink: 0;
       border-radius: 3px;
       box-shadow: 0 2px 6px rgba(0,0,0,.12);
-      margin-top: 1px; /* micro alinhamento */
+    }
+
+    .lang-row .wrap span{
+      font-weight: 800;
+      font-size: 12px;
+      line-height: 1.15;
+      color: rgba(20,20,20,.90);
+      text-align:center;
+      word-break: break-word;
     }
 
     .subtitle{
@@ -188,26 +183,19 @@
       text-align:center;
     }
 
-    /* ---------- MOBILE FINO ---------- */
-
     @media (max-width: 380px){
       .lang-row{ gap: 8px; }
-      .lang-row .item span{ font-size: 11px; }
+      .lang-row .wrap span{ font-size: 11px; }
       .btn{ padding: 11px 11px; }
       .ig-icon{ width: 20px; height: 20px; }
     }
 
-    /* ---------- DESKTOP ---------- */
-
     @media (min-width: 900px){
       body{
         justify-content: center;
-
-        /* ✅ Não “apagar” o background: manter cover (igual mobile) */
         background: url("./background.png") center / cover no-repeat;
       }
 
-      /* ✅ Mantém glass no desktop (mais “premium”) */
       :root{
         --glass: rgba(255,255,255,.22);
         --glass-border: rgba(255,255,255,.32);
@@ -220,7 +208,7 @@
         padding: 16px 16px 16px;
       }
 
-      .lang-row .item span{
+      .lang-row .wrap span{
         font-size: 13px;
       }
 
@@ -243,8 +231,6 @@
       }
     }
 
-    /* ---------- LANDSCAPE BAIXO ---------- */
-
     @media (orientation: landscape) and (max-height: 430px){
       body{ justify-content: center; }
       .card{ margin-bottom: 0; }
@@ -255,7 +241,6 @@
 <body>
   <div class="card">
 
-    <!-- Instagram -->
     <a class="btn btn-instagram"
        href="https://www.instagram.com/little.things.artdecor"
        target="_blank">
@@ -263,7 +248,6 @@
       <span>Instagram</span>
     </a>
 
-    <!-- Header -->
     <div class="header">
       <div class="lang-row">
         <div class="item">
@@ -272,12 +256,14 @@
             <span>Escolhe o teu idioma</span>
           </div>
         </div>
+
         <div class="item">
           <div class="wrap">
             <img src="./flag-es.png" alt="ES">
             <span>Elige tu idioma</span>
           </div>
         </div>
+
         <div class="item">
           <div class="wrap">
             <img src="./flag-gb.png" alt="EN">
@@ -289,7 +275,6 @@
       <p class="subtitle">WhatsApp</p>
     </div>
 
-    <!-- Línguas -->
     <a class="btn" href="https://wa.me/351918373423?text=Ol%C3%A1%2C%20gostaria%20de%20mais%20informa%C3%A7%C3%B5es.">Português</a>
     <a class="btn" href="https://wa.me/351918373423?text=Hola%2C%20me%20gustar%C3%ADa%20recibir%20m%C3%A1s%20informaci%C3%B3n.">Español</a>
     <a class="btn" href="https://wa.me/351918373423?text=Hello%2C%20I%20would%20like%20more%20information.">English</a>
