@@ -8,10 +8,16 @@
   <style>
     :root{
       --wa: #25D366;
-      --glass: rgba(255,255,255,.34);
+
+      /* glass (mobile + desktop) */
+      --glass: rgba(255,255,255,.30);
       --glass-border: rgba(255,255,255,.35);
       --shadow: 0 18px 50px rgba(0,0,0,.18);
       --text: rgba(10,10,10,.90);
+
+      /* overlay (não “apagar” o background) */
+      --overlay1: rgba(255,255,255,.04);
+      --overlay2: rgba(0,0,0,.10);
     }
 
     html{ height: -webkit-fill-available; }
@@ -43,16 +49,16 @@
       overflow-x: hidden;
     }
 
-    /* overlay suave */
+    /* overlay MUITO suave para não “lavar” o fundo */
     body::before{
       content:"";
       position:absolute;
       inset:0;
       background: radial-gradient(
         circle at 50% 40%,
-        rgba(255,255,255,.06),
-        rgba(255,255,255,.03) 35%,
-        rgba(0,0,0,.10) 100%
+        var(--overlay1),
+        rgba(255,255,255,.02) 40%,
+        var(--overlay2) 100%
       );
       pointer-events:none;
     }
@@ -64,8 +70,10 @@
 
       background: var(--glass);
       border: 1px solid var(--glass-border);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+
+      /* glass blur */
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
 
       border-radius: 18px;
       box-shadow: var(--shadow);
@@ -100,12 +108,12 @@
     .btn:hover{ filter: brightness(1.03); }
     .btn:active{ transform: scale(.985); }
 
-    /* Instagram no topo */
+    /* Instagram no topo (estilo botão) */
     .btn-instagram{
       margin-top: 0;
       margin-bottom: 12px;
 
-      background: rgba(255,255,255,.70);
+      background: rgba(255,255,255,.50);
       color: rgba(10,10,10,.92);
       border: 1px solid rgba(255,255,255,.55);
       box-shadow: 0 10px 22px rgba(0,0,0,.10);
@@ -128,32 +136,40 @@
     /* ---------- HEADER ---------- */
 
     .header{
-      text-align:left;
+      text-align:center; /* mantém como estava */
       margin-bottom: 10px;
     }
 
     .lang-row{
-      display:flex;
-      justify-content: space-between;
-      align-items:flex-start;
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr;
       gap: 10px;
+      align-items:start;
       margin-bottom: 6px;
     }
 
+    /* ✅ frases centradas (como antes) */
     .lang-row .item{
       display:flex;
-      align-items:flex-start;      /* topo */
-      gap:6px;
+      justify-content:center; /* centro da “coluna” */
+      align-items:flex-start; /* bandeira alinha com 1ª linha */
+    }
 
+    /* ✅ bandeira no início do texto (não no meio) */
+    .lang-row .item .wrap{
+      display:flex;
+      align-items:flex-start;
+      gap:6px;
+      max-width: 100%;
+    }
+
+    .lang-row .item span{
       font-weight: 800;
       font-size: 12px;
       line-height: 1.15;
-
       color: rgba(20,20,20,.90);
-
-      flex: 1;
-      justify-content: flex-start; /* esquerda */
-      text-align: left;
+      text-align:center;       /* texto centrado */
+      word-break: break-word;  /* se precisar de quebrar */
     }
 
     .lang-row img{
@@ -162,19 +178,21 @@
       flex-shrink: 0;
       border-radius: 3px;
       box-shadow: 0 2px 6px rgba(0,0,0,.12);
+      margin-top: 1px; /* micro alinhamento */
     }
 
     .subtitle{
       font-size: 12px;
       opacity: .78;
       margin: 0;
+      text-align:center;
     }
 
     /* ---------- MOBILE FINO ---------- */
 
     @media (max-width: 380px){
       .lang-row{ gap: 8px; }
-      .lang-row .item{ font-size: 11px; }
+      .lang-row .item span{ font-size: 11px; }
       .btn{ padding: 11px 11px; }
       .ig-icon{ width: 20px; height: 20px; }
     }
@@ -185,14 +203,16 @@
       body{
         justify-content: center;
 
-        /* background sem esticar */
-        background:
-          radial-gradient(
-            circle at center,
-            rgba(255,255,255,.75),
-            rgba(255,255,255,.9)
-          ),
-          url("./background.png") center / contain no-repeat;
+        /* ✅ Não “apagar” o background: manter cover (igual mobile) */
+        background: url("./background.png") center / cover no-repeat;
+      }
+
+      /* ✅ Mantém glass no desktop (mais “premium”) */
+      :root{
+        --glass: rgba(255,255,255,.22);
+        --glass-border: rgba(255,255,255,.32);
+        --overlay1: rgba(255,255,255,.02);
+        --overlay2: rgba(0,0,0,.10);
       }
 
       .card{
@@ -200,7 +220,7 @@
         padding: 16px 16px 16px;
       }
 
-      .lang-row .item{
+      .lang-row .item span{
         font-size: 13px;
       }
 
@@ -247,16 +267,22 @@
     <div class="header">
       <div class="lang-row">
         <div class="item">
-          <img src="./flag-pt.png" alt="PT">
-          <span>Escolhe o teu idioma</span>
+          <div class="wrap">
+            <img src="./flag-pt.png" alt="PT">
+            <span>Escolhe o teu idioma</span>
+          </div>
         </div>
         <div class="item">
-          <img src="./flag-es.png" alt="ES">
-          <span>Elige tu idioma</span>
+          <div class="wrap">
+            <img src="./flag-es.png" alt="ES">
+            <span>Elige tu idioma</span>
+          </div>
         </div>
         <div class="item">
-          <img src="./flag-gb.png" alt="EN">
-          <span>Choose your language</span>
+          <div class="wrap">
+            <img src="./flag-gb.png" alt="EN">
+            <span>Choose your language</span>
+          </div>
         </div>
       </div>
 
