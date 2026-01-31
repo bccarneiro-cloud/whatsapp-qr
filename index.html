@@ -3,245 +3,239 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Little Things • Art & Decor</title>
+  <title>Little Things</title>
 
   <style>
     :root{
-      --text: rgba(18,18,18,.92);
-      --glass: rgba(255,255,255,.22);
-      --glassBorder: rgba(255,255,255,.35);
-      --shadow: 0 18px 55px rgba(0,0,0,.20);
-      --overlayTop: rgba(255,255,255,.06);
-      --overlayBottom: rgba(0,0,0,.18);
+      --glass: rgba(255,255,255,.10);
+      --glassBorder: rgba(255,255,255,.18);
+      --shadow: 0 22px 70px rgba(0,0,0,.28);
+      --shadow2: 0 14px 40px rgba(0,0,0,.22);
+      --text: rgba(20,20,20,.92);
+      --glow: rgba(255, 80, 170, .22);
+      --glow2: rgba(60, 210, 255, .18);
     }
 
-    html { height: -webkit-fill-available; }
+    html{ height: -webkit-fill-available; }
     body{
       margin:0;
       min-height: 100vh;
       min-height: 100svh;
       min-height: 100dvh;
       min-height: -webkit-fill-available;
+      overflow:hidden;
+      background:#fff;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       color: var(--text);
-      background: #fff;
-      overflow-x:hidden;
+      position: relative;
     }
 
-    /* ----- BG: slideshow fotos ----- */
-    .hero{
+    /* Fundo dinâmico suave */
+    .bg{
+      position: fixed;
+      inset: 0;
+      z-index: -6;
+      background:
+        radial-gradient(1200px 600px at 18% 22%, rgba(255,110,180,.16), transparent 60%),
+        radial-gradient(900px 520px at 78% 30%, rgba(90,220,255,.14), transparent 58%),
+        radial-gradient(900px 700px at 50% 85%, rgba(255,255,255,.24), transparent 60%),
+        #ffffff;
+    }
+
+    /* Marca: background.png como watermark (não estica feio no desktop) */
+    .brand{
       position: fixed;
       inset: 0;
       z-index: -5;
-      overflow: hidden;
-      background: #fff;
-    }
-
-    .hero .slide{
-      position:absolute;
-      inset:0;
-      background-position:center;
-      background-size: cover;
-      background-repeat:no-repeat;
-      opacity:0;
-      transform: scale(1.04);
-      transition: opacity 1.35s ease;
-      will-change: opacity, transform;
-      filter: saturate(1.05) contrast(1.02);
-    }
-    .hero .slide.active{ opacity:1; }
-
-    /* ----- BG: marca (background.png) sempre presente ----- */
-    .brand{
-      position: fixed;
-      inset:0;
-      z-index:-4;
-      background: url("./background.png") center / cover no-repeat;
-      opacity:.55;
+      background: url("./background.png") center/cover no-repeat;
+      opacity: .55;
       pointer-events:none;
+      filter: saturate(1.02);
     }
-
-    /* no desktop evita “esticado” do logo */
     @media (min-width: 980px){
       .brand{
-        background: url("./background.png") center / contain no-repeat;
-        opacity:.55;
+        background: url("./background.png") center/contain no-repeat;
+        opacity: .55;
       }
     }
 
-    /* overlay para manter legível sem apagar o logo */
+    /* Glass overlay p/ “futurista” mas sem apagar o laço */
     .overlay{
       position: fixed;
       inset:0;
-      z-index:-3;
-      background: radial-gradient(
-        circle at 50% 30%,
-        var(--overlayTop),
-        rgba(255,255,255,.05) 48%,
-        var(--overlayBottom) 100%
-      );
+      z-index:-4;
+      background: radial-gradient(circle at 50% 35%, rgba(255,255,255,.06), rgba(0,0,0,.12));
       pointer-events:none;
     }
 
-    /* ----- Top bar ----- */
-    header{
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      padding: calc(14px + env(safe-area-inset-top)) 14px 10px;
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      background: linear-gradient(to bottom, rgba(255,255,255,.40), rgba(255,255,255,.10));
-      border-bottom: 1px solid rgba(255,255,255,.25);
-    }
-
-    .topbar{
-      width: min(1100px, 96vw);
-      margin: 0 auto;
+    /* Container geral (sem header) */
+    .stage{
+      position: relative;
+      width: 100%;
+      height: 100%;
+      padding: calc(18px + env(safe-area-inset-top)) 16px calc(18px + env(safe-area-inset-bottom));
+      box-sizing: border-box;
       display:flex;
-      align-items:center;
-      justify-content: space-between;
-      gap: 12px;
+      align-items:flex-end;
+      justify-content:center;
     }
 
-    .brandName{
+    /* “Plataforma” onde as cards flutuam */
+    .deck{
+      width: min(1200px, 96vw);
+      height: min(820px, 92svh);
+      position: relative;
+
+      border-radius: 26px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.14);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+
+      overflow:hidden;
+    }
+
+    /* brilho subtil */
+    .deck::before{
+      content:"";
+      position:absolute;
+      inset:-40px;
+      background:
+        radial-gradient(500px 220px at 18% 20%, var(--glow), transparent 65%),
+        radial-gradient(520px 240px at 84% 30%, var(--glow2), transparent 65%);
+      filter: blur(6px);
+      opacity:.85;
+      pointer-events:none;
+    }
+
+    /* titulo minimal */
+    .title{
+      position:absolute;
+      left: 18px;
+      right: 18px;
+      top: 14px;
+      display:flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      z-index: 3;
+      pointer-events:none;
+    }
+
+    .title .left{
       display:flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 3px;
     }
 
-    .brandName h1{
+    .title h1{
       margin:0;
       font-size: 18px;
       letter-spacing: .2px;
       font-weight: 900;
+      text-shadow: 0 8px 20px rgba(0,0,0,.08);
     }
-
-    .brandName p{
+    .title p{
       margin:0;
       font-size: 12px;
-      opacity: .78;
+      opacity:.80;
     }
 
-    .actions{
-      display:flex;
-      align-items:center;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content:flex-end;
-    }
-
-    .btn{
+    /* botão discreto (não é a “caixa” que tinhas) */
+    .qrLink{
+      pointer-events:auto;
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      gap: 10px;
       padding: 10px 12px;
-      border-radius: 12px;
+      border-radius: 999px;
       text-decoration:none;
       font-weight: 900;
-      border: 1px solid rgba(255,255,255,.40);
-      box-shadow: 0 10px 22px rgba(0,0,0,.10);
-      background: rgba(255,255,255,.45);
+      font-size: 12px;
       color: rgba(10,10,10,.92);
-      transition: transform .08s ease, filter .12s ease;
-      -webkit-tap-highlight-color: transparent;
-      user-select:none;
-      white-space: nowrap;
-    }
-    .btn:hover{ filter: brightness(1.03); }
-    .btn:active{ transform: scale(.985); }
-
-    .btn-primary{
-      background: rgba(37, 211, 102, .88);
-      color:#fff;
-      box-shadow: 0 10px 22px rgba(37, 211, 102, .20);
+      background: rgba(255,255,255,.35);
+      border: 1px solid rgba(255,255,255,.35);
+      box-shadow: var(--shadow2);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
     }
 
-    .ig-icon{
-      width: 18px;
-      height: 18px;
-      object-fit: contain;
-      border-radius: 5px;
-      animation: igspin 2.8s linear infinite;
-    }
-    @keyframes igspin{ from{transform:rotate(0)} to{transform:rotate(360deg)} }
-
-    /* ----- Conteúdo ----- */
-    main{
-      padding: 16px 14px calc(24px + env(safe-area-inset-bottom));
-    }
-
-    .wrap{
-      width: min(1100px, 96vw);
-      margin: 0 auto;
-      display:flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-
-    .heroCard{
-      background: var(--glass);
-      border: 1px solid var(--glassBorder);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border-radius: 18px;
-      box-shadow: var(--shadow);
-      padding: 16px;
-    }
-
-    .heroCard h2{
-      margin: 0 0 6px;
-      font-size: 22px;
-      font-weight: 950;
-    }
-
-    .heroCard p{
-      margin:0;
-      opacity:.82;
-      line-height: 1.35;
-      font-size: 14px;
-      max-width: 70ch;
-    }
-
-    /* ----- Galeria ----- */
+    /* Grid futurista */
     .grid{
+      position:absolute;
+      left: 14px;
+      right: 14px;
+      top: 64px;
+      bottom: 14px;
       display:grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 10px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      z-index: 2;
     }
 
-    .tile{
-      border-radius: 16px;
+    @media (max-width: 980px){
+      .grid{ grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 520px){
+      .grid{ grid-template-columns: repeat(2, 1fr); }
+      .title{ top: 10px; }
+      .grid{ top: 58px; }
+    }
+
+    .card{
+      position: relative;
+      border-radius: 18px;
       overflow:hidden;
-      border: 1px solid rgba(255,255,255,.30);
-      background: rgba(255,255,255,.18);
-      box-shadow: 0 12px 26px rgba(0,0,0,.12);
-      aspect-ratio: 1 / 1;
-      position:relative;
-      cursor:pointer;
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow: var(--shadow2);
+      transform: translate3d(0,0,0);
+      will-change: transform, filter;
+      cursor: pointer;
     }
 
-    .tile img{
+    /* “futuristic glass highlight” */
+    .card::after{
+      content:"";
+      position:absolute;
+      inset:-30%;
+      background: linear-gradient(135deg, rgba(255,255,255,.45), transparent 55%);
+      transform: translateX(-40%) rotate(8deg);
+      opacity: .20;
+      pointer-events:none;
+    }
+
+    .card img{
       width:100%;
       height:100%;
       object-fit: cover;
       display:block;
-      transform: scale(1.02);
-      transition: transform .25s ease, filter .25s ease;
-      filter: saturate(1.04);
+      transform: scale(1.05);
+      filter: saturate(1.06) contrast(1.03);
+      transition: transform .35s ease, filter .35s ease;
     }
 
-    .tile:hover img{
-      transform: scale(1.06);
-      filter: saturate(1.12);
+    .card:hover img{
+      transform: scale(1.10);
+      filter: saturate(1.15) contrast(1.06);
     }
 
-    /* ----- Modal ----- */
+    /* movimento contínuo (cada card tem variações via CSS vars) */
+    .floaty{
+      animation: drift var(--dur, 7.5s) ease-in-out infinite;
+    }
+    @keyframes drift{
+      0%   { transform: translate3d(calc(var(--x,0px) * -1), calc(var(--y,0px) * -1), 0) rotate(calc(var(--r, 0deg) * -1)); }
+      50%  { transform: translate3d(var(--x,0px), var(--y,0px), 0) rotate(var(--r,0deg)); }
+      100% { transform: translate3d(calc(var(--x,0px) * -1), calc(var(--y,0px) * -1), 0) rotate(calc(var(--r, 0deg) * -1)); }
+    }
+
+    /* Modal */
     .modal{
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,.55);
+      background: rgba(0,0,0,.58);
       display:none;
       align-items:center;
       justify-content:center;
@@ -249,6 +243,7 @@
       padding: 16px;
     }
     .modal.open{ display:flex; }
+
     .modalBox{
       width: min(980px, 96vw);
       border-radius: 18px;
@@ -276,62 +271,29 @@
       height:auto;
       display:block;
     }
-
-    /* ----- Responsivo ----- */
-    @media (max-width: 980px){
-      .grid{ grid-template-columns: repeat(3, 1fr); }
-    }
-    @media (max-width: 520px){
-      .grid{ grid-template-columns: repeat(2, 1fr); }
-      .brandName h1{ font-size: 16px; }
-    }
   </style>
 </head>
 
 <body>
-
-  <!-- Background slideshow -->
-  <div class="hero" aria-hidden="true">
-    <div class="slide active" id="slideA"></div>
-    <div class="slide" id="slideB"></div>
-  </div>
-
-  <!-- Brand watermark -->
+  <div class="bg" aria-hidden="true"></div>
   <div class="brand" aria-hidden="true"></div>
-
-  <!-- Overlay -->
   <div class="overlay" aria-hidden="true"></div>
 
-  <header>
-    <div class="topbar">
-      <div class="brandName">
-        <h1>Little Things</h1>
-        <p>Art & Decor • peças personalizadas</p>
-      </div>
+  <div class="stage">
+    <div class="deck" id="deck">
+      <div class="title">
+        <div class="left">
+          <h1>Little Things</h1>
+          <p>Art & Decor</p>
+        </div>
 
-      <div class="actions">
-        <a class="btn btn-primary" href="./qr_contact/" title="Abrir WhatsApp QR">WhatsApp QR</a>
-
-        <a class="btn" href="https://www.instagram.com/little.things.artdecor" target="_blank">
-          <img class="ig-icon" src="./qr_contact/instagram.gif" alt="Instagram">
-          Instagram
-        </a>
-      </div>
-    </div>
-  </header>
-
-  <main>
-    <div class="wrap">
-      <div class="heroCard">
-        <h2>Decoração com detalhe ✨</h2>
-        <p>
-          Explora alguns trabalhos recentes. Para encomendas ou informações, abre o WhatsApp QR (botão no topo).
-        </p>
+        <!-- link discreto para o teu WhatsApp QR (sem “caixa” grande no topo) -->
+        <a class="qrLink" href="./qr_contact/" title="Abrir WhatsApp QR">WhatsApp QR</a>
       </div>
 
       <div class="grid" id="grid"></div>
     </div>
-  </main>
+  </div>
 
   <!-- Modal -->
   <div class="modal" id="modal">
@@ -345,7 +307,7 @@
   </div>
 
   <script>
-    // ✅ 14 fotos (mete-as em /assets/ e troca nomes aqui se precisares)
+    // 14 fotos (em /assets/)
     const photos = [
       "./assets/photo01.jpg",
       "./assets/photo02.jpg",
@@ -363,21 +325,37 @@
       "./assets/photo14.jpg"
     ];
 
-    // ----- Grelha -----
     const grid = document.getElementById("grid");
+    const deck = document.getElementById("deck");
+
     const modal = document.getElementById("modal");
     const modalImg = document.getElementById("modalImg");
     const closeBtn = document.getElementById("closeBtn");
 
-    photos.forEach((src) => {
-      const tile = document.createElement("div");
-      tile.className = "tile";
-      tile.innerHTML = `<img src="${src}" alt="Work">`;
-      tile.addEventListener("click", () => {
+    // cria cards com variações de movimento
+    photos.forEach((src, i) => {
+      const card = document.createElement("div");
+      card.className = "card floaty";
+
+      // variações “futuristas” de movimento (px/deg/duração)
+      const x = 6 + (i % 5) * 2;            // 6..14
+      const y = 5 + ((i * 3) % 7);          // 5..11
+      const r = (-1 + (i % 3)) * 1.2;       // -1.2..+1.2
+      const dur = 6.5 + (i % 7) * 0.65;     // 6.5..11.0
+
+      card.style.setProperty("--x", x + "px");
+      card.style.setProperty("--y", y + "px");
+      card.style.setProperty("--r", r + "deg");
+      card.style.setProperty("--dur", dur + "s");
+
+      card.innerHTML = `<img src="${src}" alt="Work ${i+1}">`;
+
+      card.addEventListener("click", () => {
         modalImg.src = src;
         modal.classList.add("open");
       });
-      grid.appendChild(tile);
+
+      grid.appendChild(card);
     });
 
     closeBtn.addEventListener("click", () => modal.classList.remove("open"));
@@ -385,39 +363,44 @@
       if (e.target === modal) modal.classList.remove("open");
     });
 
-    // ----- Slideshow de fundo -----
-    const slideA = document.getElementById("slideA");
-    const slideB = document.getElementById("slideB");
+    // Parallax “futurista” (move tudo suavemente com o dedo/rato)
+    // Sem libraries, suave, funciona em mobile e desktop.
+    let targetX = 0, targetY = 0;
+    let curX = 0, curY = 0;
 
-    let idx = 0;
-    let showingA = true;
+    function setTargetFromEvent(clientX, clientY){
+      const rect = deck.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
 
-    function setBg(el, src){
-      el.style.backgroundImage = `url('${src}')`;
+      // range aproximado -1..1
+      targetX = (clientX - cx) / (rect.width / 2);
+      targetY = (clientY - cy) / (rect.height / 2);
+
+      // limita
+      targetX = Math.max(-1, Math.min(1, targetX));
+      targetY = Math.max(-1, Math.min(1, targetY));
     }
 
-    // preload
-    setBg(slideA, photos[0]);
-    setBg(slideB, photos[1 % photos.length]);
+    deck.addEventListener("mousemove", (e) => setTargetFromEvent(e.clientX, e.clientY), { passive:true });
+    deck.addEventListener("touchmove", (e) => {
+      if(!e.touches || !e.touches[0]) return;
+      setTargetFromEvent(e.touches[0].clientX, e.touches[0].clientY);
+    }, { passive:true });
 
-    const intervalMs = 5200;
+    function animate(){
+      // lerp para ficar “suave”
+      curX += (targetX - curX) * 0.06;
+      curY += (targetY - curY) * 0.06;
 
-    setInterval(() => {
-      idx = (idx + 1) % photos.length;
-      const next = photos[idx];
+      // aplica ao grid como um todo
+      const moveX = curX * 10; // px
+      const moveY = curY * 10; // px
+      grid.style.transform = `translate3d(${moveX}px, ${moveY}px, 0)`;
 
-      if (showingA) {
-        setBg(slideB, next);
-        slideB.classList.add("active");
-        slideA.classList.remove("active");
-      } else {
-        setBg(slideA, next);
-        slideA.classList.add("active");
-        slideB.classList.remove("active");
-      }
-      showingA = !showingA;
-    }, intervalMs);
+      requestAnimationFrame(animate);
+    }
+    animate();
   </script>
-
 </body>
 </html>
