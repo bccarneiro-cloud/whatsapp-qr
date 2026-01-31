@@ -9,14 +9,14 @@
     :root{
       --glass: rgba(255,255,255,.10);
       --glassBorder: rgba(255,255,255,.18);
-      --shadow: 0 22px 70px rgba(0,0,0,.28);
-      --shadow2: 0 14px 40px rgba(0,0,0,.22);
+      --shadow: 0 18px 55px rgba(0,0,0,.22);
+      --shadow2: 0 12px 40px rgba(0,0,0,.18);
+      --glowA: rgba(255, 80, 170, .18);
+      --glowB: rgba(60, 210, 255, .16);
       --text: rgba(20,20,20,.92);
-      --glow: rgba(255, 80, 170, .22);
-      --glow2: rgba(60, 210, 255, .18);
     }
 
-    html{ height: -webkit-fill-available; }
+    html { height: -webkit-fill-available; }
     body{
       margin:0;
       min-height: 100vh;
@@ -27,208 +27,185 @@
       background:#fff;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       color: var(--text);
-      position: relative;
     }
 
-    /* Fundo dinâmico suave */
+    /* fundo suave */
     .bg{
       position: fixed;
       inset: 0;
       z-index: -6;
       background:
-        radial-gradient(1200px 600px at 18% 22%, rgba(255,110,180,.16), transparent 60%),
-        radial-gradient(900px 520px at 78% 30%, rgba(90,220,255,.14), transparent 58%),
-        radial-gradient(900px 700px at 50% 85%, rgba(255,255,255,.24), transparent 60%),
+        radial-gradient(1200px 700px at 20% 25%, rgba(255,110,180,.14), transparent 60%),
+        radial-gradient(900px 600px at 80% 30%, rgba(90,220,255,.12), transparent 58%),
+        radial-gradient(900px 700px at 50% 85%, rgba(255,255,255,.22), transparent 60%),
         #ffffff;
     }
 
-    /* Marca: background.png como watermark (não estica feio no desktop) */
+    /* watermark (mantém sempre visível) */
     .brand{
       position: fixed;
       inset: 0;
       z-index: -5;
-      background: url("./background.png") center/cover no-repeat;
-      opacity: .55;
+      background: url("./background.png") center/contain no-repeat;
+      opacity: .80;
       pointer-events:none;
       filter: saturate(1.02);
     }
-    @media (min-width: 980px){
-      .brand{
-        background: url("./background.png") center/contain no-repeat;
-        opacity: .55;
-      }
-    }
 
-    /* Glass overlay p/ “futurista” mas sem apagar o laço */
     .overlay{
       position: fixed;
       inset:0;
       z-index:-4;
-      background: radial-gradient(circle at 50% 35%, rgba(255,255,255,.06), rgba(0,0,0,.12));
+      background: radial-gradient(circle at 50% 35%, rgba(255,255,255,.05), rgba(0,0,0,.10));
       pointer-events:none;
     }
 
-    /* Container geral (sem header) */
     .stage{
       position: relative;
       width: 100%;
       height: 100%;
-      padding: calc(18px + env(safe-area-inset-top)) 16px calc(18px + env(safe-area-inset-bottom));
+      padding: env(safe-area-inset-top) 14px env(safe-area-inset-bottom);
       box-sizing: border-box;
       display:flex;
-      align-items:flex-end;
+      align-items:center;
       justify-content:center;
     }
 
-    /* “Plataforma” onde as cards flutuam */
+    /* container transparente (sem tapar logo) */
     .deck{
       width: min(1200px, 96vw);
-      height: min(820px, 92svh);
+      height: min(860px, 92svh);
       position: relative;
-
-      border-radius: 26px;
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 28px;
+      /* NÃO usar fundo opaco aqui para não apagar o logo */
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.10);
       box-shadow: var(--shadow);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
       overflow:hidden;
     }
 
-    /* brilho subtil */
+    /* brilho futurista */
     .deck::before{
       content:"";
       position:absolute;
-      inset:-40px;
+      inset:-60px;
       background:
-        radial-gradient(500px 220px at 18% 20%, var(--glow), transparent 65%),
-        radial-gradient(520px 240px at 84% 30%, var(--glow2), transparent 65%);
-      filter: blur(6px);
-      opacity:.85;
+        radial-gradient(520px 260px at 18% 20%, var(--glowA), transparent 65%),
+        radial-gradient(540px 280px at 84% 30%, var(--glowB), transparent 65%);
+      filter: blur(10px);
+      opacity:.9;
       pointer-events:none;
     }
 
-    /* titulo minimal */
-    .title{
+    /* centro — reserva espaço para o logo e garante que fotos não passam por cima */
+    .centerZone{
       position:absolute;
-      left: 18px;
-      right: 18px;
-      top: 14px;
-      display:flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      z-index: 3;
-      pointer-events:none;
-    }
-
-    .title .left{
-      display:flex;
-      flex-direction: column;
-      gap: 3px;
-    }
-
-    .title h1{
-      margin:0;
-      font-size: 18px;
-      letter-spacing: .2px;
-      font-weight: 900;
-      text-shadow: 0 8px 20px rgba(0,0,0,.08);
-    }
-    .title p{
-      margin:0;
-      font-size: 12px;
-      opacity:.80;
-    }
-
-    /* botão discreto (não é a “caixa” que tinhas) */
-    .qrLink{
-      pointer-events:auto;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      padding: 10px 12px;
+      left:50%;
+      top:50%;
+      width: min(420px, 70vw);
+      height: min(420px, 70vw);
+      transform: translate(-50%, -50%);
       border-radius: 999px;
-      text-decoration:none;
-      font-weight: 900;
-      font-size: 12px;
-      color: rgba(10,10,10,.92);
-      background: rgba(255,255,255,.35);
-      border: 1px solid rgba(255,255,255,.35);
-      box-shadow: var(--shadow2);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+      z-index: 5;
+      pointer-events:none;
+      /* efeito “vidro” no centro mas transparente */
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.12);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      box-shadow: 0 18px 60px rgba(0,0,0,.10);
     }
 
-    /* Grid futurista */
-    .grid{
+    /* anéis (orbitas) */
+    .ring{
       position:absolute;
-      left: 14px;
-      right: 14px;
-      top: 64px;
-      bottom: 14px;
-      display:grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-      z-index: 2;
-    }
-
-    @media (max-width: 980px){
-      .grid{ grid-template-columns: repeat(3, 1fr); }
-    }
-    @media (max-width: 520px){
-      .grid{ grid-template-columns: repeat(2, 1fr); }
-      .title{ top: 10px; }
-      .grid{ top: 58px; }
-    }
-
-    .card{
-      position: relative;
-      border-radius: 18px;
-      overflow:hidden;
-      background: rgba(255,255,255,.10);
-      border: 1px solid rgba(255,255,255,.18);
-      box-shadow: var(--shadow2);
-      transform: translate3d(0,0,0);
-      will-change: transform, filter;
-      cursor: pointer;
-    }
-
-    /* “futuristic glass highlight” */
-    .card::after{
-      content:"";
-      position:absolute;
-      inset:-30%;
-      background: linear-gradient(135deg, rgba(255,255,255,.45), transparent 55%);
-      transform: translateX(-40%) rotate(8deg);
-      opacity: .20;
+      left:50%;
+      top:50%;
+      width: var(--size);
+      height: var(--size);
+      transform: translate(-50%, -50%);
+      border-radius: 999px;
+      border: 1px dashed rgba(255,255,255,.16);
+      opacity: .55;
+      z-index: 1;
       pointer-events:none;
     }
 
-    .card img{
+    /* orbit container */
+    .orbit{
+      position:absolute;
+      left:50%;
+      top:50%;
+      width: var(--size);
+      height: var(--size);
+      transform: translate(-50%, -50%);
+      border-radius: 999px;
+      z-index: 2;
+      pointer-events:none;
+      /* rotação contínua */
+      animation: spin var(--dur) linear infinite;
+    }
+    @keyframes spin{
+      from{ transform: translate(-50%, -50%) rotate(0deg); }
+      to  { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    /* cada item na órbita */
+    .orb{
+      position:absolute;
+      left:50%;
+      top:50%;
+      width: var(--w);
+      height: var(--w);
+      transform: rotate(var(--angle)) translateX(calc(var(--size) / 2)) rotate(calc(var(--angle) * -1));
+      border-radius: 999px;
+      overflow:hidden;
+      border: 1px solid rgba(255,255,255,.22);
+      background: rgba(255,255,255,.08);
+      box-shadow: var(--shadow2);
+      pointer-events:auto;
+      will-change: transform;
+      animation: floaty var(--floatDur) ease-in-out infinite;
+    }
+
+    /* “respiração” suave em cima da rotação */
+    @keyframes floaty{
+      0%{ filter: saturate(1.03); transform: translateZ(0) scale(1.00); }
+      50%{ filter: saturate(1.12); transform: translateZ(0) scale(1.05); }
+      100%{ filter: saturate(1.03); transform: translateZ(0) scale(1.00); }
+    }
+
+    .orb img{
       width:100%;
       height:100%;
       object-fit: cover;
       display:block;
-      transform: scale(1.05);
-      filter: saturate(1.06) contrast(1.03);
+      transform: scale(1.08);
       transition: transform .35s ease, filter .35s ease;
+      filter: contrast(1.02);
+    }
+    .orb:hover img{
+      transform: scale(1.16);
+      filter: contrast(1.06) saturate(1.12);
     }
 
-    .card:hover img{
-      transform: scale(1.10);
-      filter: saturate(1.15) contrast(1.06);
-    }
-
-    /* movimento contínuo (cada card tem variações via CSS vars) */
-    .floaty{
-      animation: drift var(--dur, 7.5s) ease-in-out infinite;
-    }
-    @keyframes drift{
-      0%   { transform: translate3d(calc(var(--x,0px) * -1), calc(var(--y,0px) * -1), 0) rotate(calc(var(--r, 0deg) * -1)); }
-      50%  { transform: translate3d(var(--x,0px), var(--y,0px), 0) rotate(var(--r,0deg)); }
-      100% { transform: translate3d(calc(var(--x,0px) * -1), calc(var(--y,0px) * -1), 0) rotate(calc(var(--r, 0deg) * -1)); }
+    /* pequeno texto discreto (opcional) */
+    .hint{
+      position:absolute;
+      left: 16px;
+      bottom: 14px;
+      font-size: 12px;
+      opacity: .75;
+      z-index: 6;
+      background: rgba(255,255,255,.22);
+      border: 1px solid rgba(255,255,255,.25);
+      padding: 8px 10px;
+      border-radius: 12px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      pointer-events:none;
     }
 
     /* Modal */
@@ -248,7 +225,7 @@
       width: min(980px, 96vw);
       border-radius: 18px;
       overflow:hidden;
-      background: rgba(255,255,255,.94);
+      background: rgba(255,255,255,.96);
       box-shadow: 0 24px 80px rgba(0,0,0,.40);
     }
     .modalBar{
@@ -271,6 +248,14 @@
       height:auto;
       display:block;
     }
+
+    /* mobile: diminuir zona central para ver mais orbitas */
+    @media (max-width: 520px){
+      .centerZone{
+        width: min(320px, 70vw);
+        height: min(320px, 70vw);
+      }
+    }
   </style>
 </head>
 
@@ -281,17 +266,17 @@
 
   <div class="stage">
     <div class="deck" id="deck">
-      <div class="title">
-        <div class="left">
-          <h1>Little Things</h1>
-          <p>Art & Decor</p>
-        </div>
 
-        <!-- link discreto para o teu WhatsApp QR (sem “caixa” grande no topo) -->
-        <a class="qrLink" href="./qr_contact/" title="Abrir WhatsApp QR">Contacto</a>
-      </div>
+      <!-- zonas/anéis -->
+      <div class="centerZone" aria-hidden="true"></div>
+      <div class="ring" style="--size: min(520px, 90vw);" aria-hidden="true"></div>
+      <div class="ring" style="--size: min(760px, 120vw);" aria-hidden="true"></div>
+      <div class="ring" style="--size: min(980px, 150vw);" aria-hidden="true"></div>
 
-      <div class="grid" id="grid"></div>
+      <!-- orbitas geradas por JS -->
+      <div id="orbits"></div>
+
+      <div class="hint">Toca numa imagem para ampliar ✨</div>
     </div>
   </div>
 
@@ -325,46 +310,65 @@
       "./assets/photo14.jpg"
     ];
 
-    const grid = document.getElementById("grid");
     const deck = document.getElementById("deck");
+    const orbitsWrap = document.getElementById("orbits");
 
     const modal = document.getElementById("modal");
     const modalImg = document.getElementById("modalImg");
     const closeBtn = document.getElementById("closeBtn");
 
-    // cria cards com variações de movimento
-    photos.forEach((src, i) => {
-      const card = document.createElement("div");
-      card.className = "card floaty";
-
-      // variações “futuristas” de movimento (px/deg/duração)
-      const x = 6 + (i % 5) * 2;            // 6..14
-      const y = 5 + ((i * 3) % 7);          // 5..11
-      const r = (-1 + (i % 3)) * 1.2;       // -1.2..+1.2
-      const dur = 6.5 + (i % 7) * 0.65;     // 6.5..11.0
-
-      card.style.setProperty("--x", x + "px");
-      card.style.setProperty("--y", y + "px");
-      card.style.setProperty("--r", r + "deg");
-      card.style.setProperty("--dur", dur + "s");
-
-      card.innerHTML = `<img src="${src}" alt="Work ${i+1}">`;
-
-      card.addEventListener("click", () => {
-        modalImg.src = src;
-        modal.classList.add("open");
-      });
-
-      grid.appendChild(card);
-    });
-
     closeBtn.addEventListener("click", () => modal.classList.remove("open"));
-    modal.addEventListener("click", (e) => {
-      if (e.target === modal) modal.classList.remove("open");
+    modal.addEventListener("click", (e) => { if(e.target === modal) modal.classList.remove("open"); });
+
+    // --- Config: 3 anéis (distribui 14 fotos)
+    const rings = [
+      { size: "min(520px, 90vw)",  dur: 34, count: 5,  w: "min(86px, 18vw)"  },
+      { size: "min(760px, 120vw)", dur: 46, count: 5,  w: "min(80px, 16vw)"  },
+      { size: "min(980px, 150vw)", dur: 62, count: 4,  w: "min(74px, 14vw)"  }
+    ];
+
+    let photoIndex = 0;
+
+    rings.forEach((cfg, ringIdx) => {
+      const orbit = document.createElement("div");
+      orbit.className = "orbit";
+      orbit.style.setProperty("--size", cfg.size);
+      orbit.style.setProperty("--dur", cfg.dur + "s");
+
+      // alterna sentido para ficar mais “tech”
+      if (ringIdx % 2 === 1) orbit.style.animationDirection = "reverse";
+
+      // coloca os itens distribuídos
+      for(let i=0; i<cfg.count; i++){
+        const angle = (360 / cfg.count) * i + (ringIdx * 14);
+        const src = photos[photoIndex % photos.length];
+        photoIndex++;
+
+        const orb = document.createElement("div");
+        orb.className = "orb";
+        orb.style.setProperty("--size", cfg.size);
+        orb.style.setProperty("--angle", angle + "deg");
+        orb.style.setProperty("--w", cfg.w);
+
+        // respiração diferente por item
+        const floatDur = 4.6 + (i * 0.55) + (ringIdx * 0.3);
+        orb.style.setProperty("--floatDur", floatDur + "s");
+
+        orb.innerHTML = `<img src="${src}" alt="Work">`;
+
+        // click abre modal
+        orb.addEventListener("click", () => {
+          modalImg.src = src;
+          modal.classList.add("open");
+        });
+
+        orbit.appendChild(orb);
+      }
+
+      orbitsWrap.appendChild(orbit);
     });
 
-    // Parallax “futurista” (move tudo suavemente com o dedo/rato)
-    // Sem libraries, suave, funciona em mobile e desktop.
+    // --- Parallax suave (move orbitas sem tapar o centro)
     let targetX = 0, targetY = 0;
     let curX = 0, curY = 0;
 
@@ -373,11 +377,9 @@
       const cx = rect.left + rect.width / 2;
       const cy = rect.top + rect.height / 2;
 
-      // range aproximado -1..1
       targetX = (clientX - cx) / (rect.width / 2);
       targetY = (clientY - cy) / (rect.height / 2);
 
-      // limita
       targetX = Math.max(-1, Math.min(1, targetX));
       targetY = Math.max(-1, Math.min(1, targetY));
     }
@@ -389,14 +391,14 @@
     }, { passive:true });
 
     function animate(){
-      // lerp para ficar “suave”
       curX += (targetX - curX) * 0.06;
       curY += (targetY - curY) * 0.06;
 
-      // aplica ao grid como um todo
-      const moveX = curX * 10; // px
-      const moveY = curY * 10; // px
-      grid.style.transform = `translate3d(${moveX}px, ${moveY}px, 0)`;
+      // pequeno deslocamento “tech”
+      const moveX = curX * 10;
+      const moveY = curY * 10;
+
+      orbitsWrap.style.transform = `translate3d(${moveX}px, ${moveY}px, 0)`;
 
       requestAnimationFrame(animate);
     }
