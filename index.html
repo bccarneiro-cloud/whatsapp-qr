@@ -98,7 +98,7 @@
     }
 
     @keyframes flash {
-      0%,100% { opacity: 1; }
+      0%, 100% { opacity: 1; }
       50% { opacity: 0.35; }
     }
 
@@ -144,26 +144,26 @@
       </div>
     </div>
 
-    <!-- STRIP 2 (direita) — IGUAL À DE CIMA (photo01..photo07) -->
+    <!-- STRIP 2 (direita) -->
     <div class="strip" data-strip="1">
       <div class="track" id="track2">
         <!-- A -->
-        <div class="item"><img src="assets/photo01.jpg" alt=""></div>
-        <div class="item"><img src="assets/photo02.jpg" alt=""></div>
-        <div class="item"><img src="assets/photo03.jpg" alt=""></div>
-        <div class="item"><img src="assets/photo04.jpg" alt=""></div>
-        <div class="item"><img src="assets/photo05.jpg" alt=""></div>
-        <div class="item"><img src="assets/photo06.jpg" alt=""></div>
-        <div class="item"><img src="assets/photo07.jpg" alt=""></div>
+        <div class="item"><img src="assets/photo08.jpg" alt=""></div>
+        <div class="item"><img src="assets/photo09.jpg" alt=""></div>
+        <div class="item"><img src="assets/photo10.jpg" alt=""></div>
+        <div class="item"><img src="assets/photo11.jpg" alt=""></div>
+        <div class="item"><img src="assets/photo12.jpg" alt=""></div>
+        <div class="item"><img src="assets/photo13.jpg" alt=""></div>
+        <div class="item"><img src="assets/photo14.jpg" alt=""></div>
 
         <!-- B (duplicado) -->
-        <div class="item"><img src="assets/photo01.jpg" alt=""></div>
-        <div class="item"><img src="assets/photo02.jpg" alt=""></div>
-        <div class="item"><img src="assets/photo03.jpg" alt=""></div>
-        <div class="item"><img src="assets/photo04.jpg" alt=""></div>
-        <div class="item"><img src="assets/photo05.jpg" alt=""></div>
-        <div class="item"><img src="assets/photo06.jpg" alt=""></div>
-        <div class="item"><img src="assets/photo07.jpg" alt=""></div>
+        <div class="item"><img src="assets/photo08.jpg" alt=""></div>
+        <div class="item"><img src="assets/photo09.jpg" alt=""></div>
+        <div class="item"><img src="assets/photo10.jpg" alt=""></div>
+        <div class="item"><img src="assets/photo11.jpg" alt=""></div>
+        <div class="item"><img src="assets/photo12.jpg" alt=""></div>
+        <div class="item"><img src="assets/photo13.jpg" alt=""></div>
+        <div class="item"><img src="assets/photo14.jpg" alt=""></div>
       </div>
     </div>
 
@@ -171,101 +171,122 @@
 
   <div class="logoArea">
     <img src="background.png" alt="Little Things logo">
-    <a class="contactBtn" href="https://www.littlethings.events/qr_contact/">Contactos / Contacts</a>
+    <a class="contactBtn" href="https://www.littlethings.events/qr_contact/">
+      Contactos / Contacts
+    </a>
   </div>
 
 </div>
 
 <script>
-  // ===== Movimento contínuo + drag + retoma após 1s =====
+  // ===== Movimento contínuo + drag + retoma ao fim de 1s =====
+  // Fix principal: sem arredondamentos no wrap/transform e medir depois das imagens carregarem.
 
-  const strips = [
-    { el: track1, dir: -1, speed: 60, x: 0, wrap: 0, dragging: false, lastX: 0, lastTs: 0 },
-    { el: track2, dir:  1, speed: 60, x: 0, wrap: 0, dragging: false, lastX: 0, lastTs: 0 }
+  const tracks = [
+    { el: document.getElementById('track1'), speed:  60, x: 0, wrap: 0, dragging: false, lastX: 0, lastUserTs: 0 },
+    { el: document.getElementById('track2'), speed: -60, x: 0, wrap: 0, dragging: false, lastX: 0, lastUserTs: 0 } // negativo => move para a direita
   ];
 
   function measureWrap(el) {
     const items = Array.from(el.children);
-    const half = items.length / 2; // A (metade) + B (metade)
+    const half = items.length / 2; // A e B iguais em count
     let w = 0;
     for (let i = 0; i < half; i++) {
-      w += items[i].getBoundingClientRect().width;
+      w += items[i].getBoundingClientRect().width; // float (sem round)
     }
-    return Math.round(w);
+    return w;
   }
 
-  function measure() {
-    strips.forEach(s => {
-      s.wrap = measureWrap(s.el);
-      // proteção caso o browser ainda não tenha calculado tudo
-      if (!s.wrap || s.wrap < 10) s.wrap = Math.round(s.el.scrollWidth / 2);
-      s.x = ((s.x % s.wrap) + s.wrap) % s.wrap;
-      render(s);
+  function render(t) {
+    // translateX(-x) => x aumenta -> move para a esquerda
+    t.el.style.transform = `translate3d(${-t.x}px, 0, 0)`;
+  }
+
+  function normalizeX(t) {
+    if (!t.wrap || t.wrap <= 0) return;
+    t.x = t.x % t.wrap;
+    if (t.x < 0) t.x += t.wrap;
+  }
+
+  async function waitForImages(container) {
+    const imgs = Array.from(container.querySelectorAll('img'));
+    await Promise.all(imgs.map(img => {
+      if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+      return new Promise(res => img.addEventListener('load', res, { once: true }));
+    }));
+  }
+
+  async function measureAll() {
+    // Espera mesmo pelas imagens -> evita medições “a meio” (causa clássica do buraco no desktop)
+    await Promise.all(tracks.map(t => waitForImages(t.el)));
+    tracks.forEach(t => {
+      t.wrap = measureWrap(t.el);
+      normalizeX(t);
+      render(t);
     });
   }
 
-  function render(s) {
-    const tx = (s.dir === -1) ? -s.x : -(s.wrap - s.x);
-    s.el.style.transform = `translate3d(${Math.round(tx)}px,0,0)`;
-  }
-
   let last = performance.now();
-  function loop(t) {
-    const dt = (t - last) / 1000;
-    last = t;
+  function loop(now) {
+    const dt = (now - last) / 1000;
+    last = now;
 
-    strips.forEach(s => {
-      if (!s.dragging && (t - s.lastTs) > 1000) {
-        s.x = (s.x + s.speed * dt) % s.wrap;
-        render(s);
+    tracks.forEach(t => {
+      const userRecentlyMoved = (now - t.lastUserTs) < 1000;
+
+      if (!t.dragging && !userRecentlyMoved && t.wrap > 0) {
+        t.x += t.speed * dt;
+        normalizeX(t);
+        render(t);
       }
     });
 
     requestAnimationFrame(loop);
   }
 
-  document.querySelectorAll('.strip').forEach((strip, i) => {
-    const s = strips[i];
+  // Drag por faixa
+  document.querySelectorAll('.strip').forEach((strip, idx) => {
+    const t = tracks[idx];
 
     strip.addEventListener('pointerdown', (e) => {
-      s.dragging = true;
-      s.lastX = e.clientX;
-      s.lastTs = performance.now();
+      t.dragging = true;
+      t.lastX = e.clientX;
+      t.lastUserTs = performance.now();
       strip.setPointerCapture(e.pointerId);
     });
 
     strip.addEventListener('pointermove', (e) => {
-      if (!s.dragging) return;
-      const dx = e.clientX - s.lastX;
-      s.lastX = e.clientX;
+      if (!t.dragging) return;
+      const dx = e.clientX - t.lastX;
+      t.lastX = e.clientX;
 
-      s.x = (s.x - dx * s.dir) % s.wrap;
-      s.x = ((s.x % s.wrap) + s.wrap) % s.wrap;
+      // dedo para a direita => dx>0 => queremos mover conteúdo para a direita => x diminui
+      t.x -= dx;
+      normalizeX(t);
 
-      s.lastTs = performance.now();
-      render(s);
+      t.lastUserTs = performance.now();
+      render(t);
     });
 
     strip.addEventListener('pointerup', () => {
-      s.dragging = false;
-      s.lastTs = performance.now();
+      t.dragging = false;
+      t.lastUserTs = performance.now();
     });
 
     strip.addEventListener('pointercancel', () => {
-      s.dragging = false;
-      s.lastTs = performance.now();
+      t.dragging = false;
+      t.lastUserTs = performance.now();
     });
   });
 
-  window.addEventListener('load', () => {
-    setTimeout(() => {
-      measure();
-      requestAnimationFrame(loop);
-    }, 120);
+  window.addEventListener('load', async () => {
+    await measureAll();
+    requestAnimationFrame(loop);
   });
 
   window.addEventListener('resize', () => {
-    setTimeout(measure, 80);
+    // re-medir para desktop/mobile sem buracos
+    setTimeout(() => { measureAll(); }, 80);
   });
 </script>
 </body>
