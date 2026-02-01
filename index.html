@@ -13,18 +13,16 @@
       overflow: hidden;
       background: #fff;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      touch-action: none; /* ajuda no drag sem “scroll” da página */
+      touch-action: none;
     }
 
-    /* Usa svh/dvh para evitar cortes por barras do browser no mobile */
     .page {
       height: 100svh;
       height: 100dvh;
       display: grid;
-      grid-template-rows: 2fr 1fr; /* topo 2/3, logo 1/3 */
+      grid-template-rows: 2fr 1fr;
     }
 
-    /* TOP: duas faixas */
     .strips {
       height: 100%;
       overflow: hidden;
@@ -37,7 +35,8 @@
       position: relative;
       user-select: none;
       -webkit-user-select: none;
-      touch-action: pan-x; /* drag horizontal */
+      touch-action: pan-x;
+      background: #000;
     }
 
     .track {
@@ -61,21 +60,16 @@
       width: auto;
       display: block;
       object-fit: cover;
-      /* evita “saltos” por smoothing estranho */
-      image-rendering: auto;
       -webkit-transform: translateZ(0);
       transform: translateZ(0);
     }
 
-    /* BOTTOM: logo 1/3 */
     .logoArea {
       display: flex;
       align-items: flex-end;
       justify-content: center;
       overflow: hidden;
       background: #fff;
-
-      /* safe-area para iPhone + folga extra */
       padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 28px);
       padding-top: 10px;
     }
@@ -89,7 +83,6 @@
       display: block;
     }
 
-    /* No mobile, dá ainda mais margem de segurança */
     @media (max-width: 768px) {
       .logoArea {
         padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 38px);
@@ -165,8 +158,7 @@
     const strips = [
       {
         el: document.getElementById('track1'),
-        // +20% mais rápido vs anterior: escolhe uma base confortável (px/s)
-        speed: 60, // px/seg (ajusta se quiser mais lento/rápido)
+        speed: 60, // px/seg
         dir: -1,    // esquerda
         x: 0,
         halfW: 0,
@@ -176,7 +168,7 @@
       },
       {
         el: document.getElementById('track2'),
-        speed: 60, // igual nas duas linhas (podes pôr diferente)
+        speed: 60,
         dir: 1,     // direita
         x: 0,
         halfW: 0,
@@ -186,21 +178,36 @@
       }
     ];
 
+    function measureHalfWidth(trackEl) {
+      // ✅ Medir a largura EXATA do 1º conjunto (metade dos items)
+      const children = Array.from(trackEl.children);
+      const halfCount = Math.floor(children.length / 2);
+      let w = 0;
+      for (let i = 0; i < halfCount; i++) {
+        w += children[i].getBoundingClientRect().width;
+      }
+      return Math.round(w);
+    }
+
     function measure() {
       strips.forEach(s => {
-        // Como tens A+B iguais, metade do scrollWidth é o ponto de wrap perfeito
-        s.halfW = Math.round(s.el.scrollWidth / 2);
-        // garante que x está dentro do intervalo
+        s.halfW = measureHalfWidth(s.el);
+
+        // garante que halfW é válido
+        if (!s.halfW || s.halfW < 10) {
+          // fallback
+          s.halfW = Math.round(s.el.scrollWidth / 2);
+        }
+
         s.x = ((s.x % s.halfW) + s.halfW) % s.halfW;
         applyTransform(s);
       });
     }
 
     function applyTransform(s) {
-      // Move sempre em px (sem percentagens) => elimina o “snap”
-      // Para dir direita, usamos um offset equivalente invertido.
+      // Usa px inteiros para eliminar gaps por sub-pixel no desktop
       const tx = (s.dir === -1) ? -s.x : -(s.halfW - s.x);
-      s.el.style.transform = `translate3d(${tx}px, 0, 0)`;
+      s.el.style.transform = `translate3d(${Math.round(tx)}px, 0, 0)`;
     }
 
     let lastTs = performance.now();
@@ -210,13 +217,12 @@
       lastTs = ts;
 
       strips.forEach(s => {
-        // Se utilizador mexeu há menos de 1s, pausa o auto-scroll
         const now = performance.now();
         const userRecentlyMoved = (now - s.lastUserMoveTs) < 1000;
 
         if (!s.dragging && !userRecentlyMoved) {
           s.x += s.speed * dt;
-          if (s.x >= s.halfW) s.x -= s.halfW; // wrap perfeito
+          if (s.x >= s.halfW) s.x -= s.halfW;
           applyTransform(s);
         }
       });
@@ -241,9 +247,7 @@
         const dx = e.clientX - s.lastPointerX;
         s.lastPointerX = e.clientX;
 
-        // Arrastar: mover no sentido do dedo (inverte conforme direção)
-        // (dx positivo deve “puxar” o conteúdo para acompanhar)
-        s.x -= dx * s.dir; // mantém coerência esquerda/direita
+        s.x -= dx * s.dir;
         s.x = ((s.x % s.halfW) + s.halfW) % s.halfW;
 
         s.lastUserMoveTs = performance.now();
@@ -263,16 +267,15 @@
 
     // Re-medidas quando imagens carregam / resize
     window.addEventListener('load', () => {
-      // espera um bocadinho para garantir dimensões finais
+      // mede depois de tudo renderizar
       setTimeout(() => {
         measure();
         requestAnimationFrame(tick);
-      }, 60);
+      }, 120);
     });
 
     window.addEventListener('resize', () => {
-      // Recalcular para manter o wrap perfeito após mudança de viewport
-      setTimeout(measure, 50);
+      setTimeout(measure, 80);
     });
   </script>
 </body>
