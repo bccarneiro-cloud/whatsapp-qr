@@ -35,6 +35,7 @@
       overflow: hidden;
       position: relative;
       user-select: none;
+      -webkit-user-select: none;
       touch-action: pan-x;
       background: #000;
     }
@@ -46,6 +47,7 @@
       will-change: transform;
       transform: translate3d(0,0,0);
       backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
     }
 
     .item {
@@ -59,9 +61,10 @@
       display: block;
       object-fit: cover;
       transform: translateZ(0);
+      -webkit-transform: translateZ(0);
     }
 
-    /* ===== LOGO ===== */
+    /* ===== LOGO + BOTÃO ===== */
     .logoArea {
       display: flex;
       flex-direction: column;
@@ -71,15 +74,16 @@
       padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 28px);
       padding-top: 10px;
       gap: 14px;
+      overflow: hidden;
     }
 
     .logoArea img {
       max-height: 78%;
       width: auto;
       object-fit: contain;
+      display: block;
     }
 
-    /* ===== CONTACT BUTTON ===== */
     .contactBtn {
       font-family: "Georgia", "Times New Roman", serif;
       font-size: 0.95rem;
@@ -105,6 +109,9 @@
       .logoArea img {
         max-height: 72%;
       }
+      .contactBtn {
+        font-size: 0.9rem;
+      }
     }
   </style>
 </head>
@@ -114,120 +121,152 @@
 
   <div class="strips">
 
-    <!-- STRIP 1 -->
+    <!-- STRIP 1 (esquerda) -->
     <div class="strip" data-strip="0">
       <div class="track" id="track1">
         <!-- A -->
-        <div class="item"><img src="assets/photo01.jpg"></div>
-        <div class="item"><img src="assets/photo02.jpg"></div>
-        <div class="item"><img src="assets/photo03.jpg"></div>
-        <div class="item"><img src="assets/photo04.jpg"></div>
-        <div class="item"><img src="assets/photo05.jpg"></div>
-        <div class="item"><img src="assets/photo06.jpg"></div>
-        <div class="item"><img src="assets/photo07.jpg"></div>
+        <div class="item"><img src="assets/photo01.jpg" alt=""></div>
+        <div class="item"><img src="assets/photo02.jpg" alt=""></div>
+        <div class="item"><img src="assets/photo03.jpg" alt=""></div>
+        <div class="item"><img src="assets/photo04.jpg" alt=""></div>
+        <div class="item"><img src="assets/photo05.jpg" alt=""></div>
+        <div class="item"><img src="assets/photo06.jpg" alt=""></div>
+        <div class="item"><img src="assets/photo07.jpg" alt=""></div>
 
-        <!-- B -->
-        <div class="item"><img src="assets/photo01.jpg"></div>
-        <div class="item"><img src="assets/photo02.jpg"></div>
-        <div class="item"><img src="assets/photo03.jpg"></div>
-        <div class="item"><img src="assets/photo04.jpg"></div>
-        <div class="item"><img src="assets/photo05.jpg"></div>
-        <div class="item"><img src="assets/photo06.jpg"></div>
-        <div class="item"><img src="assets/photo07.jpg"></div>
+        <!-- B (duplicado) -->
+        <div class="item"><img src="assets/photo01.jpg" alt=""></div>
+        <div class="item"><img src="assets/photo02.jpg" alt=""></div>
+        <div class="item"><img src="assets/photo03.jpg" alt=""></div>
+        <div class="item"><img src="assets/photo04.jpg" alt=""></div>
+        <div class="item"><img src="assets/photo05.jpg" alt=""></div>
+        <div class="item"><img src="assets/photo06.jpg" alt=""></div>
+        <div class="item"><img src="assets/photo07.jpg" alt=""></div>
       </div>
     </div>
 
-    <!-- STRIP 2 -->
+    <!-- STRIP 2 (direita) — IGUAL À DE CIMA (photo01..photo07) -->
     <div class="strip" data-strip="1">
       <div class="track" id="track2">
         <!-- A -->
-        <div class="item"><img src="assets/photo08.jpg"></div>
-        <div class="item"><img src="assets/photo09.jpg"></div>
-        <div class="item"><img src="assets/photo10.jpg"></div>
-        <div class="item"><img src="assets/photo11.jpg"></div>
-        <div class="item"><img src="assets/photo12.jpg"></div>
-        <div class="item"><img src="assets/photo13.jpg"></div>
-        <div class="item"><img src="assets/photo14.jpg"></div>
+        <div class="item"><img src="assets/photo01.jpg" alt=""></div>
+        <div class="item"><img src="assets/photo02.jpg" alt=""></div>
+        <div class="item"><img src="assets/photo03.jpg" alt=""></div>
+        <div class="item"><img src="assets/photo04.jpg" alt=""></div>
+        <div class="item"><img src="assets/photo05.jpg" alt=""></div>
+        <div class="item"><img src="assets/photo06.jpg" alt=""></div>
+        <div class="item"><img src="assets/photo07.jpg" alt=""></div>
 
-        <!-- B -->
-        <div class="item"><img src="assets/photo08.jpg"></div>
-        <div class="item"><img src="assets/photo09.jpg"></div>
-        <div class="item"><img src="assets/photo10.jpg"></div>
-        <div class="item"><img src="assets/photo11.jpg"></div>
-        <div class="item"><img src="assets/photo12.jpg"></div>
-        <div class="item"><img src="assets/photo13.jpg"></div>
-        <div class="item"><img src="assets/photo14.jpg"></div>
+        <!-- B (duplicado) -->
+        <div class="item"><img src="assets/photo01.jpg" alt=""></div>
+        <div class="item"><img src="assets/photo02.jpg" alt=""></div>
+        <div class="item"><img src="assets/photo03.jpg" alt=""></div>
+        <div class="item"><img src="assets/photo04.jpg" alt=""></div>
+        <div class="item"><img src="assets/photo05.jpg" alt=""></div>
+        <div class="item"><img src="assets/photo06.jpg" alt=""></div>
+        <div class="item"><img src="assets/photo07.jpg" alt=""></div>
       </div>
     </div>
 
   </div>
 
-  <!-- LOGO + CONTACT -->
   <div class="logoArea">
     <img src="background.png" alt="Little Things logo">
-    <a class="contactBtn" href="https://www.littlethings.events/qr_contact/">
-      Contactos / Contacts
-    </a>
+    <a class="contactBtn" href="https://www.littlethings.events/qr_contact/">Contactos / Contacts</a>
   </div>
 
 </div>
 
 <script>
+  // ===== Movimento contínuo + drag + retoma após 1s =====
+
   const strips = [
-    { el: track1, dir: -1, speed: 60, x: 0, wrap: 0, dragging:false, lastX:0, lastTs:0 },
-    { el: track2, dir:  1, speed: 60, x: 0, wrap: 0, dragging:false, lastX:0, lastTs:0 }
+    { el: track1, dir: -1, speed: 60, x: 0, wrap: 0, dragging: false, lastX: 0, lastTs: 0 },
+    { el: track2, dir:  1, speed: 60, x: 0, wrap: 0, dragging: false, lastX: 0, lastTs: 0 }
   ];
 
-  function measureWrap(el){
-    const items = [...el.children];
-    const half = items.length / 2;
-    return items.slice(0, half)
-      .reduce((w,i)=>w+i.getBoundingClientRect().width,0);
+  function measureWrap(el) {
+    const items = Array.from(el.children);
+    const half = items.length / 2; // A (metade) + B (metade)
+    let w = 0;
+    for (let i = 0; i < half; i++) {
+      w += items[i].getBoundingClientRect().width;
+    }
+    return Math.round(w);
   }
 
-  function measure(){
-    strips.forEach(s=>{
-      s.wrap = Math.round(measureWrap(s.el));
+  function measure() {
+    strips.forEach(s => {
+      s.wrap = measureWrap(s.el);
+      // proteção caso o browser ainda não tenha calculado tudo
+      if (!s.wrap || s.wrap < 10) s.wrap = Math.round(s.el.scrollWidth / 2);
+      s.x = ((s.x % s.wrap) + s.wrap) % s.wrap;
+      render(s);
     });
   }
 
-  function render(s){
-    const tx = s.dir === -1 ? -s.x : -(s.wrap - s.x);
+  function render(s) {
+    const tx = (s.dir === -1) ? -s.x : -(s.wrap - s.x);
     s.el.style.transform = `translate3d(${Math.round(tx)}px,0,0)`;
   }
 
   let last = performance.now();
-  function loop(t){
-    const dt = (t-last)/1000; last=t;
-    strips.forEach(s=>{
-      if(!s.dragging && (t-s.lastTs)>1000){
-        s.x = (s.x + s.speed*dt) % s.wrap;
+  function loop(t) {
+    const dt = (t - last) / 1000;
+    last = t;
+
+    strips.forEach(s => {
+      if (!s.dragging && (t - s.lastTs) > 1000) {
+        s.x = (s.x + s.speed * dt) % s.wrap;
         render(s);
       }
     });
+
     requestAnimationFrame(loop);
   }
 
-  document.querySelectorAll('.strip').forEach((strip,i)=>{
+  document.querySelectorAll('.strip').forEach((strip, i) => {
     const s = strips[i];
-    strip.addEventListener('pointerdown',e=>{
-      s.dragging=true; s.lastX=e.clientX; s.lastTs=performance.now();
+
+    strip.addEventListener('pointerdown', (e) => {
+      s.dragging = true;
+      s.lastX = e.clientX;
+      s.lastTs = performance.now();
       strip.setPointerCapture(e.pointerId);
     });
-    strip.addEventListener('pointermove',e=>{
-      if(!s.dragging) return;
-      const dx=e.clientX-s.lastX; s.lastX=e.clientX;
-      s.x=(s.x-dx*s.dir)%s.wrap; s.lastTs=performance.now();
+
+    strip.addEventListener('pointermove', (e) => {
+      if (!s.dragging) return;
+      const dx = e.clientX - s.lastX;
+      s.lastX = e.clientX;
+
+      s.x = (s.x - dx * s.dir) % s.wrap;
+      s.x = ((s.x % s.wrap) + s.wrap) % s.wrap;
+
+      s.lastTs = performance.now();
       render(s);
     });
-    strip.addEventListener('pointerup',()=>{s.dragging=false; s.lastTs=performance.now();});
-    strip.addEventListener('pointercancel',()=>{s.dragging=false; s.lastTs=performance.now();});
+
+    strip.addEventListener('pointerup', () => {
+      s.dragging = false;
+      s.lastTs = performance.now();
+    });
+
+    strip.addEventListener('pointercancel', () => {
+      s.dragging = false;
+      s.lastTs = performance.now();
+    });
   });
 
-  window.addEventListener('load',()=>{
-    setTimeout(()=>{ measure(); requestAnimationFrame(loop); },120);
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      measure();
+      requestAnimationFrame(loop);
+    }, 120);
   });
-  window.addEventListener('resize',()=>setTimeout(measure,80));
+
+  window.addEventListener('resize', () => {
+    setTimeout(measure, 80);
+  });
 </script>
 </body>
 </html>
