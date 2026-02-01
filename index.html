@@ -2,7 +2,7 @@
 <html lang="pt">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Little Things</title>
 
   <style>
@@ -13,13 +13,15 @@
       overflow: hidden;
       background: #fff;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      touch-action: none; /* ajuda no drag sem “scroll” da página */
     }
 
-    /* 2/3 topo (faixas) + 1/3 logo */
+    /* Usa svh/dvh para evitar cortes por barras do browser no mobile */
     .page {
-      height: 100vh;
+      height: 100svh;
+      height: 100dvh;
       display: grid;
-      grid-template-rows: 2fr 1fr;
+      grid-template-rows: 2fr 1fr; /* topo 2/3, logo 1/3 */
     }
 
     /* TOP: duas faixas */
@@ -33,6 +35,9 @@
       height: 50%;
       overflow: hidden;
       position: relative;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: pan-x; /* drag horizontal */
     }
 
     .track {
@@ -43,14 +48,7 @@
       will-change: transform;
       transform: translate3d(0,0,0);
       backface-visibility: hidden;
-
-      /* +20% velocidade (40s -> 32s) */
-      animation: scrollLeft 32s linear infinite;
-    }
-
-    .track.reverse {
-      /* +20% velocidade (44s -> 35.2s) */
-      animation: scrollRight 35.2s linear infinite;
+      -webkit-backface-visibility: hidden;
     }
 
     .item {
@@ -63,49 +61,42 @@
       width: auto;
       display: block;
       object-fit: cover;
-    }
-
-    /* Loop “infinito” suave: Set A + Set B idênticos e desloca exatamente metade do track */
-    @keyframes scrollLeft {
-      from { transform: translate3d(0,0,0); }
-      to   { transform: translate3d(-50%,0,0); }
-    }
-
-    @keyframes scrollRight {
-      from { transform: translate3d(-50%,0,0); }
-      to   { transform: translate3d(0,0,0); }
+      /* evita “saltos” por smoothing estranho */
+      image-rendering: auto;
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
     }
 
     /* BOTTOM: logo 1/3 */
     .logoArea {
       display: flex;
-      align-items: center;
+      align-items: flex-end;
       justify-content: center;
       overflow: hidden;
       background: #fff;
 
-      /* evita corte em iPhone (safe area) */
-      padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
+      /* safe-area para iPhone + folga extra */
+      padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 28px);
+      padding-top: 10px;
     }
 
     .logoArea img {
-      height: 100%;
+      max-height: 100%;
+      max-width: 100%;
+      height: auto;
       width: auto;
       object-fit: contain;
       display: block;
     }
 
-    /* MOBILE tweaks (só para garantir que não corta em baixo) */
+    /* No mobile, dá ainda mais margem de segurança */
     @media (max-width: 768px) {
-      .page { grid-template-rows: 2fr 1fr; }
-
       .logoArea {
-        padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 22px);
+        padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 38px);
+        padding-top: 12px;
       }
-
-      /* ligeiro ajuste para garantir que nunca toca no limite inferior */
       .logoArea img {
-        height: 92%;
+        max-height: 92%;
       }
     }
   </style>
@@ -115,9 +106,9 @@
   <div class="page">
 
     <div class="strips">
-      <!-- STRIP 1 (normal) -->
-      <div class="strip">
-        <div class="track">
+      <!-- STRIP 1 (move para a esquerda) -->
+      <div class="strip" data-strip="0">
+        <div class="track" id="track1">
           <!-- conjunto A -->
           <div class="item"><img src="assets/photo01.jpg" alt=""></div>
           <div class="item"><img src="assets/photo02.jpg" alt=""></div>
@@ -127,7 +118,7 @@
           <div class="item"><img src="assets/photo06.jpg" alt=""></div>
           <div class="item"><img src="assets/photo07.jpg" alt=""></div>
 
-          <!-- conjunto B (duplicado igual para loop perfeito) -->
+          <!-- conjunto B (duplicado) -->
           <div class="item"><img src="assets/photo01.jpg" alt=""></div>
           <div class="item"><img src="assets/photo02.jpg" alt=""></div>
           <div class="item"><img src="assets/photo03.jpg" alt=""></div>
@@ -138,9 +129,9 @@
         </div>
       </div>
 
-      <!-- STRIP 2 (reverse) -->
-      <div class="strip">
-        <div class="track reverse">
+      <!-- STRIP 2 (move para a direita) -->
+      <div class="strip" data-strip="1">
+        <div class="track" id="track2">
           <!-- conjunto A -->
           <div class="item"><img src="assets/photo08.jpg" alt=""></div>
           <div class="item"><img src="assets/photo09.jpg" alt=""></div>
@@ -150,7 +141,7 @@
           <div class="item"><img src="assets/photo13.jpg" alt=""></div>
           <div class="item"><img src="assets/photo14.jpg" alt=""></div>
 
-          <!-- conjunto B (duplicado igual — loop perfeito) -->
+          <!-- conjunto B (duplicado) -->
           <div class="item"><img src="assets/photo08.jpg" alt=""></div>
           <div class="item"><img src="assets/photo09.jpg" alt=""></div>
           <div class="item"><img src="assets/photo10.jpg" alt=""></div>
@@ -167,5 +158,122 @@
     </div>
 
   </div>
+
+  <script>
+    // ===== Movimento contínuo SEM salto + drag com retoma após 1s =====
+
+    const strips = [
+      {
+        el: document.getElementById('track1'),
+        // +20% mais rápido vs anterior: escolhe uma base confortável (px/s)
+        speed: 120, // px/seg (ajusta se quiser mais lento/rápido)
+        dir: -1,    // esquerda
+        x: 0,
+        halfW: 0,
+        dragging: false,
+        lastPointerX: 0,
+        lastUserMoveTs: 0
+      },
+      {
+        el: document.getElementById('track2'),
+        speed: 120, // igual nas duas linhas (podes pôr diferente)
+        dir: 1,     // direita
+        x: 0,
+        halfW: 0,
+        dragging: false,
+        lastPointerX: 0,
+        lastUserMoveTs: 0
+      }
+    ];
+
+    function measure() {
+      strips.forEach(s => {
+        // Como tens A+B iguais, metade do scrollWidth é o ponto de wrap perfeito
+        s.halfW = Math.round(s.el.scrollWidth / 2);
+        // garante que x está dentro do intervalo
+        s.x = ((s.x % s.halfW) + s.halfW) % s.halfW;
+        applyTransform(s);
+      });
+    }
+
+    function applyTransform(s) {
+      // Move sempre em px (sem percentagens) => elimina o “snap”
+      // Para dir direita, usamos um offset equivalente invertido.
+      const tx = (s.dir === -1) ? -s.x : -(s.halfW - s.x);
+      s.el.style.transform = `translate3d(${tx}px, 0, 0)`;
+    }
+
+    let lastTs = performance.now();
+
+    function tick(ts) {
+      const dt = (ts - lastTs) / 1000;
+      lastTs = ts;
+
+      strips.forEach(s => {
+        // Se utilizador mexeu há menos de 1s, pausa o auto-scroll
+        const now = performance.now();
+        const userRecentlyMoved = (now - s.lastUserMoveTs) < 1000;
+
+        if (!s.dragging && !userRecentlyMoved) {
+          s.x += s.speed * dt;
+          if (s.x >= s.halfW) s.x -= s.halfW; // wrap perfeito
+          applyTransform(s);
+        }
+      });
+
+      requestAnimationFrame(tick);
+    }
+
+    // Drag por faixa
+    document.querySelectorAll('.strip').forEach(stripEl => {
+      const idx = Number(stripEl.getAttribute('data-strip'));
+      const s = strips[idx];
+
+      stripEl.addEventListener('pointerdown', (e) => {
+        s.dragging = true;
+        s.lastPointerX = e.clientX;
+        s.lastUserMoveTs = performance.now();
+        stripEl.setPointerCapture(e.pointerId);
+      });
+
+      stripEl.addEventListener('pointermove', (e) => {
+        if (!s.dragging) return;
+        const dx = e.clientX - s.lastPointerX;
+        s.lastPointerX = e.clientX;
+
+        // Arrastar: mover no sentido do dedo (inverte conforme direção)
+        // (dx positivo deve “puxar” o conteúdo para acompanhar)
+        s.x -= dx * s.dir; // mantém coerência esquerda/direita
+        s.x = ((s.x % s.halfW) + s.halfW) % s.halfW;
+
+        s.lastUserMoveTs = performance.now();
+        applyTransform(s);
+      });
+
+      stripEl.addEventListener('pointerup', () => {
+        s.dragging = false;
+        s.lastUserMoveTs = performance.now();
+      });
+
+      stripEl.addEventListener('pointercancel', () => {
+        s.dragging = false;
+        s.lastUserMoveTs = performance.now();
+      });
+    });
+
+    // Re-medidas quando imagens carregam / resize
+    window.addEventListener('load', () => {
+      // espera um bocadinho para garantir dimensões finais
+      setTimeout(() => {
+        measure();
+        requestAnimationFrame(tick);
+      }, 60);
+    });
+
+    window.addEventListener('resize', () => {
+      // Recalcular para manter o wrap perfeito após mudança de viewport
+      setTimeout(measure, 50);
+    });
+  </script>
 </body>
 </html>
