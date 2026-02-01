@@ -17,7 +17,7 @@ html,body{
   height:100%;
   overflow:hidden;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background:#fff;
+  background:#000; /* evita flashes brancos */
 }
 
 /* ===== LAYOUT ===== */
@@ -33,43 +33,39 @@ html,body{
   display:flex;
   flex-direction:column;
   overflow:hidden;
+  background:#000;
 }
 
-/* cada linha */
 .lane{
   flex:1;
   display:flex;
-  align-items:center;
+  align-items:stretch;
   overflow:hidden;
 }
 
-/* faixa animada */
 .track{
   display:flex;
-  gap:0;                         /* ❌ SEM ESPAÇAMENTO */
+  gap:0; /* SEM ESPAÇOS */
   animation: scroll linear infinite;
 }
 
-/* direção contrária */
 .track.reverse{
   animation-direction: reverse;
 }
 
-/* cada foto */
 .slide{
   height:100%;
+  width:auto;
   aspect-ratio: 4 / 3;
   flex-shrink:0;
   overflow:hidden;
-  background:#fff;
 }
 
 .slide img{
   width:100%;
   height:100%;
-  object-fit:contain;            /* sem zoom */
+  object-fit: cover;   /* 🔥 ISTO REMOVE OS ESPAÇOS */
   display:block;
-  background:#fff;
 }
 
 /* ===== ANIMAÇÃO ===== */
@@ -78,7 +74,7 @@ html,body{
   to{ transform: translateX(-50%); }
 }
 
-/* ⚡ VELOCIDADE MAIS RÁPIDA */
+/* VELOCIDADE */
 .lane:nth-child(1) .track{ animation-duration: 45s; }
 .lane:nth-child(2) .track{ animation-duration: 55s; }
 
@@ -105,8 +101,8 @@ html,body{
   object-fit:contain;
 }
 
-/* ===== RESPONSIVE ===== */
-@media (max-width: 768px){
+/* ===== MOBILE ===== */
+@media (max-width:768px){
   .slide{
     aspect-ratio: 1 / 1;
   }
@@ -118,10 +114,9 @@ html,body{
 
 <div class="wrap">
 
-  <!-- ===== SLIDESHOW (2/3) ===== -->
+  <!-- SLIDESHOW -->
   <section class="slideshow">
 
-    <!-- Linha 1 -->
     <div class="lane">
       <div class="track">
         <div class="slide"><img src="./assets/photo01.jpg"></div>
@@ -130,7 +125,7 @@ html,body{
         <div class="slide"><img src="./assets/photo04.jpg"></div>
         <div class="slide"><img src="./assets/photo05.jpg"></div>
 
-        <!-- duplicação para loop infinito -->
+        <!-- duplicação -->
         <div class="slide"><img src="./assets/photo01.jpg"></div>
         <div class="slide"><img src="./assets/photo02.jpg"></div>
         <div class="slide"><img src="./assets/photo03.jpg"></div>
@@ -139,7 +134,6 @@ html,body{
       </div>
     </div>
 
-    <!-- Linha 2 (sentido contrário) -->
     <div class="lane">
       <div class="track reverse">
         <div class="slide"><img src="./assets/photo06.jpg"></div>
@@ -158,7 +152,7 @@ html,body{
 
   </section>
 
-  <!-- ===== LOGO (1/3) ===== -->
+  <!-- LOGO -->
   <section class="logoArea">
     <div class="logoInner">
       <img src="./background.png" alt="Little Things Logo">
