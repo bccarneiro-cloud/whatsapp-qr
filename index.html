@@ -180,6 +180,188 @@
 
   </div>
 
+ <!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Little Things</title>
+
+  <style>
+    :root{
+      --speedTop: 60s;     /* velocidade linha 1 */
+      --speedBottom: 60s;  /* velocidade linha 2 */
+      --gap: 0px;          /* sem espaçamento entre fotos */
+
+      --topH: 67dvh;       /* 2/3 */
+      --bottomH: 33dvh;    /* 1/3 */
+
+      --tileW-desktop: 25vw;
+      --tileW-mobile: 50vw;
+
+      --btnH: 52px;        /* altura aprox do botão */
+    }
+
+    *{ margin:0; padding:0; box-sizing:border-box; }
+    html,body{ width:100%; height:100%; background:#fff; overflow:hidden; }
+
+    .page{
+      height: 100dvh;
+      display:flex;
+      flex-direction:column;
+      background:#fff;
+    }
+
+    /* ================= TOP (2 linhas) ================= */
+    .slides{
+      height: var(--topH);
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
+      background:#fff;
+    }
+
+    .row{
+      height:50%;
+      overflow:hidden;
+      background:#fff;
+    }
+
+    .track{
+      display:flex;
+      width:max-content;
+      gap: var(--gap);
+      will-change: transform;
+    }
+
+    /* animações separadas por linha (para poderes mexer na velocidade independentemente) */
+    .row.top .track{
+      animation: scrollTop var(--speedTop) linear infinite;
+    }
+    .row.bottom .track{
+      animation: scrollBottom var(--speedBottom) linear infinite reverse;
+    }
+
+    @keyframes scrollTop{
+      from{ transform: translateX(0); }
+      to{ transform: translateX(-50%); }
+    }
+    @keyframes scrollBottom{
+      from{ transform: translateX(0); }
+      to{ transform: translateX(-50%); }
+    }
+
+    /* ✅ tiles fixos (os “quadrados/rectângulos” do teu array) */
+    .tile{
+      height:100%;
+      flex:0 0 auto;
+      width: var(--tileW-desktop);
+      background:#fff;
+      line-height:0;
+      overflow:hidden; /* importante: garante que a foto fica "recortada" ao tile */
+    }
+
+    /* ✅ Ajusta a foto ao tile, sem branco em baixo */
+    .tile img{
+      width:100%;
+      height:100%;
+      display:block;
+      object-fit: cover;          /* <-- ISTO remove brancos e “metade vazia” */
+      object-position:center;
+      transform:none !important;  /* mata qualquer scale/zoom por CSS */
+      filter:none !important;
+    }
+
+    @media (max-width: 768px){
+      .tile{ width: var(--tileW-mobile); }
+    }
+
+    /* ================= BOTTOM (logo + botão) ================= */
+    .logoWrap{
+      height: var(--bottomH);
+      position: relative;
+      background:#fff;
+      overflow: hidden;
+
+      /* ✅ reserva espaço para o botão + safe area (iPhone) */
+      padding-bottom: calc(var(--btnH) + 14px + env(safe-area-inset-bottom));
+    }
+
+    .logo{
+      position:absolute;
+      inset: 0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 10px 12px;
+      padding-bottom: calc(var(--btnH) + 24px + env(safe-area-inset-bottom)); /* não deixar o logo “bater” no botão */
+    }
+
+    .logo img{
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display:block;
+    }
+
+    /* ✅ botão sempre visível no mobile, nunca cortado */
+    .cta{
+      position:absolute;
+      left:50%;
+      transform:translateX(-50%);
+      bottom: calc(12px + env(safe-area-inset-bottom));
+
+      height: var(--btnH);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+
+      padding: 0 22px;
+      border-radius: 999px;
+      font-size: 18px;
+      font-weight: 800;
+
+      background: #ffd6e6;
+      color: #6a1b4d;
+      text-decoration: none;
+
+      animation: flash 1.2s infinite;
+      box-shadow: 0 8px 20px rgba(0,0,0,.12);
+      white-space: nowrap;
+    }
+
+    @keyframes flash{
+      0%,100%{ opacity:1; }
+      50%{ opacity:.65; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+
+    <div class="slides">
+      <div class="row top">
+        <div class="track" id="trackTop"></div>
+      </div>
+
+      <div class="row bottom">
+        <div class="track" id="trackBottom"></div>
+      </div>
+    </div>
+
+    <div class="logoWrap">
+      <div class="logo">
+        <img src="background.png" alt="Little Things" />
+      </div>
+
+      <a class="cta" href="https://www.littlethings.events/qr_contact/">
+        Contactos / Contacts
+      </a>
+    </div>
+
+  </div>
+
   <script>
     // fotos disponíveis (assets/photo01.jpg ... assets/photo14.jpg)
     const photos = Array.from({ length: 14 }, (_, i) => {
@@ -213,5 +395,7 @@
     // Linha 2: outra ordem random (diferente), também 01-14
     buildTrack(document.getElementById("trackBottom"), shuffle(photos));
   </script>
+</body>
+</html>
 </body>
 </html>
