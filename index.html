@@ -6,6 +6,15 @@
   <title>Little Things</title>
 
   <style>
+    :root{
+      --gap: 14px;
+      --radius: 18px;
+      --cardBg: rgba(255,255,255,0.50);
+      --cardBorder: rgba(255,255,255,0.60);
+      --shadow: 0 18px 55px rgba(0,0,0,0.18);
+    }
+
+    * { box-sizing: border-box; }
     html { height: -webkit-fill-available; }
     body{
       margin:0;
@@ -13,115 +22,141 @@
       min-height: 100svh;
       min-height: 100dvh;
       min-height: -webkit-fill-available;
-      overflow:hidden;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background:#fff;
+      overflow:hidden;
+      background: #fff;
     }
 
-    /* Layout 2/3 + 1/3 */
-    .app{
+    /* Fundo suave (opcional) */
+    .bg{
       position: fixed;
       inset: 0;
-      display: grid;
-      grid-template-rows: 2fr 1fr; /* ✅ 2/3 slideshow, 1/3 logo */
+      background: radial-gradient(circle at 20% 10%, rgba(255,192,203,0.22), transparent 55%),
+                  radial-gradient(circle at 80% 60%, rgba(255,182,193,0.18), transparent 60%),
+                  #ffffff;
+      z-index: -2;
     }
 
-    /* ---------------- TOP (slideshow) ---------------- */
-    .top{
-      position: relative;
+    /* Container geral (mosaico em 3 faixas) */
+    .wrap{
+      position: fixed;
+      inset: 0;
+      padding: calc(16px + env(safe-area-inset-top)) 16px calc(18px + env(safe-area-inset-bottom)) 16px;
+      display: grid;
+      grid-template-rows: 0.95fr 0.75fr 1.30fr; /* parecido com o teu sketch */
+      gap: var(--gap);
+    }
+
+    /* Cada faixa com “cartão” tipo vidro */
+    .laneCard{
+      border-radius: 28px;
+      background: var(--cardBg);
+      border: 1px solid var(--cardBorder);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       overflow: hidden;
+      position: relative;
+    }
+
+    /* Rolo horizontal */
+    .marquee{
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+
+    .track{
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px;
+      width: max-content;
+      will-change: transform;
+      animation: scroll var(--duration, 28s) linear infinite;
+    }
+
+    /* Direção invertida quando necessário */
+    .reverse .track{
+      animation-name: scrollReverse;
+    }
+
+    @keyframes scroll{
+      from { transform: translateX(0); }
+      to   { transform: translateX(calc(-1 * var(--shift))); }
+    }
+    @keyframes scrollReverse{
+      from { transform: translateX(calc(-1 * var(--shift))); }
+      to   { transform: translateX(0); }
+    }
+
+    /* Tile (cada foto no mosaico) */
+    .tile{
+      position: relative;
+      flex: 0 0 auto;
+      width: var(--tileW, 220px);
+      height: var(--tileH, 140px);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.18);
       background: #000;
     }
 
-    .slideshow{
-      position:absolute;
-      inset:0;
-    }
-
-    .slide{
-      position:absolute;
-      inset:0;
-      opacity: 0;
-      transition: opacity 1.2s ease;
-      will-change: opacity;
-    }
-    .slide.active{ opacity: 1; }
-
-    .slide .bg{
-      position:absolute;
-      inset:-22px;
+    /* Blur por trás para não haver “barras brancas” */
+    .tile .blur{
+      position: absolute;
+      inset: -20px;
       background-position: center;
       background-size: cover;
-      filter: blur(18px);
-      transform: scale(1.10);
-      opacity: 0.95;
+      filter: blur(14px);
+      transform: scale(1.08);
+      opacity: 0.90;
     }
 
-    .slide .shade{
-      position:absolute;
-      inset:0;
-      background: rgba(0,0,0,0.18);
-    }
-
-    /* ✅ Foto completa sem cortar */
-    .slide img{
+    /* Foto inteira (sem cortar) */
+    .tile img{
       position: relative;
       z-index: 1;
-      width:100%;
-      height:100%;
-      object-fit: contain;
-      object-position: center;
-      display:block;
-      transform:none !important;
-      animation:none !important;
-      filter:none !important;
-    }
-
-    /* ---------------- BOTTOM (logo) ---------------- */
-    .bottom{
-      position: relative;
-      overflow: hidden;
-      background: #fff;
-      padding-bottom: env(safe-area-inset-bottom);
-    }
-
-    /*
-      ✅ truque para "comer margens" mesmo que o PNG ainda tenha espaço:
-      - o logo ocupa a altura toda (auto 100%).
-      - aplicamos um scale controlado (1.10 por defeito).
-      Ajusta o --logoZoom se quiseres mais/menos.
-    */
-    :root{
-      --logoZoom: 1.15; /* aumenta para 1.20 / 1.25 se ainda tiver margem */
-    }
-
-    .logo-wrap{
-      position:absolute;
-      inset: 0;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      transform: scale(var(--logoZoom));
-      transform-origin: center;
-    }
-
-    .logo{
       width: 100%;
       height: 100%;
-      background-image: url("./background.png");
-      background-repeat: no-repeat;
-      background-position: center;
-      background-size: auto 100%; /* ✅ ocupa a altura toda, sem distorcer */
+      object-fit: contain;   /* ✅ foto completa */
+      object-position: center;
+      display: block;
     }
 
-    /* Botão topo */
+    /* Topo: 2 tiles “grandes” (mosaico mais largo) */
+    .lane1 { --tileH: 150px; }
+    .lane1 .tile{ --tileW: 260px; }
+
+    /* Meio: tiles mais compactos */
+    .lane2 { --tileH: 130px; }
+    .lane2 .tile{ --tileW: 210px; }
+
+    /* Fundo: tiles maiores (como no desenho) */
+    .lane3 { --tileH: 190px; }
+    .lane3 .tile{ --tileW: 300px; }
+
+    /* Ajustes mobile */
+    @media (max-width: 520px){
+      .wrap{
+        padding: calc(14px + env(safe-area-inset-top)) 12px calc(16px + env(safe-area-inset-bottom)) 12px;
+        gap: 12px;
+        grid-template-rows: 0.95fr 0.75fr 1.35fr;
+      }
+      .lane1 .tile{ --tileW: 240px; }
+      .lane2 .tile{ --tileW: 190px; }
+      .lane3 .tile{ --tileW: 270px; }
+    }
+
+    /* Botão Contactos */
     .corner{
       position: fixed;
       top: calc(14px + env(safe-area-inset-top));
       right: 14px;
       z-index: 10;
     }
-
     .corner a{
       display:inline-flex;
       align-items:center;
@@ -140,40 +175,57 @@
     }
     .corner a:active{ transform: scale(.98); }
 
-    /* Evitar flash inicial */
-    .loadingCover{
-      position: fixed;
-      inset: 0;
-      z-index: 20;
-      background: #000;
-      opacity: 0;
-      transition: opacity .2s ease;
-      pointer-events:none;
+    /* Pequena etiqueta opcional por faixa */
+    .label{
+      position:absolute;
+      left: 14px;
+      top: 12px;
+      z-index: 2;
+      padding: 8px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      color: rgba(10,10,10,.85);
+      background: rgba(255,255,255,0.65);
+      border: 1px solid rgba(255,255,255,0.6);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
     }
-    .loadingCover.show{ opacity: 1; }
   </style>
 </head>
 
 <body>
+  <div class="bg" aria-hidden="true"></div>
+
   <div class="corner">
     <a href="./qr_contact/">Contactos / Contacts</a>
   </div>
 
-  <div class="app">
-    <section class="top">
-      <div class="slideshow" id="slideshow" aria-hidden="true"></div>
-    </section>
-
-    <section class="bottom">
-      <div class="logo-wrap" aria-hidden="true">
-        <div class="logo"></div>
+  <main class="wrap">
+    <section class="laneCard lane1" id="lane1">
+      <div class="label">Decoração ✨</div>
+      <div class="marquee">
+        <div class="track" id="track1"></div>
       </div>
     </section>
-  </div>
 
-  <div class="loadingCover" id="loadingCover"></div>
+    <section class="laneCard lane2 reverse" id="lane2">
+      <div class="label">Detalhes 🎀</div>
+      <div class="marquee">
+        <div class="track" id="track2"></div>
+      </div>
+    </section>
+
+    <section class="laneCard lane3" id="lane3">
+      <div class="label">Eventos 🎉</div>
+      <div class="marquee">
+        <div class="track" id="track3"></div>
+      </div>
+    </section>
+  </main>
 
   <script>
+    // ✅ Mete as 14 fotos nesta pasta: /assets/photo01.jpg ... photo14.jpg
     const photos = [
       "./assets/photo01.jpg",
       "./assets/photo02.jpg",
@@ -191,82 +243,78 @@
       "./assets/photo14.jpg"
     ];
 
-    const container = document.getElementById("slideshow");
-    const loadingCover = document.getElementById("loadingCover");
+    function makeTile(src){
+      const tile = document.createElement("div");
+      tile.className = "tile";
 
-    function preload(src){
-      return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.onload = () => resolve(src);
-        img.onerror = () => reject(src);
-        img.src = src;
-      });
+      const blur = document.createElement("div");
+      blur.className = "blur";
+      blur.style.backgroundImage = `url("${src}")`;
+
+      const img = document.createElement("img");
+      img.src = src;
+      img.alt = "Little Things";
+
+      tile.appendChild(blur);
+      tile.appendChild(img);
+      return tile;
     }
 
-    function createSlides(list){
-      return list.map((src, idx) => {
-        const s = document.createElement("div");
-        s.className = "slide";
-
-        const bg = document.createElement("div");
-        bg.className = "bg";
-        bg.style.backgroundImage = `url("${src}")`;
-
-        const shade = document.createElement("div");
-        shade.className = "shade";
-
-        const img = document.createElement("img");
-        img.src = src;
-        img.alt = "Work " + (idx + 1);
-
-        s.appendChild(bg);
-        s.appendChild(shade);
-        s.appendChild(img);
-
-        container.appendChild(s);
-        return s;
-      });
-    }
-
-    function startSlideshow(slides){
-      let idx = 0;
-      const INTERVAL = 4500;
-
-      const show = (i) => {
-        slides.forEach(s => s.classList.remove("active"));
-        slides[i].classList.add("active");
-      };
-
-      show(idx);
-
-      setInterval(() => {
-        idx = (idx + 1) % slides.length;
-        show(idx);
-      }, INTERVAL);
-    }
-
-    (async function init(){
-      loadingCover.classList.add("show");
-
-      try{
-        await preload(photos[0]);
-      }catch(e){
-        for (let i = 1; i < photos.length; i++){
-          try{
-            await preload(photos[i]);
-            const ok = photos.splice(i,1)[0];
-            photos.unshift(ok);
-            break;
-          }catch(_){}
+    // Cria uma sequência longa e duplica para rolar “sem cortes”
+    function fillTrack(trackEl, list, repeatTimes){
+      trackEl.innerHTML = "";
+      const seq = [];
+      for(let r=0; r<repeatTimes; r++){
+        for(const src of list){
+          const t = makeTile(src);
+          trackEl.appendChild(t);
+          seq.push(t);
         }
       }
+      return seq;
+    }
 
-      const slides = createSlides(photos);
-      Promise.allSettled([preload(photos[1]), preload(photos[2])]);
+    function shuffle(arr){
+      const a = [...arr];
+      for(let i=a.length-1; i>0; i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
 
-      loadingCover.classList.remove("show");
-      startSlideshow(slides);
-    })();
+    function setupMarquee(trackId, speedSeconds, list){
+      const track = document.getElementById(trackId);
+
+      // baralhar para cada faixa ter ordem diferente
+      const shuffled = shuffle(list);
+
+      // repetir algumas vezes para ficar comprido
+      fillTrack(track, shuffled, 2);
+
+      // depois de renderizar, medimos largura para definir "shift"
+      requestAnimationFrame(() => {
+        const fullWidth = track.scrollWidth;
+
+        // Queremos rolar metade do conteúdo (porque duplicámos 2x)
+        const shift = fullWidth / 2;
+
+        track.style.setProperty("--shift", shift + "px");
+        track.style.setProperty("--duration", speedSeconds + "s");
+      });
+    }
+
+    // 3 faixas com velocidades diferentes (efeito futurista mas clássico)
+    setupMarquee("track1", 34, photos);
+    setupMarquee("track2", 28, photos);
+    setupMarquee("track3", 40, photos);
+
+    // Recalcular ao mudar o tamanho (orientação/desktop)
+    window.addEventListener("resize", () => {
+      setupMarquee("track1", 34, photos);
+      setupMarquee("track2", 28, photos);
+      setupMarquee("track3", 40, photos);
+    });
   </script>
 </body>
 </html>
