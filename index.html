@@ -1,161 +1,156 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Little Things</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Little Things</title>
 
-<style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
-html, body {
-  height: 100%;
-  overflow: hidden;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  background: #fff;
-}
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      background: #fff;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
 
-/* LAYOUT */
-.page {
-  height: 100vh;
-  display: grid;
-  grid-template-rows: 2fr 1fr; /* 2/3 slideshow | 1/3 logo */
-}
+    /* 2/3 topo (faixas) + 1/3 logo */
+    .page {
+      height: 100vh;
+      display: grid;
+      grid-template-rows: 2fr 1fr;
+    }
 
-/* SLIDESHOW */
-.slideshow {
-  height: 100%;
-  overflow: hidden;
-}
+    /* TOP: duas faixas */
+    .strips {
+      height: 100%;
+      overflow: hidden;
+      background: #000; /* evita flashes se alguma imagem tiver transparência */
+    }
 
-.row {
-  height: 50%;
-  overflow: hidden;
-}
+    .strip {
+      height: 50%;
+      overflow: hidden;
+      position: relative;
+    }
 
-.track {
-  display: flex;
-  width: fit-content;
-  animation: scroll 24s linear infinite;
-}
+    .track {
+      height: 100%;
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 0;               /* SEM espaçamento */
+      will-change: transform;
+      animation: scrollLeft 40s linear infinite; /* velocidade (mais alto = mais lento) */
+    }
 
-.track.reverse {
-  animation-direction: reverse;
-  animation-duration: 28s;
-}
+    .track.reverse {
+      animation: scrollRight 44s linear infinite;
+    }
 
-.slide {
-  flex: 0 0 auto;
-  height: 100%;
-}
+    .item {
+      height: 100%;
+      flex: 0 0 auto;
+    }
 
-.slide img {
-  height: 100%;
-  width: auto;
-  display: block;
-  object-fit: contain;
-}
+    .item img {
+      height: 100%;
+      width: auto;
+      display: block;
+      object-fit: cover;  /* MANTÉM o look que tinhas */
+    }
 
-/* ANIMAÇÃO CORRETA */
-@keyframes scroll {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
+    @keyframes scrollLeft {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
 
-/* LOGO */
-.logoArea {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
+    @keyframes scrollRight {
+      from { transform: translateX(-50%); }
+      to   { transform: translateX(0); }
+    }
 
-.logoArea img {
-  height: 100%;
-  width: auto;
-  object-fit: contain;
-}
+    /* BOTTOM: logo 1/3 */
+    .logoArea {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: #fff;
+      padding-bottom: 10px; /* ajuda no telemóvel a não cortar */
+    }
 
-/* MOBILE */
-@media (max-width: 768px) {
-  .page {
-    grid-template-rows: 2.2fr 1.2fr;
-  }
+    .logoArea img {
+      height: 100%;
+      width: auto;
+      object-fit: contain;
+      display: block;
+    }
 
-  .logoArea img {
-    height: 95%;
-  }
-}
-</style>
+    /* MOBILE tweaks */
+    @media (max-width: 768px) {
+      .page { grid-template-rows: 2.1fr 0.9fr; }
+      .logoArea { padding-bottom: 18px; } /* sobe ligeiramente */
+      .logoArea img { height: 95%; }
+    }
+  </style>
 </head>
 
 <body>
+  <div class="page">
 
-<div class="page">
+    <div class="strips">
+      <!-- STRIP 1 (normal) -->
+      <div class="strip">
+        <div class="track">
+          <!-- conjunto A -->
+          <div class="item"><img src="assets/photo01.jpg" alt=""></div>
+          <div class="item"><img src="assets/photo02.jpg" alt=""></div>
+          <div class="item"><img src="assets/photo03.jpg" alt=""></div>
+          <div class="item"><img src="assets/photo04.jpg" alt=""></div>
+          <div class="item"><img src="assets/photo05.jpg" alt=""></div>
+          <div class="item"><img src="assets/photo06.jpg" alt=""></div>
+          <div class="item"><img src="assets/photo07.jpg" alt=""></div>
 
-  <!-- SLIDESHOW -->
-  <div class="slideshow">
+          <!-- conjunto B (duplicado igual para loop perfeito) -->
+          <div class="item"><img src="assets/photo01.jpg" alt=""></div>
+          <div class="item"><img src="assets/photo02.jpg" alt=""></div>
+          <div class="item"><img src="assets/photo03.jpg" alt=""></div>
+          <div class="item"><img src="assets/photo04.jpg" alt=""></div>
+          <div class="item"><img src="assets/photo05.jpg" alt=""></div>
+          <div class="item"><img src="assets/photo06.jpg" alt=""></div>
+          <div class="item"><img src="assets/photo07.jpg" alt=""></div>
+        </div>
+      </div>
 
-    <!-- LINHA 1 -->
-    <div class="row">
-      <div class="track">
-        <div class="slide"><img src="assets/photo01.jpg"></div>
-        <div class="slide"><img src="assets/photo02.jpg"></div>
-        <div class="slide"><img src="assets/photo03.jpg"></div>
-        <div class="slide"><img src="assets/photo04.jpg"></div>
-        <div class="slide"><img src="assets/photo05.jpg"></div>
-        <div class="slide"><img src="assets/photo06.jpg"></div>
-        <div class="slide"><img src="assets/photo07.jpg"></div>
+      <!-- STRIP 2 (reverse) -->
+      <div class="strip">
+        <div class="track reverse">
+          <!-- conjunto A -->
+          <div class="item"><img src="assets/photo08.jpg" alt=""></div>
+          <div class="item"><img src="assets/photo09.jpg" alt=""></div>
+          <div class="item"><img src="assets/photo10.jpg" alt=""></div>
+          <div class="item"><img src="assets/photo11.jpg" alt=""></div>
+          <div class="item"><img src="assets/photo12.jpg" alt=""></div>
+          <div class="item"><img src="assets/photo13.jpg" alt=""></div>
+          <div class="item"><img src="assets/photo14.jpg" alt=""></div>
 
-        <!-- DUPLICAÇÃO -->
-        <div class="slide"><img src="assets/photo01.jpg"></div>
-        <div class="slide"><img src="assets/photo02.jpg"></div>
-        <div class="slide"><img src="assets/photo03.jpg"></div>
-        <div class="slide"><img src="assets/photo04.jpg"></div>
-        <div class="slide"><img src="assets/photo05.jpg"></div>
-        <div class="slide"><img src="assets/photo06.jpg"></div>
-        <div class="slide"><img src="assets/photo07.jpg"></div>
+          <!-- conjunto B (duplicado igual — ISTO remove o espaço branco no fim) -->
+          <div class="item"><img src="assets/photo08.jpg" alt=""></div>
+          <div class="item"><img src="assets/photo09.jpg" alt=""></div>
+          <div class="item"><img src="assets/photo10.jpg" alt=""></div>
+          <div class="item"><img src="assets/photo11.jpg" alt=""></div>
+          <div class="item"><img src="assets/photo12.jpg" alt=""></div>
+          <div class="item"><img src="assets/photo13.jpg" alt=""></div>
+          <div class="item"><img src="assets/photo14.jpg" alt=""></div>
+        </div>
       </div>
     </div>
 
-    <!-- LINHA 2 -->
-    <div class="row">
-      <div class="track reverse">
-        <div class="slide"><img src="assets/photo08.jpg"></div>
-        <div class="slide"><img src="assets/photo09.jpg"></div>
-        <div class="slide"><img src="assets/photo10.jpg"></div>
-        <div class="slide"><img src="assets/photo11.jpg"></div>
-        <div class="slide"><img src="assets/photo12.jpg"></div>
-        <div class="slide"><img src="assets/photo13.jpg"></div>
-        <div class="slide"><img src="assets/photo14.jpg"></div>
-
-        <!-- DUPLICAÇÃO -->
-        <div class="slide"><img src="assets/photo08.jpg"></div>
-        <div class="slide"><img src="assets/photo09.jpg"></div>
-        <div class="slide"><img src="assets/photo10.jpg"></div>
-        <div class="slide"><img src="assets/photo11.jpg"></div>
-        <div class="slide"><img src="assets/photo12.jpg"></div>
-        <div class="slide"><img src="assets/photo13.jpg"></div>
-        <div class="slide"><img src="assets/photo14.jpg"></div>
-      </div>
+    <div class="logoArea">
+      <img src="background.png" alt="Little Things logo">
     </div>
 
   </div>
-
-  <!-- LOGO -->
-  <div class="logoArea">
-    <img src="background.png" alt="Little Things">
-  </div>
-
-</div>
-
 </body>
 </html>
