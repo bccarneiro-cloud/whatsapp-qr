@@ -1,184 +1,351 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Little Things</title>
 
   <style>
     :root{
-      --speed-top: 60s;
-      --speed-bottom: 60s;
-      --logo-height: 33vh;
-      --rows-height: 67vh;
+      --gap: 12px;
+      --radius: 18px;
+
+      /* Áreas fixas (ajusta se quiseres) */
+      --topBarH: 64px;
+      --footerH: 34vh;  /* logo ocupa ~1/3 do ecrã */
+      --minFooterH: 240px;
+      --maxFooterH: 360px;
+
+      --glassBg: rgba(255,255,255,0.45);
+      --glassBorder: rgba(255,255,255,0.55);
+      --shadow: 0 18px 55px rgba(0,0,0,0.18);
     }
 
-    *{ box-sizing:border-box; }
-    html, body {
-      height:100%;
+    * { box-sizing: border-box; }
+    html { height: -webkit-fill-available; }
+    body{
       margin:0;
-      background:#fff;
-      overflow:hidden;
+      height: 100vh;
+      height: 100svh;
+      height: 100dvh;
+      height: -webkit-fill-available;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-    }
-
-    .page{
-      height:100vh;
-      display:flex;
-      flex-direction:column;
-    }
-
-    /* ================= SLIDES (2/3) ================= */
-    .rows{
-      height: var(--rows-height);
-      display:flex;
-      flex-direction:column;
-    }
-
-    .row{
-      flex:1;
       overflow:hidden;
       background:#fff;
     }
 
+    /* Fundo suave */
+    .bg{
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(circle at 20% 10%, rgba(255,192,203,0.22), transparent 55%),
+        radial-gradient(circle at 80% 60%, rgba(255,182,193,0.18), transparent 60%),
+        #ffffff;
+      z-index: -2;
+    }
+
+    /* Top bar fixa */
+    .topbar{
+      position: fixed;
+      left: 0;
+      right: 0;
+      top: 0;
+      z-index: 30;
+      height: calc(var(--topBarH) + env(safe-area-inset-top));
+      padding: calc(10px + env(safe-area-inset-top)) 12px 10px 12px;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      pointer-events: none; /* para não bloquear toques fora do botão */
+    }
+
+    .topbar a{
+      pointer-events: auto;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding: 12px 14px;
+      border-radius: 999px;
+      text-decoration:none;
+      font-weight: 900;
+      font-size: 13px;
+      color: rgba(10,10,10,.92);
+      background: rgba(255,255,255,.80);
+      border: 1px solid rgba(255,255,255,.60);
+      box-shadow: 0 14px 40px rgba(0,0,0,.12);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      white-space: nowrap;
+    }
+    .topbar a:active{ transform: scale(.98); }
+
+    /* Layout: topo + zona mosaico + footer com logo */
+    .layout{
+      position: fixed;
+      inset: 0;
+      padding-top: calc(var(--topBarH) + env(safe-area-inset-top));
+      padding-bottom: calc(env(safe-area-inset-bottom));
+      display: grid;
+      grid-template-rows: 1fr auto;
+      gap: var(--gap);
+    }
+
+    /* Zona mosaico (meio) */
+    .mosaicArea{
+      padding: 0 12px;
+      display: grid;
+      grid-template-rows: 0.95fr 0.75fr 1.30fr;
+      gap: var(--gap);
+      min-height: 0; /* important para não “empurrar” o footer */
+    }
+
+    .laneCard{
+      border-radius: 26px;
+      background: var(--glassBg);
+      border: 1px solid var(--glassBorder);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      overflow: hidden;
+      position: relative;
+      min-height: 0;
+    }
+
+    .label{
+      position:absolute;
+      left: 12px;
+      top: 10px;
+      z-index: 2;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      color: rgba(10,10,10,.85);
+      background: rgba(255,255,255,0.65);
+      border: 1px solid rgba(255,255,255,0.6);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    /* Marquee */
+    .marquee{ position:absolute; inset:0; overflow:hidden; }
     .track{
-      height:100%;
+      position:absolute;
+      inset:0;
       display:flex;
-      gap:0;
+      align-items:center;
+      gap: 12px;
+      padding: 14px;
+      width: max-content;
       will-change: transform;
+      animation: scroll var(--duration, 28s) linear infinite;
     }
+    .reverse .track{ animation-name: scrollReverse; }
 
-    .row.top .track{
-      animation: scroll-left var(--speed-top) linear infinite;
-    }
-
-    .row.bottom .track{
-      animation: scroll-right var(--speed-bottom) linear infinite;
-    }
-
-    @keyframes scroll-left{
+    @keyframes scroll{
       from { transform: translateX(0); }
-      to   { transform: translateX(-50%); }
+      to   { transform: translateX(calc(-1 * var(--shift))); }
     }
-
-    @keyframes scroll-right{
-      from { transform: translateX(-50%); }
+    @keyframes scrollReverse{
+      from { transform: translateX(calc(-1 * var(--shift))); }
       to   { transform: translateX(0); }
     }
 
+    /* Tiles */
     .tile{
-      height:100%;
-      flex:0 0 auto;
-      width:33.333vw;
-      min-width:240px;
-      max-width:520px;
-      overflow:hidden;
-      background:#fff;
+      position: relative;
+      flex: 0 0 auto;
+      width: var(--tileW, 220px);
+      height: var(--tileH, 140px);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.18);
+      background: #000;
     }
-
-    @media (max-width:900px){
-      .tile{ width:50vw; min-width:180px; }
+    .tile .blur{
+      position:absolute;
+      inset:-20px;
+      background-position:center;
+      background-size:cover;
+      filter: blur(14px);
+      transform: scale(1.08);
+      opacity: 0.9;
     }
-
-    @media (max-width:520px){
-      .tile{ width:70vw; min-width:160px; }
-    }
-
     .tile img{
+      position:relative;
+      z-index:1;
       width:100%;
       height:100%;
-      display:block;
-      object-fit:cover;
+      object-fit: contain; /* foto inteira */
       object-position:center;
-      transform:none !important;
-      animation:none !important;
+      display:block;
     }
 
-    /* ================= LOGO + CONTACTOS (1/3) ================= */
-    .logoWrap{
-      height: var(--logo-height);
-      background:#fff;
+    .lane1 { --tileH: 150px; }
+    .lane1 .tile{ --tileW: 260px; }
+    .lane2 { --tileH: 130px; }
+    .lane2 .tile{ --tileW: 210px; }
+    .lane3 { --tileH: 190px; }
+    .lane3 .tile{ --tileW: 300px; }
+
+    @media (max-width: 520px){
+      .mosaicArea{ padding: 0 10px; gap: 10px; }
+      .lane1 .tile{ --tileW: 240px; }
+      .lane2 .tile{ --tileW: 190px; }
+      .lane3 .tile{ --tileW: 270px; }
+    }
+
+    /* Footer fixo com logo SEM CORTAR */
+    .footerLogo{
+      padding: 0 12px calc(10px + env(safe-area-inset-bottom)) 12px;
+      height: clamp(var(--minFooterH), var(--footerH), var(--maxFooterH));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logoCard{
+      width: 100%;
+      height: 100%;
+      border-radius: 26px;
+      background: rgba(255,255,255,0.35);
+      border: 1px solid rgba(255,255,255,0.55);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      overflow: hidden;
       display:flex;
-      flex-direction:column;
       align-items:center;
       justify-content:center;
-      padding-bottom: env(safe-area-inset-bottom);
     }
 
-    .logoWrap img{
-      height:100%;
-      max-height: calc(100% - 60px);
-      width:auto;
-      max-width:100%;
-      object-fit:contain;
+    .logoCard img{
+      width: 100%;
+      height: 100%;
+      object-fit: contain; /* ✅ logo inteiro sempre */
       display:block;
+      padding: 8px; /* se quiseres MESMO colado, mete 0 */
     }
 
-    /* ✅ BOTÃO CORRETO: SEM position:absolute */
-    .cta{
-      margin-top:10px;
-
-      padding:14px 22px;
-      border-radius:999px;
-      font-size:18px;
-      font-weight:800;
-      background:#ffd6e6;
-      color:#6a1b4d;
-      text-decoration:none;
-
-      animation: flash 1.2s infinite;
-      box-shadow:0 8px 20px rgba(0,0,0,.12);
-      white-space:nowrap;
-    }
-
-    @keyframes flash{
-      0%,100%{ opacity:1; }
-      50%{ opacity:.65; }
-    }
+    /* Se quiseres o logo a tocar mesmo nos limites: */
+    /* .logoCard img{ padding: 0; } */
   </style>
 </head>
 
 <body>
-  <div class="page">
+  <div class="bg" aria-hidden="true"></div>
 
-    <!-- SLIDES -->
-    <div class="rows">
-      <div class="row top">
-        <div class="track" id="trackTop"></div>
-      </div>
-      <div class="row bottom">
-        <div class="track" id="trackBottom"></div>
-      </div>
-    </div>
-
-    <!-- LOGO + CONTACTOS -->
-    <div class="logoWrap">
-      <img src="background.png" alt="Little Things">
-      <a class="cta" href="https://www.littlethings.events/qr_contact/">
-        Contactos / Contacts
-      </a>
-    </div>
-
+  <!-- Topo sempre visível -->
+  <div class="topbar">
+    <a href="./qr_contact/">Contactos / Contacts</a>
   </div>
 
+  <main class="layout">
+    <!-- Mosaico no meio -->
+    <div class="mosaicArea">
+      <section class="laneCard lane1" id="lane1">
+        <div class="label">Decoração ✨</div>
+        <div class="marquee"><div class="track" id="track1"></div></div>
+      </section>
+
+      <section class="laneCard lane2 reverse" id="lane2">
+        <div class="label">Detalhes 🎀</div>
+        <div class="marquee"><div class="track" id="track2"></div></div>
+      </section>
+
+      <section class="laneCard lane3" id="lane3">
+        <div class="label">Eventos 🎉</div>
+        <div class="marquee"><div class="track" id="track3"></div></div>
+      </section>
+    </div>
+
+    <!-- Logo sempre inteiro no fundo -->
+    <footer class="footerLogo">
+      <div class="logoCard">
+        <img src="./background.png" alt="Little Things Logo" />
+      </div>
+    </footer>
+  </main>
+
   <script>
-    // TODAS as fotos, SEM filtros
     const photos = [
-      "assets/photo01.jpg","assets/photo02.jpg","assets/photo03.jpg","assets/photo04.jpg",
-      "assets/photo05.jpg","assets/photo06.jpg","assets/photo07.jpg","assets/photo08.jpg",
-      "assets/photo09.jpg","assets/photo10.jpg","assets/photo11.jpg","assets/photo12.jpg",
-      "assets/photo13.jpg","assets/photo14.jpg"
+      "./assets/photo01.jpg",
+      "./assets/photo02.jpg",
+      "./assets/photo03.jpg",
+      "./assets/photo04.jpg",
+      "./assets/photo05.jpg",
+      "./assets/photo06.jpg",
+      "./assets/photo07.jpg",
+      "./assets/photo08.jpg",
+      "./assets/photo09.jpg",
+      "./assets/photo10.jpg",
+      "./assets/photo11.jpg",
+      "./assets/photo12.jpg",
+      "./assets/photo13.jpg",
+      "./assets/photo14.jpg"
     ];
 
-    function buildTrack(trackEl, list){
-      const loop = list.concat(list);
-      trackEl.innerHTML = loop.map(src =>
-        `<div class="tile"><img src="${src}" alt=""></div>`
-      ).join("");
+    function makeTile(src){
+      const tile = document.createElement("div");
+      tile.className = "tile";
+
+      const blur = document.createElement("div");
+      blur.className = "blur";
+      blur.style.backgroundImage = `url("${src}")`;
+
+      const img = document.createElement("img");
+      img.src = src;
+      img.alt = "Little Things";
+
+      tile.appendChild(blur);
+      tile.appendChild(img);
+      return tile;
     }
 
-    buildTrack(document.getElementById("trackTop"), photos);
-    buildTrack(document.getElementById("trackBottom"), photos);
+    function shuffle(arr){
+      const a = [...arr];
+      for(let i=a.length-1; i>0; i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function fillTrack(trackEl, list, repeatTimes){
+      trackEl.innerHTML = "";
+      for(let r=0; r<repeatTimes; r++){
+        for(const src of list){
+          trackEl.appendChild(makeTile(src));
+        }
+      }
+    }
+
+    function setupMarquee(trackId, speedSeconds, list){
+      const track = document.getElementById(trackId);
+      const shuffled = shuffle(list);
+
+      // duplicar para rolar sem “cortes”
+      fillTrack(track, shuffled, 2);
+
+      requestAnimationFrame(() => {
+        const fullWidth = track.scrollWidth;
+        const shift = fullWidth / 2;
+
+        track.style.setProperty("--shift", shift + "px");
+        track.style.setProperty("--duration", speedSeconds + "s");
+      });
+    }
+
+    setupMarquee("track1", 34, photos);
+    setupMarquee("track2", 28, photos);
+    setupMarquee("track3", 40, photos);
+
+    window.addEventListener("resize", () => {
+      setupMarquee("track1", 34, photos);
+      setupMarquee("track2", 28, photos);
+      setupMarquee("track3", 40, photos);
+    });
   </script>
 </body>
 </html>
