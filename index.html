@@ -1,293 +1,350 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>Little Things</title>
-
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root{
+      --bg: #ffffff;
+      --shadow: 0 18px 45px rgba(0,0,0,.12);
+      --radius: 18px;
 
-    html, body {
-      height: 100%;
-      overflow: hidden;
-      background: #fff;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      touch-action: none;
+      /* Ajustes pedidos */
+      --speed: 60;          /* <-- VELOCIDADE (quanto menor, mais rápido). Ex: 50 mais rápido, 80 mais lento */
+      --row-gap: 0px;       /* <-- distância entre as 2 linhas */
+      --img-gap: 0px;       /* <-- distância entre fotos (0 = sem espaços) */
+      --logo-part: 34vh;    /* ~1/3 do ecrã para o logo */
     }
 
-    .page {
-      height: 100svh;
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      overflow: hidden;
+    }
+
+    .page{
       height: 100dvh;
-      display: grid;
-      grid-template-rows: 2fr 1fr;
-    }
-
-    /* ===== SLIDESHOW ===== */
-    .strips {
-      height: 100%;
-      overflow: hidden;
-      background: #000;
-    }
-
-    .strip {
-      height: 50%;
-      overflow: hidden;
-      position: relative;
-      user-select: none;
-      -webkit-user-select: none;
-      touch-action: pan-x;
-      background: #000;
-    }
-
-    .track {
-      height: 100%;
-      display: flex;
-      gap: 0;
-      will-change: transform;
-      transform: translate3d(0,0,0);
-      backface-visibility: hidden;
-      -webkit-backface-visibility: hidden;
-    }
-
-    .item {
-      height: 100%;
-      flex: 0 0 auto;
-    }
-
-    .item img {
-      height: 100%;
-      width: auto;
-      display: block;
-      object-fit: cover;
-      transform: translateZ(0);
-      -webkit-transform: translateZ(0);
-    }
-
-    /* ===== LOGO + BOTÃO ===== */
-    .logoArea {
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: flex-end;
       background: #fff;
-      padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 28px);
-      padding-top: 10px;
-      gap: 14px;
-      overflow: hidden;
     }
 
-    .logoArea img {
-      max-height: 78%;
+    /* TOP: 2/3 (aprox) */
+    .top{
+      flex: 1 1 auto;
+      min-height: calc(100dvh - var(--logo-part));
+      display: flex;
+      flex-direction: column;
+      gap: var(--row-gap);
+      overflow: hidden;
+      background: #fff; /* evita “pretos” */
+    }
+
+    .row{
+      position: relative;
+      flex: 1 1 50%;
+      overflow: hidden;
+      background: #fff; /* evita “pretos” */
+      touch-action: pan-y; /* permite scroll vertical da página (mas aqui está fixed), e drag horizontal controlado */
+    }
+
+    .track{
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: stretch;
+      gap: var(--img-gap);
+      will-change: transform;
+      transform: translate3d(0,0,0);
+      background: transparent;
+    }
+
+    .tile{
+      flex: 0 0 auto;
+      height: 100%;
+      display: block;
+      background: transparent;
+    }
+
+    .tile img{
+      height: 100%;
       width: auto;
-      object-fit: contain;
+      display: block;
+      object-fit: contain;    /* ver a foto “completa” (sem cortes) */
+      background: #fff;       /* se a imagem tiver transparência */
+    }
+
+    /* BOTTOM: logo ~1/3 */
+    .bottom{
+      flex: 0 0 auto;
+      height: var(--logo-part);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+      padding: 10px 14px calc(14px + env(safe-area-inset-bottom));
+      background: #fff;
+    }
+
+    .logoWrap{
+      width: 100%;
+      height: 100%;
+      max-width: 900px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .logoWrap img{
+      width: 100%;
+      height: 100%;
+      object-fit: contain;   /* logo inteiro, sem deturpar */
       display: block;
     }
 
-    .contactBtn {
-      font-family: "Georgia", "Times New Roman", serif;
-      font-size: 0.95rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      padding: 10px 22px;
-      border: 1px solid currentColor;
-      background: transparent;
-      color: #000;
+    .cta{
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: calc(8px + env(safe-area-inset-bottom));
+      width: min(520px, 92%);
+      border: 0;
+      border-radius: 999px;
+      padding: 14px 18px;
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: .2px;
+      color: #0f3d2e;
+      background: #ffd6e6; /* tom rosado */
+      box-shadow: var(--shadow);
       text-decoration: none;
-      animation: flash 2.5s ease-in-out infinite;
+      text-align: center;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      animation: flash 1.2s infinite;
     }
 
-    @keyframes flash {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.35; }
+    .cta::before{
+      content:"";
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: #27c167; /* verde que combina com o tema */
+      box-shadow: 0 0 0 0 rgba(39,193,103,.65);
+      animation: pulse 1.2s infinite;
     }
 
-    @media (max-width: 768px) {
-      .logoArea {
-        padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 38px);
+    @keyframes flash{
+      0%, 100% { filter: brightness(1); transform: translateX(-50%) scale(1); }
+      50% { filter: brightness(1.08); transform: translateX(-50%) scale(1.02); }
+    }
+    @keyframes pulse{
+      0%   { box-shadow: 0 0 0 0 rgba(39,193,103,.55); }
+      70%  { box-shadow: 0 0 0 14px rgba(39,193,103,0); }
+      100% { box-shadow: 0 0 0 0 rgba(39,193,103,0); }
+    }
+
+    /* Melhoras para desktop */
+    @media (min-width: 900px){
+      :root{
+        --logo-part: 32vh;
       }
-      .logoArea img {
-        max-height: 72%;
-      }
-      .contactBtn {
-        font-size: 0.9rem;
-      }
+      .cta{ font-size: 18px; }
     }
   </style>
 </head>
 
 <body>
-<div class="page">
-
-  <div class="strips">
-
-    <!-- STRIP 1 (esquerda) -->
-    <div class="strip" data-strip="0">
-      <div class="track" id="track1">
-        <!-- A -->
-        <div class="item"><img src="assets/photo01.jpg" alt=""></div>
-        <div class="item"><img src="assets/photo02.jpg" alt=""></div>
-        <div class="item"><img src="assets/photo03.jpg" alt=""></div>
-        <div class="item"><img src="assets/photo04.jpg" alt=""></div>
-        <div class="item"><img src="assets/photo05.jpg" alt=""></div>
-        <div class="item"><img src="assets/photo06.jpg" alt=""></div>
-        <div class="item"><img src="assets/photo07.jpg" alt=""></div>
-
-        <!-- B (duplicado) -->
-        <div class="item"><img src="assets/photo01.jpg" alt=""></div>
-        <div class="item"><img src="assets/photo02.jpg" alt=""></div>
-        <div class="item"><img src="assets/photo03.jpg" alt=""></div>
-        <div class="item"><img src="assets/photo04.jpg" alt=""></div>
-        <div class="item"><img src="assets/photo05.jpg" alt=""></div>
-        <div class="item"><img src="assets/photo06.jpg" alt=""></div>
-        <div class="item"><img src="assets/photo07.jpg" alt=""></div>
-      </div>
+  <div class="page">
+    <div class="top">
+      <div class="row" id="row1"><div class="track" id="track1"></div></div>
+      <div class="row" id="row2"><div class="track" id="track2"></div></div>
     </div>
 
-    <!-- STRIP 2 (direita) -->
-    <div class="strip" data-strip="1">
-      <div class="track" id="track2">
-        <!-- A -->
-        <div class="item"><img src="assets/photo08.jpg" alt=""></div>
-        <div class="item"><img src="assets/photo09.jpg" alt=""></div>
-        <div class="item"><img src="assets/photo10.jpg" alt=""></div>
-        <div class="item"><img src="assets/photo11.jpg" alt=""></div>
-        <div class="item"><img src="assets/photo12.jpg" alt=""></div>
-        <div class="item"><img src="assets/photo13.jpg" alt=""></div>
-        <div class="item"><img src="assets/photo14.jpg" alt=""></div>
-
-        <!-- B (duplicado) -->
-        <div class="item"><img src="assets/photo08.jpg" alt=""></div>
-        <div class="item"><img src="assets/photo09.jpg" alt=""></div>
-        <div class="item"><img src="assets/photo10.jpg" alt=""></div>
-        <div class="item"><img src="assets/photo11.jpg" alt=""></div>
-        <div class="item"><img src="assets/photo12.jpg" alt=""></div>
-        <div class="item"><img src="assets/photo13.jpg" alt=""></div>
-        <div class="item"><img src="assets/photo14.jpg" alt=""></div>
+    <div class="bottom">
+      <div class="logoWrap">
+        <img src="background.png" alt="Little Things logo" />
+        <a class="cta" href="https://www.littlethings.events/qr_contact/">
+          Contactos / Contacts
+        </a>
       </div>
     </div>
-
   </div>
 
-  <div class="logoArea">
-    <img src="background.png" alt="Little Things logo">
-    <a class="contactBtn" href="https://www.littlethings.events/qr_contact/">
-      Contactos / Contacts
-    </a>
-  </div>
+  <script>
+    /**
+     * CONFIG
+     * - fotos em /assets/photo01.jpg ... photo14.jpg
+     * - 2 linhas em sentidos contrários
+     * - velocidade: usa --speed (60) como base (px/seg calculado pela largura)
+     */
+    const IMG_BASE = "assets/";
+    const ALL = Array.from({length: 14}, (_, i) => `photo${String(i+1).padStart(2,"0")}.jpg`);
 
-</div>
-
-<script>
-  // ===== Movimento contínuo + drag + retoma ao fim de 1s =====
-  // Fix principal: sem arredondamentos no wrap/transform e medir depois das imagens carregarem.
-
-  const tracks = [
-    { el: document.getElementById('track1'), speed:  60, x: 0, wrap: 0, dragging: false, lastX: 0, lastUserTs: 0 },
-    { el: document.getElementById('track2'), speed: -60, x: 0, wrap: 0, dragging: false, lastX: 0, lastUserTs: 0 } // negativo => move para a direita
-  ];
-
-  function measureWrap(el) {
-    const items = Array.from(el.children);
-    const half = items.length / 2; // A e B iguais em count
-    let w = 0;
-    for (let i = 0; i < half; i++) {
-      w += items[i].getBoundingClientRect().width; // float (sem round)
-    }
-    return w;
-  }
-
-  function render(t) {
-    // translateX(-x) => x aumenta -> move para a esquerda
-    t.el.style.transform = `translate3d(${-t.x}px, 0, 0)`;
-  }
-
-  function normalizeX(t) {
-    if (!t.wrap || t.wrap <= 0) return;
-    t.x = t.x % t.wrap;
-    if (t.x < 0) t.x += t.wrap;
-  }
-
-  async function waitForImages(container) {
-    const imgs = Array.from(container.querySelectorAll('img'));
-    await Promise.all(imgs.map(img => {
-      if (img.complete && img.naturalWidth > 0) return Promise.resolve();
-      return new Promise(res => img.addEventListener('load', res, { once: true }));
-    }));
-  }
-
-  async function measureAll() {
-    // Espera mesmo pelas imagens -> evita medições “a meio” (causa clássica do buraco no desktop)
-    await Promise.all(tracks.map(t => waitForImages(t.el)));
-    tracks.forEach(t => {
-      t.wrap = measureWrap(t.el);
-      normalizeX(t);
-      render(t);
-    });
-  }
-
-  let last = performance.now();
-  function loop(now) {
-    const dt = (now - last) / 1000;
-    last = now;
-
-    tracks.forEach(t => {
-      const userRecentlyMoved = (now - t.lastUserTs) < 1000;
-
-      if (!t.dragging && !userRecentlyMoved && t.wrap > 0) {
-        t.x += t.speed * dt;
-        normalizeX(t);
-        render(t);
+    // Mantém “random”, mas estável por sessão:
+    function shuffled(arr){
+      const a = arr.slice();
+      for (let i = a.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
       }
-    });
+      return a;
+    }
 
-    requestAnimationFrame(loop);
-  }
+    // Linha 1 e linha 2 com fotos diferentes (mas podes trocar)
+    const row1Imgs = shuffled(ALL);
+    const row2Imgs = shuffled(ALL); // random também (não repete “buracos”)
 
-  // Drag por faixa
-  document.querySelectorAll('.strip').forEach((strip, idx) => {
-    const t = tracks[idx];
+    // Helpers
+    function makeTile(src){
+      const wrap = document.createElement("div");
+      wrap.className = "tile";
 
-    strip.addEventListener('pointerdown', (e) => {
-      t.dragging = true;
-      t.lastX = e.clientX;
-      t.lastUserTs = performance.now();
-      strip.setPointerCapture(e.pointerId);
-    });
+      const img = document.createElement("img");
+      img.src = IMG_BASE + src;
+      img.alt = src;
 
-    strip.addEventListener('pointermove', (e) => {
-      if (!t.dragging) return;
-      const dx = e.clientX - t.lastX;
-      t.lastX = e.clientX;
+      // Se falhar (imagem inexistente / path errado), remove para nunca deixar “quadrado”
+      img.onerror = () => {
+        wrap.remove();
+      };
 
-      // dedo para a direita => dx>0 => queremos mover conteúdo para a direita => x diminui
-      t.x -= dx;
-      normalizeX(t);
+      wrap.appendChild(img);
+      return wrap;
+    }
 
-      t.lastUserTs = performance.now();
-      render(t);
-    });
+    /**
+     * Motor de “marquee” em JS
+     * - sem saltos: 2 cópias do mesmo conjunto e fazemos modulo pela largura da 1ª cópia
+     * - permite drag e retoma após 1s
+     */
+    function setupMarquee(trackEl, images, direction /* 1 = esquerda, -1 = direita */){
+      // constrói 2 cópias
+      const build = () => {
+        trackEl.innerHTML = "";
 
-    strip.addEventListener('pointerup', () => {
-      t.dragging = false;
-      t.lastUserTs = performance.now();
-    });
+        const frag1 = document.createDocumentFragment();
+        const frag2 = document.createDocumentFragment();
 
-    strip.addEventListener('pointercancel', () => {
-      t.dragging = false;
-      t.lastUserTs = performance.now();
-    });
-  });
+        images.forEach(name => frag1.appendChild(makeTile(name)));
+        images.forEach(name => frag2.appendChild(makeTile(name)));
 
-  window.addEventListener('load', async () => {
-    await measureAll();
-    requestAnimationFrame(loop);
-  });
+        trackEl.appendChild(frag1);
+        trackEl.appendChild(frag2);
+      };
 
-  window.addEventListener('resize', () => {
-    // re-medir para desktop/mobile sem buracos
-    setTimeout(() => { measureAll(); }, 80);
-  });
-</script>
+      build();
+
+      let oneSetWidth = 0;
+      let pos = 0;                 // posição atual (px)
+      let lastT = performance.now();
+      let running = true;
+      let resumeTimer = null;
+
+      // drag
+      let dragging = false;
+      let startX = 0;
+      let startPos = 0;
+
+      function measure(){
+        // largura total da 1ª cópia = metade dos children
+        const kids = Array.from(trackEl.children);
+        const half = Math.floor(kids.length / 2);
+        oneSetWidth = 0;
+        for (let i = 0; i < half; i++){
+          oneSetWidth += kids[i].getBoundingClientRect().width;
+          // gap é 0, mas se mudares no CSS, tens de somar o gap aqui
+        }
+
+        // fallback: se ainda não há widths (imagens não carregaram), tenta de novo
+        if (!oneSetWidth || oneSetWidth < 10){
+          requestAnimationFrame(measure);
+        }
+      }
+
+      // espera um pouco para imagens carregarem e mede
+      setTimeout(measure, 80);
+
+      function tick(t){
+        const dt = (t - lastT) / 1000;
+        lastT = t;
+
+        if (running && oneSetWidth > 0){
+          // velocidade baseada em --speed
+          const speedBase = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--speed")) || 60;
+
+          // px/s: quanto menor o --speed, mais rápido queremos => invertendo:
+          // usamos uma velocidade proporcional à largura / speedBase
+          const pxPerSec = oneSetWidth / speedBase;
+
+          pos += (direction * pxPerSec * dt);
+
+          // normaliza para [0, oneSetWidth)
+          // (para a direita, pos pode ficar negativo)
+          pos = ((pos % oneSetWidth) + oneSetWidth) % oneSetWidth;
+
+          // aplica
+          trackEl.style.transform = `translate3d(${-pos}px,0,0)`;
+        }
+
+        requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+
+      // Pointer events para drag (mobile e desktop)
+      const rowEl = trackEl.parentElement;
+
+      function onDown(e){
+        dragging = true;
+        running = false;
+        if (resumeTimer) clearTimeout(resumeTimer);
+
+        rowEl.setPointerCapture?.(e.pointerId);
+        startX = e.clientX;
+        startPos = pos;
+      }
+
+      function onMove(e){
+        if (!dragging || oneSetWidth <= 0) return;
+        const dx = e.clientX - startX;
+        // arrastar para a direita deve “puxar” imagens para a direita => diminuir pos
+        pos = startPos - dx;
+        pos = ((pos % oneSetWidth) + oneSetWidth) % oneSetWidth;
+        trackEl.style.transform = `translate3d(${-pos}px,0,0)`;
+      }
+
+      function onUp(e){
+        if (!dragging) return;
+        dragging = false;
+
+        // retoma ao fim de 1s
+        resumeTimer = setTimeout(() => {
+          running = true;
+          lastT = performance.now();
+        }, 1000);
+      }
+
+      rowEl.addEventListener("pointerdown", onDown, {passive:true});
+      rowEl.addEventListener("pointermove", onMove, {passive:true});
+      rowEl.addEventListener("pointerup", onUp, {passive:true});
+      rowEl.addEventListener("pointercancel", onUp, {passive:true});
+
+      // Se o ecrã mudar (rotate), re-mede para não criar “saltos”
+      window.addEventListener("resize", () => {
+        setTimeout(measure, 120);
+      });
+    }
+
+    // Inicializa
+    setupMarquee(document.getElementById("track1"), row1Imgs, 1);   // esquerda
+    setupMarquee(document.getElementById("track2"), row2Imgs, -1);  // direita
+  </script>
 </body>
 </html>
