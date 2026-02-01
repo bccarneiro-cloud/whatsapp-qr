@@ -18,13 +18,24 @@
       background:#fff;
     }
 
-    /* Slideshow a ocupar tudo (sem zoom / sem corte) */
-    .slideshow{
+    /* Layout 50/50 */
+    .app{
       position: fixed;
       inset: 0;
-      z-index: 1;
+      display: grid;
+      grid-template-rows: 1fr 1fr; /* metade / metade */
+    }
+
+    /* --- TOP: slideshow --- */
+    .top{
+      position: relative;
       overflow: hidden;
-      background:#fff;
+      background: #000; /* evita barras brancas */
+    }
+
+    .slideshow{
+      position:absolute;
+      inset:0;
     }
 
     .slide{
@@ -33,71 +44,39 @@
       opacity: 0;
       transition: opacity 1.2s ease;
       will-change: opacity;
-      background:#fff;
+      background:#000; /* evita “white bars” */
     }
     .slide.active{ opacity: 1; }
 
-    /* ✅ sem zoom: não corta a foto, mostra-a inteira */
+    /* ✅ “normal”: preenche sempre (sem barras), sem zoom artificial */
     .slide img{
       width:100%;
       height:100%;
-      object-fit: contain;   /* <-- isto remove o “zoom/corte” */
+      object-fit: cover;         /* sem barras brancas */
       object-position: center;
       display:block;
-      transform:none !important;
+      transform:none !important; /* garante que não há zoom via transform */
       animation:none !important;
       filter:none !important;
-      background:#fff;
     }
 
-    /* Banda inferior para o logo ocupar o bottom todo */
-    .logo-band{
-      position: fixed;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      height: min(34vh, 320px);
-      z-index: 3;
-      pointer-events: none;
-
-      /* fundo branco (para o logo nunca ficar “solto”) */
-      background: rgba(255,255,255,0.92);
-      backdrop-filter: blur(2px);
-      -webkit-backdrop-filter: blur(2px);
-
+    /* --- BOTTOM: logo completo --- */
+    .bottom{
+      position: relative;
+      overflow: hidden;
+      background: #fff;
       display: flex;
-      align-items: flex-end;
+      align-items: center;
       justify-content: center;
-      padding-bottom: calc(env(safe-area-inset-bottom) + 10px);
+      padding-bottom: env(safe-area-inset-bottom);
     }
 
-    /* O logo ocupa toda a largura da banda */
+    /* Logo sempre inteiro */
     .logo{
       width: min(92vw, 900px);
-      height: 100%;
-      background-image: url("./background.png");
-      background-repeat: no-repeat;
-
-      /* ✅ aqui o segredo: ocupa a largura, encostado ao fundo */
-      background-position: center bottom;
-      background-size: 100% auto; /* <-- full width; mantém proporção */
-    }
-
-    /* Um fade por cima da banda para transição bonita */
-    .logo-fade{
-      position: fixed;
-      left: 0;
-      right: 0;
-      bottom: min(34vh, 320px);
-      height: 14vh;
-      z-index: 2;
-      pointer-events:none;
-      background: linear-gradient(
-        to top,
-        rgba(255,255,255,0.00),
-        rgba(255,255,255,0.55),
-        rgba(255,255,255,0.92)
-      );
+      height: min(46vh, 420px);
+      max-height: 100%;
+      background: url("./background.png") center/contain no-repeat;
     }
 
     /* Botão topo */
@@ -118,7 +97,7 @@
       font-weight: 900;
       font-size: 13px;
       color: rgba(10,10,10,.92);
-      background: rgba(255,255,255,.75);
+      background: rgba(255,255,255,.78);
       border: 1px solid rgba(255,255,255,.55);
       box-shadow: 0 14px 40px rgba(0,0,0,.12);
       backdrop-filter: blur(10px);
@@ -131,7 +110,7 @@
       position: fixed;
       inset: 0;
       z-index: 20;
-      background: #fff;
+      background: #000;
       opacity: 0;
       transition: opacity .2s ease;
       pointer-events:none;
@@ -141,15 +120,18 @@
 </head>
 
 <body>
-  <div class="slideshow" id="slideshow" aria-hidden="true"></div>
-
-  <div class="logo-fade" aria-hidden="true"></div>
-  <div class="logo-band" aria-hidden="true">
-    <div class="logo"></div>
-  </div>
-
   <div class="corner">
     <a href="./qr_contact/">Contactos / Contacts</a>
+  </div>
+
+  <div class="app">
+    <section class="top">
+      <div class="slideshow" id="slideshow" aria-hidden="true"></div>
+    </section>
+
+    <section class="bottom">
+      <div class="logo" aria-hidden="true"></div>
+    </section>
   </div>
 
   <div class="loadingCover" id="loadingCover"></div>
@@ -188,11 +170,9 @@
       return list.map((src, idx) => {
         const s = document.createElement("div");
         s.className = "slide";
-
         const img = document.createElement("img");
         img.src = src;
         img.alt = "Work " + (idx + 1);
-
         s.appendChild(img);
         container.appendChild(s);
         return s;
@@ -219,9 +199,11 @@
     (async function init(){
       loadingCover.classList.add("show");
 
+      // garante que a primeira carrega
       try{
         await preload(photos[0]);
       }catch(e){
+        // tenta outra
         for (let i = 1; i < photos.length; i++){
           try{
             await preload(photos[i]);
