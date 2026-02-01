@@ -18,7 +18,7 @@
       background:#fff;
     }
 
-    /* Slideshow por cima (fotos 100% opacas) */
+    /* Slideshow a ocupar tudo (sem zoom / sem corte) */
     .slideshow{
       position: fixed;
       inset: 0;
@@ -33,58 +33,74 @@
       opacity: 0;
       transition: opacity 1.2s ease;
       will-change: opacity;
+      background:#fff;
     }
     .slide.active{ opacity: 1; }
 
+    /* ✅ sem zoom: não corta a foto, mostra-a inteira */
     .slide img{
       width:100%;
       height:100%;
-      object-fit: cover;
+      object-fit: contain;   /* <-- isto remove o “zoom/corte” */
+      object-position: center;
       display:block;
-      /* ✅ sem zoom / sem animação */
-      transform: none;
-      animation: none;
-      filter: none;
+      transform:none !important;
+      animation:none !important;
+      filter:none !important;
+      background:#fff;
     }
 
-    /* Logo fixo em baixo (sem esticar) */
-    .logo-fixed-bottom{
-      position: fixed;
-      left: 0;
-      right: 0;
-      bottom: calc(env(safe-area-inset-bottom) + 10px);
-      height: min(32vh, 280px);     /* ocupa só parte inferior */
-      z-index: 2;
-      pointer-events: none;
-
-      background-image: url("./background.png");
-      background-repeat: no-repeat;
-      background-position: center bottom;
-      background-size: contain;
-
-      /* Para ficar bem “limpo” por cima das fotos */
-      filter: none;
-    }
-
-    /* Um gradiente leve para dar contraste ao logo sem “apagar” as fotos */
-    .logo-fade{
+    /* Banda inferior para o logo ocupar o bottom todo */
+    .logo-band{
       position: fixed;
       left: 0;
       right: 0;
       bottom: 0;
-      height: 38vh;
-      z-index: 2;
+      height: min(34vh, 320px);
+      z-index: 3;
       pointer-events: none;
 
+      /* fundo branco (para o logo nunca ficar “solto”) */
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: calc(env(safe-area-inset-bottom) + 10px);
+    }
+
+    /* O logo ocupa toda a largura da banda */
+    .logo{
+      width: min(92vw, 900px);
+      height: 100%;
+      background-image: url("./background.png");
+      background-repeat: no-repeat;
+
+      /* ✅ aqui o segredo: ocupa a largura, encostado ao fundo */
+      background-position: center bottom;
+      background-size: 100% auto; /* <-- full width; mantém proporção */
+    }
+
+    /* Um fade por cima da banda para transição bonita */
+    .logo-fade{
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: min(34vh, 320px);
+      height: 14vh;
+      z-index: 2;
+      pointer-events:none;
       background: linear-gradient(
         to top,
-        rgba(255,255,255,0.85),
-        rgba(255,255,255,0.35),
-        rgba(255,255,255,0)
+        rgba(255,255,255,0.00),
+        rgba(255,255,255,0.55),
+        rgba(255,255,255,0.92)
       );
     }
 
-    /* Botão no topo */
+    /* Botão topo */
     .corner{
       position: fixed;
       top: calc(14px + env(safe-area-inset-top));
@@ -127,10 +143,10 @@
 <body>
   <div class="slideshow" id="slideshow" aria-hidden="true"></div>
 
-  <!-- leve “fade” inferior para o logo ficar sempre legível -->
   <div class="logo-fade" aria-hidden="true"></div>
-  <!-- logo fixo em baixo -->
-  <div class="logo-fixed-bottom" aria-hidden="true"></div>
+  <div class="logo-band" aria-hidden="true">
+    <div class="logo"></div>
+  </div>
 
   <div class="corner">
     <a href="./qr_contact/">Contactos / Contacts</a>
@@ -139,7 +155,6 @@
   <div class="loadingCover" id="loadingCover"></div>
 
   <script>
-    // 14 fotos (em /assets/) com nomes EXACTOS: photo01.jpg ... photo14.jpg
     const photos = [
       "./assets/photo01.jpg",
       "./assets/photo02.jpg",
@@ -173,9 +188,11 @@
       return list.map((src, idx) => {
         const s = document.createElement("div");
         s.className = "slide";
+
         const img = document.createElement("img");
         img.src = src;
         img.alt = "Work " + (idx + 1);
+
         s.appendChild(img);
         container.appendChild(s);
         return s;
@@ -202,11 +219,9 @@
     (async function init(){
       loadingCover.classList.add("show");
 
-      // garante que pelo menos uma imagem carrega antes de começar
       try{
         await preload(photos[0]);
       }catch(e){
-        // tenta encontrar uma que carregue
         for (let i = 1; i < photos.length; i++){
           try{
             await preload(photos[i]);
@@ -218,8 +233,6 @@
       }
 
       const slides = createSlides(photos);
-
-      // preload das próximas 2 (suave)
       Promise.allSettled([preload(photos[1]), preload(photos[2])]);
 
       loadingCover.classList.remove("show");
