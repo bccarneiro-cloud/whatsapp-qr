@@ -9,13 +9,13 @@
     :root{
       --gap: 14px;
       --radius: 18px;
-      --cardBg: rgba(255,255,255,0.50);
-      --cardBorder: rgba(255,255,255,0.60);
+      --glass: rgba(255,255,255,0.55);
+      --glassBorder: rgba(255,255,255,0.60);
       --shadow: 0 18px 55px rgba(0,0,0,0.18);
     }
 
-    * { box-sizing: border-box; }
-    html { height: -webkit-fill-available; }
+    *{ box-sizing: border-box; }
+    html{ height: -webkit-fill-available; }
     body{
       margin:0;
       min-height: 100vh;
@@ -23,131 +23,19 @@
       min-height: 100dvh;
       min-height: -webkit-fill-available;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      overflow:hidden;
       background: #fff;
+      overflow: hidden;
     }
 
-    /* Fundo suave (opcional) */
+    /* Fundo suave */
     .bg{
       position: fixed;
       inset: 0;
-      background: radial-gradient(circle at 20% 10%, rgba(255,192,203,0.22), transparent 55%),
-                  radial-gradient(circle at 80% 60%, rgba(255,182,193,0.18), transparent 60%),
-                  #ffffff;
+      background:
+        radial-gradient(circle at 20% 10%, rgba(255,192,203,0.22), transparent 55%),
+        radial-gradient(circle at 80% 60%, rgba(255,182,193,0.18), transparent 60%),
+        #ffffff;
       z-index: -2;
-    }
-
-    /* Container geral (mosaico em 3 faixas) */
-    .wrap{
-      position: fixed;
-      inset: 0;
-      padding: calc(16px + env(safe-area-inset-top)) 16px calc(18px + env(safe-area-inset-bottom)) 16px;
-      display: grid;
-      grid-template-rows: 0.95fr 0.75fr 1.30fr; /* parecido com o teu sketch */
-      gap: var(--gap);
-    }
-
-    /* Cada faixa com “cartão” tipo vidro */
-    .laneCard{
-      border-radius: 28px;
-      background: var(--cardBg);
-      border: 1px solid var(--cardBorder);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      overflow: hidden;
-      position: relative;
-    }
-
-    /* Rolo horizontal */
-    .marquee{
-      position: absolute;
-      inset: 0;
-      overflow: hidden;
-    }
-
-    .track{
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 14px;
-      width: max-content;
-      will-change: transform;
-      animation: scroll var(--duration, 28s) linear infinite;
-    }
-
-    /* Direção invertida quando necessário */
-    .reverse .track{
-      animation-name: scrollReverse;
-    }
-
-    @keyframes scroll{
-      from { transform: translateX(0); }
-      to   { transform: translateX(calc(-1 * var(--shift))); }
-    }
-    @keyframes scrollReverse{
-      from { transform: translateX(calc(-1 * var(--shift))); }
-      to   { transform: translateX(0); }
-    }
-
-    /* Tile (cada foto no mosaico) */
-    .tile{
-      position: relative;
-      flex: 0 0 auto;
-      width: var(--tileW, 220px);
-      height: var(--tileH, 140px);
-      border-radius: var(--radius);
-      overflow: hidden;
-      box-shadow: 0 12px 28px rgba(0,0,0,0.18);
-      background: #000;
-    }
-
-    /* Blur por trás para não haver “barras brancas” */
-    .tile .blur{
-      position: absolute;
-      inset: -20px;
-      background-position: center;
-      background-size: cover;
-      filter: blur(14px);
-      transform: scale(1.08);
-      opacity: 0.90;
-    }
-
-    /* Foto inteira (sem cortar) */
-    .tile img{
-      position: relative;
-      z-index: 1;
-      width: 100%;
-      height: 100%;
-      object-fit: contain;   /* ✅ foto completa */
-      object-position: center;
-      display: block;
-    }
-
-    /* Topo: 2 tiles “grandes” (mosaico mais largo) */
-    .lane1 { --tileH: 150px; }
-    .lane1 .tile{ --tileW: 260px; }
-
-    /* Meio: tiles mais compactos */
-    .lane2 { --tileH: 130px; }
-    .lane2 .tile{ --tileW: 210px; }
-
-    /* Fundo: tiles maiores (como no desenho) */
-    .lane3 { --tileH: 190px; }
-    .lane3 .tile{ --tileW: 300px; }
-
-    /* Ajustes mobile */
-    @media (max-width: 520px){
-      .wrap{
-        padding: calc(14px + env(safe-area-inset-top)) 12px calc(16px + env(safe-area-inset-bottom)) 12px;
-        gap: 12px;
-        grid-template-rows: 0.95fr 0.75fr 1.35fr;
-      }
-      .lane1 .tile{ --tileW: 240px; }
-      .lane2 .tile{ --tileW: 190px; }
-      .lane3 .tile{ --tileW: 270px; }
     }
 
     /* Botão Contactos */
@@ -175,21 +63,143 @@
     }
     .corner a:active{ transform: scale(.98); }
 
-    /* Pequena etiqueta opcional por faixa */
-    .label{
-      position:absolute;
-      left: 14px;
-      top: 12px;
-      z-index: 2;
-      padding: 8px 10px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 800;
-      color: rgba(10,10,10,.85);
-      background: rgba(255,255,255,0.65);
-      border: 1px solid rgba(255,255,255,0.6);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+    /* Layout: topo (2/3) + fundo (1/3) */
+    .wrap{
+      position: fixed;
+      inset: 0;
+      padding: calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom)) 16px;
+      display: grid;
+      grid-template-rows: 2fr 1fr; /* ✅ 2/3 e 1/3 */
+      gap: var(--gap);
+    }
+
+    /* Topo tem 2 linhas */
+    .top{
+      display: grid;
+      grid-template-rows: 1fr 1fr;
+      gap: var(--gap);
+      min-height: 0;
+    }
+
+    .laneCard{
+      border-radius: 28px;
+      background: var(--glass);
+      border: 1px solid var(--glassBorder);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      overflow: hidden;
+      position: relative;
+      min-height: 0;
+    }
+
+    .marquee{
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+
+    .track{
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px;
+      width: max-content;
+      will-change: transform;
+      animation: scroll var(--duration, 60s) linear infinite;
+    }
+
+    .reverse .track{
+      animation-name: scrollReverse;
+    }
+
+    @keyframes scroll{
+      from { transform: translateX(0); }
+      to   { transform: translateX(calc(-1 * var(--shift))); }
+    }
+    @keyframes scrollReverse{
+      from { transform: translateX(calc(-1 * var(--shift))); }
+      to   { transform: translateX(0); }
+    }
+
+    /* Tiles */
+    .tile{
+      position: relative;
+      flex: 0 0 auto;
+      width: var(--tileW, 240px);
+      height: var(--tileH, 170px);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.18);
+      background: #000;
+    }
+
+    /* blur para preencher atrás (sem barras brancas) */
+    .tile .blur{
+      position: absolute;
+      inset: -22px;
+      background-position: center;
+      background-size: cover;
+      filter: blur(14px);
+      transform: scale(1.08);
+      opacity: 0.92;
+    }
+
+    /* Foto completa (sem cortar) */
+    .tile img{
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      object-fit: contain; /* ✅ foto inteira */
+      object-position: center;
+      display: block;
+    }
+
+    /* Ajustes por tamanho */
+    .laneA .tile{ --tileW: 280px; --tileH: 190px; }
+    .laneB .tile{ --tileW: 240px; --tileH: 170px; }
+
+    @media (max-width: 520px){
+      .wrap{
+        padding: calc(14px + env(safe-area-inset-top)) 12px calc(14px + env(safe-area-inset-bottom)) 12px;
+        gap: 12px;
+      }
+      .laneA .tile{ --tileW: 250px; --tileH: 180px; }
+      .laneB .tile{ --tileW: 220px; --tileH: 160px; }
+    }
+
+    /* Logo em baixo (1/3) */
+    .logoCard{
+      border-radius: 28px;
+      background: rgba(255,255,255,0.55);
+      border: 1px solid rgba(255,255,255,0.60);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      overflow: hidden;
+      position: relative;
+      display: grid;
+      place-items: center;
+    }
+
+    /* O logo deve tocar “por dentro” sem margem extra */
+    .logoInner{
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 0; /* ✅ sem margem */
+    }
+
+    .logoInner img{
+      width: 100%;
+      height: 100%;
+      object-fit: contain; /* ✅ não deturpa */
+      object-position: center;
+      display:block;
     }
   </style>
 </head>
@@ -202,24 +212,23 @@
   </div>
 
   <main class="wrap">
-    <section class="laneCard lane1" id="lane1">
-      <div class="label">Decoração ✨</div>
-      <div class="marquee">
-        <div class="track" id="track1"></div>
+    <section class="top">
+      <div class="laneCard laneA" id="lane1">
+        <div class="marquee">
+          <div class="track" id="track1"></div>
+        </div>
+      </div>
+
+      <div class="laneCard laneB reverse" id="lane2">
+        <div class="marquee">
+          <div class="track" id="track2"></div>
+        </div>
       </div>
     </section>
 
-    <section class="laneCard lane2 reverse" id="lane2">
-      <div class="label">Detalhes 🎀</div>
-      <div class="marquee">
-        <div class="track" id="track2"></div>
-      </div>
-    </section>
-
-    <section class="laneCard lane3" id="lane3">
-      <div class="label">Eventos 🎉</div>
-      <div class="marquee">
-        <div class="track" id="track3"></div>
+    <section class="logoCard" aria-label="Logo Little Things">
+      <div class="logoInner">
+        <img src="./background.png" alt="Little Things logo" />
       </div>
     </section>
   </main>
@@ -260,20 +269,6 @@
       return tile;
     }
 
-    // Cria uma sequência longa e duplica para rolar “sem cortes”
-    function fillTrack(trackEl, list, repeatTimes){
-      trackEl.innerHTML = "";
-      const seq = [];
-      for(let r=0; r<repeatTimes; r++){
-        for(const src of list){
-          const t = makeTile(src);
-          trackEl.appendChild(t);
-          seq.push(t);
-        }
-      }
-      return seq;
-    }
-
     function shuffle(arr){
       const a = [...arr];
       for(let i=a.length-1; i>0; i--){
@@ -283,37 +278,37 @@
       return a;
     }
 
+    function fillTrack(trackEl, list, repeatTimes){
+      trackEl.innerHTML = "";
+      for(let r=0; r<repeatTimes; r++){
+        for(const src of list){
+          trackEl.appendChild(makeTile(src));
+        }
+      }
+    }
+
     function setupMarquee(trackId, speedSeconds, list){
       const track = document.getElementById(trackId);
 
-      // baralhar para cada faixa ter ordem diferente
       const shuffled = shuffle(list);
-
-      // repetir algumas vezes para ficar comprido
+      // duplicar 2x para scroll contínuo
       fillTrack(track, shuffled, 2);
 
-      // depois de renderizar, medimos largura para definir "shift"
       requestAnimationFrame(() => {
         const fullWidth = track.scrollWidth;
-
-        // Queremos rolar metade do conteúdo (porque duplicámos 2x)
-        const shift = fullWidth / 2;
-
+        const shift = fullWidth / 2; // metade porque duplicámos
         track.style.setProperty("--shift", shift + "px");
         track.style.setProperty("--duration", speedSeconds + "s");
       });
     }
 
-    // 3 faixas com velocidades diferentes (efeito futurista mas clássico)
-    setupMarquee("track1", 34, photos);
-    setupMarquee("track2", 28, photos);
-    setupMarquee("track3", 40, photos);
+    // ✅ Devagar + sentidos contrários
+    setupMarquee("track1", 70, photos); // mais lento
+    setupMarquee("track2", 70, photos); // mais lento
 
-    // Recalcular ao mudar o tamanho (orientação/desktop)
     window.addEventListener("resize", () => {
-      setupMarquee("track1", 34, photos);
-      setupMarquee("track2", 28, photos);
-      setupMarquee("track3", 40, photos);
+      setupMarquee("track1", 70, photos);
+      setupMarquee("track2", 70, photos);
     });
   </script>
 </body>
