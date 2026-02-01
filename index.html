@@ -15,27 +15,27 @@
       min-height: -webkit-fill-available;
       overflow:hidden;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: #fff;
+      background:#fff;
     }
 
     /* Fundo base suave */
     .base{
       position: fixed;
       inset: 0;
-      z-index: -5;
+      z-index: -6;
       background:
         radial-gradient(900px 600px at 20% 25%, rgba(255,120,180,.10), transparent 60%),
         radial-gradient(900px 600px at 80% 30%, rgba(90,220,255,.08), transparent 58%),
         #ffffff;
     }
 
-    /* LOGO ORIGINAL (sem deturpar) */
+    /* Logo original (sem esticar) */
     .logo-bg{
       position: fixed;
       inset: 0;
-      z-index: -4;
+      z-index: -5;
       background: url("./background.png") center/contain no-repeat;
-      opacity: .95;              /* logo bem visível */
+      opacity: .95;
       pointer-events:none;
     }
 
@@ -43,7 +43,7 @@
     .slideshow{
       position: fixed;
       inset: 0;
-      z-index: -3;
+      z-index: -4;
       overflow: hidden;
     }
 
@@ -52,78 +52,76 @@
       inset:0;
       opacity: 0;
       transition: opacity 1.2s ease;
-      will-change: opacity, transform;
+      will-change: opacity;
     }
+    .slide.active{ opacity: 1; }
 
-    /* Foto ocupa a tela mas sem “puxar” o logo */
-    .slide::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      background-position: center;
-      background-size: cover;
-      background-repeat: no-repeat;
-
-      /* Ken Burns suave (zoom muito leve) */
-      transform: scale(1.05);
+    .slide img{
+      width:100%;
+      height:100%;
+      object-fit: cover;
+      display:block;
+      transform: scale(1.06);
       animation: kenburns 10s ease-in-out infinite;
       filter: saturate(1.02) contrast(1.02);
     }
 
     @keyframes kenburns{
-      0%   { transform: scale(1.05) translate3d(0,0,0); }
-      50%  { transform: scale(1.10) translate3d(-1%, -1%, 0); }
-      100% { transform: scale(1.05) translate3d(0,0,0); }
-    }
-
-    .slide.active{
-      opacity: 1;
+      0%   { transform: scale(1.06) translate3d(0,0,0); }
+      50%  { transform: scale(1.12) translate3d(-1%, -1%, 0); }
+      100% { transform: scale(1.06) translate3d(0,0,0); }
     }
 
     /* Overlay para manter o logo sempre legível */
     .overlay{
       position: fixed;
       inset:0;
-      z-index: -2;
+      z-index: -3;
       background:
-        radial-gradient(circle at 50% 45%, rgba(255,255,255,.35), rgba(255,255,255,.55)),
-        linear-gradient(to bottom, rgba(255,255,255,.18), rgba(255,255,255,.30));
+        radial-gradient(circle at 50% 45%, rgba(255,255,255,.28), rgba(255,255,255,.55)),
+        linear-gradient(to bottom, rgba(255,255,255,.10), rgba(255,255,255,.26));
       pointer-events:none;
     }
 
-    /* Um brilho muito leve para ficar premium */
-    .glass{
-      position: fixed;
-      inset: 0;
-      z-index: -1;
-      pointer-events:none;
-      background: radial-gradient(circle at 50% 55%, rgba(255,255,255,.12), transparent 55%);
-    }
-
-    /* (Opcional) Link pequeno para o QR */
+    /* Botão canto superior direito */
     .corner{
       position: fixed;
       top: calc(14px + env(safe-area-inset-top));
       right: 14px;
-      z-index: 5;
+      z-index: 10;
     }
 
     .corner a{
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      padding: 10px 12px;
+      gap: 8px;
+      padding: 12px 14px;
       border-radius: 999px;
       text-decoration:none;
-      font-weight: 800;
-      font-size: 12px;
+      font-weight: 900;
+      font-size: 13px;
       color: rgba(10,10,10,.92);
-      background: rgba(255,255,255,.55);
+      background: rgba(255,255,255,.58);
       border: 1px solid rgba(255,255,255,.55);
-      box-shadow: 0 14px 40px rgba(0,0,0,.10);
+      box-shadow: 0 14px 40px rgba(0,0,0,.12);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
     }
+
+    .corner a:active{ transform: scale(.98); }
+
+    /* (Opcional) Evitar “flash” antes de carregar a 1ª imagem */
+    .loadingCover{
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      background: transparent;
+      pointer-events:none;
+      opacity: 0;
+      transition: opacity .2s ease;
+    }
+    .loadingCover.show{ opacity: 1; }
   </style>
 </head>
 
@@ -132,17 +130,16 @@
   <div class="logo-bg" aria-hidden="true"></div>
 
   <div class="slideshow" id="slideshow" aria-hidden="true"></div>
-
   <div class="overlay" aria-hidden="true"></div>
-  <div class="glass" aria-hidden="true"></div>
 
-  <!-- Se NÃO quiseres isto, apaga esta div inteira -->
   <div class="corner">
-    <a href="./qr_contact/">WhatsApp QR</a>
+    <a href="./qr_contact/">Contactos / Contacts</a>
   </div>
 
+  <div class="loadingCover" id="loadingCover"></div>
+
   <script>
-    // 14 fotos (em /assets/)
+    // ✅ 14 fotos (em /assets/) com nomes EXACTOS: photo01.jpg ... photo14.jpg
     const photos = [
       "./assets/photo01.jpg",
       "./assets/photo02.jpg",
@@ -161,53 +158,75 @@
     ];
 
     const container = document.getElementById("slideshow");
+    const loadingCover = document.getElementById("loadingCover");
 
-    // criar slides
-    const slides = photos.map((src) => {
-      const s = document.createElement("div");
-      s.className = "slide";
-      s.style.setProperty("--img", `url("${src}")`);
-      s.style.setProperty("opacity", "0");
-      s.style.setProperty("transform", "translateZ(0)");
-
-      // aplicar imagem no ::before
-      s.style.setProperty("--bg", `url("${src}")`);
-      s.style.setProperty("pointer-events", "none");
-      s.style.setProperty("will-change", "opacity");
-
-      // hack: set background no ::before via style sheet inline
-      s.style.setProperty("--src", src);
-      s.style.setProperty("display", "block");
-      s.style.setProperty("position", "absolute");
-
-      // define background da pseudo-element via style tag em runtime (mais simples)
-      s.dataset.src = src;
-      container.appendChild(s);
-      return s;
-    });
-
-    // Inject CSS backgrounds para os ::before (para manter o HTML simples)
-    const style = document.createElement("style");
-    style.textContent = slides.map((s, i) => {
-      const src = s.dataset.src.replace(/"/g, '\\"');
-      return `.slide:nth-child(${i+1})::before{ background-image: url("${src}"); }`;
-    }).join("\n");
-    document.head.appendChild(style);
-
-    let idx = 0;
-    const INTERVAL = 4500; // tempo entre fotos
-
-    function show(i){
-      slides.forEach((s) => s.classList.remove("active"));
-      slides[i].classList.add("active");
+    function preload(src){
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(src);
+        img.onerror = () => reject(src);
+        img.src = src;
+      });
     }
 
-    show(idx);
+    function createSlides(list){
+      return list.map((src, idx) => {
+        const s = document.createElement("div");
+        s.className = "slide";
+        const img = document.createElement("img");
+        img.src = src;
+        img.alt = "Work " + (idx + 1);
+        s.appendChild(img);
+        container.appendChild(s);
+        return s;
+      });
+    }
 
-    setInterval(() => {
-      idx = (idx + 1) % slides.length;
+    function startSlideshow(slides){
+      let idx = 0;
+      const INTERVAL = 4500;
+
+      const show = (i) => {
+        slides.forEach(s => s.classList.remove("active"));
+        slides[i].classList.add("active");
+      };
+
       show(idx);
-    }, INTERVAL);
+
+      setInterval(() => {
+        idx = (idx + 1) % slides.length;
+        show(idx);
+      }, INTERVAL);
+    }
+
+    (async function init(){
+      // Preload 1ª imagem para garantir que aparece logo
+      loadingCover.classList.add("show");
+
+      try{
+        await preload(photos[0]);
+      }catch(e){
+        // Se a primeira falhar mas as outras existirem, tenta encontrar uma que carregue
+        for (let i = 1; i < photos.length; i++){
+          try{
+            await preload(photos[i]);
+            // troca a primeira para esta para arrancar
+            const ok = photos.splice(i,1)[0];
+            photos.unshift(ok);
+            break;
+          }catch(_){}
+        }
+      }
+
+      // Criar slides e iniciar
+      const slides = createSlides(photos);
+
+      // Preload das próximas 2 para transição suave (não bloqueia se falhar)
+      Promise.allSettled([preload(photos[1]), preload(photos[2])]);
+
+      loadingCover.classList.remove("show");
+      startSlideshow(slides);
+    })();
   </script>
 </body>
 </html>
