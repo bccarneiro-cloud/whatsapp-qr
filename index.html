@@ -1,156 +1,158 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>Little Things</title>
 
   <style>
     :root{
-      --speedTop: 60s;     /* velocidade linha 1 */
-      --speedBottom: 60s;  /* velocidade linha 2 */
-      --gap: 0px;          /* sem espaçamento entre fotos */
+      /* velocidade: mais baixo = mais rápido */
+      --speed-top: 60s;
+      --speed-bottom: 60s;
 
-      --topH: 67dvh;       /* 2/3 */
-      --bottomH: 33dvh;    /* 1/3 */
-
-      --tileW-desktop: 25vw;
-      --tileW-mobile: 50vw;
-
-      --btnH: 52px;        /* altura aprox do botão */
+      --logo-height: 33vh; /* 1/3 do ecrã */
+      --rows-height: 67vh; /* 2/3 do ecrã */
     }
 
-    *{ margin:0; padding:0; box-sizing:border-box; }
-    html,body{ width:100%; height:100%; background:#fff; overflow:hidden; }
-
-    .page{
-      height: 100dvh;
-      display:flex;
-      flex-direction:column;
-      background:#fff;
-    }
-
-    /* ================= TOP (2 linhas) ================= */
-    .slides{
-      height: var(--topH);
-      display:flex;
-      flex-direction:column;
+    *{ box-sizing:border-box; }
+    html, body { height:100%; margin:0; }
+    body{
       overflow:hidden;
       background:#fff;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
+
+    .page{
+      height:100vh;
+      display:flex;
+      flex-direction:column;
+    }
+
+    /* TOP: 2/3 com 2 linhas */
+    .rows{
+      height: var(--rows-height);
+      display:flex;
+      flex-direction:column;
     }
 
     .row{
-      height:50%;
+      flex:1;
+      position:relative;
       overflow:hidden;
       background:#fff;
     }
 
+    /* Track que anda */
     .track{
+      height:100%;
       display:flex;
-      width:max-content;
-      gap: var(--gap);
+      flex-wrap:nowrap;
+      gap:0;              /* sem espaçamento */
       will-change: transform;
     }
 
-    /* animações separadas por linha (para poderes mexer na velocidade independentemente) */
-    .row.top .track{
-      animation: scrollTop var(--speedTop) linear infinite;
-    }
-    .row.bottom .track{
-      animation: scrollBottom var(--speedBottom) linear infinite reverse;
-    }
-
-    @keyframes scrollTop{
-      from{ transform: translateX(0); }
-      to{ transform: translateX(-50%); }
-    }
-    @keyframes scrollBottom{
-      from{ transform: translateX(0); }
-      to{ transform: translateX(-50%); }
-    }
-
-    /* ✅ tiles fixos (os “quadrados/rectângulos” do teu array) */
+    /* Cada tile ocupa a altura toda da linha */
     .tile{
       height:100%;
-      flex:0 0 auto;
-      width: var(--tileW-desktop);
-      background:#fff;
-      line-height:0;
-      overflow:hidden; /* importante: garante que a foto fica "recortada" ao tile */
+      flex: 0 0 auto;     /* sem encolher */
+      background:#fff;    /* evita “pretos” se falhar algo */
     }
 
-    /* ✅ Ajusta a foto ao tile, sem branco em baixo */
+    /*
+      IMPORTANTE:
+      - Sem “zoom”: nada de scale()
+      - Sem branco em baixo: height 100% + display:block
+      - Sem cortar a meio: object-fit: cover (preenche sempre o tile)
+    */
     .tile img{
       width:100%;
       height:100%;
       display:block;
-      object-fit: cover;          /* <-- ISTO remove brancos e “metade vazia” */
-      object-position:center;
-      transform:none !important;  /* mata qualquer scale/zoom por CSS */
-      filter:none !important;
+      object-fit: cover;
+      object-position: center;
+      transform: none !important;  /* mata qualquer scale() que tenhas por acidente */
+      animation: none !important;  /* mata animações tipo "ken burns" */
     }
 
-    @media (max-width: 768px){
-      .tile{ width: var(--tileW-mobile); }
+    /*
+      Largura dos tiles:
+      Ajusta a quantidade de fotos visíveis por linha.
+      (mantém-se sem gaps)
+    */
+    .tile{
+      width: 33.3333vw;          /* desktop: 3 por ecrã aprox */
+      max-width: 520px;
+      min-width: 240px;
     }
 
-    /* ================= BOTTOM (logo + botão) ================= */
-    .logoWrap{
-      height: var(--bottomH);
-      position: relative;
+    @media (max-width: 900px){
+      .tile{ width: 50vw; min-width: 180px; }
+    }
+    @media (max-width: 520px){
+      .tile{ width: 70vw; min-width: 160px; }
+    }
+
+    /* Animações (loop infinito suave) */
+    .row.top .track{
+      animation: scroll-left var(--speed-top) linear infinite;
+    }
+    .row.bottom .track{
+      animation: scroll-right var(--speed-bottom) linear infinite;
+    }
+
+    /* Anda 50% porque duplicamos o conteúdo (list + list) */
+    @keyframes scroll-left{
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+    @keyframes scroll-right{
+      from { transform: translateX(-50%); }
+      to   { transform: translateX(0); }
+    }
+
+    /* BOTTOM: logo 1/3 */
+    .logo-area{
+      height: var(--logo-height);
+      position:relative;
       background:#fff;
-      overflow: hidden;
-
-      /* ✅ reserva espaço para o botão + safe area (iPhone) */
-      padding-bottom: calc(var(--btnH) + 14px + env(safe-area-inset-bottom));
-    }
-
-    .logo{
-      position:absolute;
-      inset: 0;
       display:flex;
       align-items:center;
       justify-content:center;
-      padding: 10px 12px;
-      padding-bottom: calc(var(--btnH) + 24px + env(safe-area-inset-bottom)); /* não deixar o logo “bater” no botão */
+      padding-bottom: env(safe-area-inset-bottom);
     }
 
-    .logo img{
-      width: 100%;
+    .logo-area img{
       height: 100%;
+      width: auto;
+      max-width: 100%;
       object-fit: contain;
       display:block;
     }
 
-    /* ✅ botão sempre visível no mobile, nunca cortado */
-    .cta{
+    /* Botão contactos (se já tens, mantém; se não quiseres, apaga este bloco) */
+    .contacts{
       position:absolute;
       left:50%;
       transform:translateX(-50%);
-      bottom: calc(12px + env(safe-area-inset-bottom));
-
-      height: var(--btnH);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-
-      padding: 0 22px;
+      bottom: calc(env(safe-area-inset-bottom) + 10px);
+      padding: 10px 18px;
       border-radius: 999px;
-      font-size: 18px;
-      font-weight: 800;
-
-      background: #ffd6e6;
-      color: #6a1b4d;
-      text-decoration: none;
-
-      animation: flash 1.2s infinite;
-      box-shadow: 0 8px 20px rgba(0,0,0,.12);
-      white-space: nowrap;
+      border: 0;
+      cursor:pointer;
+      background: rgba(255, 192, 203, 0.35);
+      color:#7a2d4b;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+      animation: flash 1.2s ease-in-out infinite;
+      text-decoration:none;
     }
-
     @keyframes flash{
-      0%,100%{ opacity:1; }
-      50%{ opacity:.65; }
+      0%,100% { filter: brightness(1); }
+      50% { filter: brightness(1.25); }
     }
   </style>
 </head>
@@ -158,244 +160,49 @@
 <body>
   <div class="page">
 
-    <div class="slides">
+    <div class="rows">
       <div class="row top">
-        <div class="track" id="trackTop"></div>
+        <div class="track" id="trackTop" aria-hidden="true"></div>
       </div>
-
       <div class="row bottom">
-        <div class="track" id="trackBottom"></div>
+        <div class="track" id="trackBottom" aria-hidden="true"></div>
       </div>
     </div>
 
-    <div class="logoWrap">
-      <div class="logo">
-        <img src="background.png" alt="Little Things" />
-      </div>
-
-      <a class="cta" href="https://www.littlethings.events/qr_contact/">
-        Contactos / Contacts
-      </a>
-    </div>
-
-  </div>
-
- <!DOCTYPE html>
-<html lang="pt">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Little Things</title>
-
-  <style>
-    :root{
-      --speedTop: 60s;     /* velocidade linha 1 */
-      --speedBottom: 60s;  /* velocidade linha 2 */
-      --gap: 0px;          /* sem espaçamento entre fotos */
-
-      --topH: 67dvh;       /* 2/3 */
-      --bottomH: 33dvh;    /* 1/3 */
-
-      --tileW-desktop: 25vw;
-      --tileW-mobile: 50vw;
-
-      --btnH: 52px;        /* altura aprox do botão */
-    }
-
-    *{ margin:0; padding:0; box-sizing:border-box; }
-    html,body{ width:100%; height:100%; background:#fff; overflow:hidden; }
-
-    .page{
-      height: 100dvh;
-      display:flex;
-      flex-direction:column;
-      background:#fff;
-    }
-
-    /* ================= TOP (2 linhas) ================= */
-    .slides{
-      height: var(--topH);
-      display:flex;
-      flex-direction:column;
-      overflow:hidden;
-      background:#fff;
-    }
-
-    .row{
-      height:50%;
-      overflow:hidden;
-      background:#fff;
-    }
-
-    .track{
-      display:flex;
-      width:max-content;
-      gap: var(--gap);
-      will-change: transform;
-    }
-
-    /* animações separadas por linha (para poderes mexer na velocidade independentemente) */
-    .row.top .track{
-      animation: scrollTop var(--speedTop) linear infinite;
-    }
-    .row.bottom .track{
-      animation: scrollBottom var(--speedBottom) linear infinite reverse;
-    }
-
-    @keyframes scrollTop{
-      from{ transform: translateX(0); }
-      to{ transform: translateX(-50%); }
-    }
-    @keyframes scrollBottom{
-      from{ transform: translateX(0); }
-      to{ transform: translateX(-50%); }
-    }
-
-    /* ✅ tiles fixos (os “quadrados/rectângulos” do teu array) */
-    .tile{
-      height:100%;
-      flex:0 0 auto;
-      width: var(--tileW-desktop);
-      background:#fff;
-      line-height:0;
-      overflow:hidden; /* importante: garante que a foto fica "recortada" ao tile */
-    }
-
-    /* ✅ Ajusta a foto ao tile, sem branco em baixo */
-    .tile img{
-      width:100%;
-      height:100%;
-      display:block;
-      object-fit: cover;          /* <-- ISTO remove brancos e “metade vazia” */
-      object-position:center;
-      transform:none !important;  /* mata qualquer scale/zoom por CSS */
-      filter:none !important;
-    }
-
-    @media (max-width: 768px){
-      .tile{ width: var(--tileW-mobile); }
-    }
-
-    /* ================= BOTTOM (logo + botão) ================= */
-    .logoWrap{
-      height: var(--bottomH);
-      position: relative;
-      background:#fff;
-      overflow: hidden;
-
-      /* ✅ reserva espaço para o botão + safe area (iPhone) */
-      padding-bottom: calc(var(--btnH) + 14px + env(safe-area-inset-bottom));
-    }
-
-    .logo{
-      position:absolute;
-      inset: 0;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding: 10px 12px;
-      padding-bottom: calc(var(--btnH) + 24px + env(safe-area-inset-bottom)); /* não deixar o logo “bater” no botão */
-    }
-
-    .logo img{
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      display:block;
-    }
-
-    /* ✅ botão sempre visível no mobile, nunca cortado */
-    .cta{
-      position:absolute;
-      left:50%;
-      transform:translateX(-50%);
-      bottom: calc(12px + env(safe-area-inset-bottom));
-
-      height: var(--btnH);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-
-      padding: 0 22px;
-      border-radius: 999px;
-      font-size: 18px;
-      font-weight: 800;
-
-      background: #ffd6e6;
-      color: #6a1b4d;
-      text-decoration: none;
-
-      animation: flash 1.2s infinite;
-      box-shadow: 0 8px 20px rgba(0,0,0,.12);
-      white-space: nowrap;
-    }
-
-    @keyframes flash{
-      0%,100%{ opacity:1; }
-      50%{ opacity:.65; }
-    }
-  </style>
-</head>
-
-<body>
-  <div class="page">
-
-    <div class="slides">
-      <div class="row top">
-        <div class="track" id="trackTop"></div>
-      </div>
-
-      <div class="row bottom">
-        <div class="track" id="trackBottom"></div>
-      </div>
-    </div>
-
-    <div class="logoWrap">
-      <div class="logo">
-        <img src="background.png" alt="Little Things" />
-      </div>
-
-      <a class="cta" href="https://www.littlethings.events/qr_contact/">
-        Contactos / Contacts
-      </a>
+    <div class="logo-area">
+      <img src="background.png" alt="Little Things" />
+      <a class="contacts" href="https://www.littlethings.events/qr_contact/">Contactos / Contacts</a>
     </div>
 
   </div>
 
   <script>
-    // fotos disponíveis (assets/photo01.jpg ... assets/photo14.jpg)
-    const photos = Array.from({ length: 14 }, (_, i) => {
-      const n = String(i + 1).padStart(2, "0");
-      return `assets/photo${n}.jpg`;
-    });
-
-    // shuffle simples (Fisher-Yates)
-    function shuffle(arr){
-      const a = arr.slice();
-      for(let i=a.length-1; i>0; i--){
-        const j = Math.floor(Math.random() * (i+1));
-        [a[i], a[j]] = [a[j], a[i]];
-      }
-      return a;
-    }
+    // ✅ usa SEMPRE photo01..photo14 (em ambas as linhas)
+    const photos = [
+      "assets/photo01.jpg","assets/photo02.jpg","assets/photo03.jpg","assets/photo04.jpg",
+      "assets/photo05.jpg","assets/photo06.jpg","assets/photo07.jpg","assets/photo08.jpg",
+      "assets/photo09.jpg","assets/photo10.jpg","assets/photo11.jpg","assets/photo12.jpg",
+      "assets/photo13.jpg","assets/photo14.jpg"
+    ];
 
     function buildTrack(trackEl, list){
-      // 1) mete as fotos
-      // 2) duplica as mesmas fotos para fazer “loop” sem buracos
-      const full = list.concat(list);
+      // duplicar para loop infinito perfeito
+      const loop = list.concat(list);
 
-      trackEl.innerHTML = full.map(src => `
+      trackEl.innerHTML = loop.map(src => `
         <div class="tile"><img src="${src}" alt=""></div>
       `).join("");
+
+      // garantir que o "to -50%" é correto (largura total duplicada)
+      // (não mexe no layout, só evita saltos em alguns browsers)
+      requestAnimationFrame(() => {
+        const half = trackEl.scrollWidth / 2;
+        trackEl.style.width = (half * 2) + "px";
+      });
     }
 
-    // Linha 1: ordem random
-    buildTrack(document.getElementById("trackTop"), shuffle(photos));
-
-    // Linha 2: outra ordem random (diferente), também 01-14
-    buildTrack(document.getElementById("trackBottom"), shuffle(photos));
+    buildTrack(document.getElementById("trackTop"), photos);
+    buildTrack(document.getElementById("trackBottom"), photos);
   </script>
-</body>
-</html>
 </body>
 </html>
