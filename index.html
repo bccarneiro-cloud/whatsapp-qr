@@ -23,14 +23,14 @@
       position: fixed;
       inset: 0;
       display: grid;
-      grid-template-rows: 1fr 1fr; /* metade / metade */
+      grid-template-rows: 1fr 1fr;
     }
 
-    /* --- TOP: slideshow --- */
+    /* ---------------- TOP (slideshow) ---------------- */
     .top{
       position: relative;
       overflow: hidden;
-      background: #000; /* evita barras brancas */
+      background: #000;
     }
 
     .slideshow{
@@ -44,39 +44,60 @@
       opacity: 0;
       transition: opacity 1.2s ease;
       will-change: opacity;
-      background:#000; /* evita “white bars” */
     }
     .slide.active{ opacity: 1; }
 
-    /* ✅ “normal”: preenche sempre (sem barras), sem zoom artificial */
+    /* Fundo blur usando a própria imagem (evita barras brancas feias) */
+    .slide .bg{
+      position:absolute;
+      inset:-20px;               /* margem para o blur não cortar */
+      background-position: center;
+      background-size: cover;
+      filter: blur(18px);
+      transform: scale(1.08);     /* evita bordas do blur */
+      opacity: 0.95;
+    }
+
+    /* Camada por cima para escurecer um pouco e dar contraste */
+    .slide .shade{
+      position:absolute;
+      inset:0;
+      background: rgba(0,0,0,0.18);
+    }
+
+    /* ✅ Foto completa na metade do ecrã */
     .slide img{
+      position: relative;
+      z-index: 1;
       width:100%;
       height:100%;
-      object-fit: cover;         /* sem barras brancas */
+      object-fit: contain;        /* mostra a foto toda */
       object-position: center;
       display:block;
-      transform:none !important; /* garante que não há zoom via transform */
+      transform:none !important;
       animation:none !important;
       filter:none !important;
     }
 
-    /* --- BOTTOM: logo completo --- */
+    /* ---------------- BOTTOM (logo) ---------------- */
     .bottom{
       position: relative;
       overflow: hidden;
       background: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       padding-bottom: env(safe-area-inset-bottom);
     }
 
-    /* Logo sempre inteiro */
+    /* ✅ Logo toca no topo e fundo da metade inferior */
     .logo{
-      width: min(92vw, 900px);
-      height: min(46vh, 420px);
-      max-height: 100%;
-      background: url("./background.png") center/contain no-repeat;
+      position:absolute;
+      inset: 0;
+      background-image: url("./background.png");
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: contain;  /* inteiro */
+      /* ocupar a área toda */
+      width: 100%;
+      height: 100%;
     }
 
     /* Botão topo */
@@ -170,10 +191,23 @@
       return list.map((src, idx) => {
         const s = document.createElement("div");
         s.className = "slide";
+
+        // background blur layer
+        const bg = document.createElement("div");
+        bg.className = "bg";
+        bg.style.backgroundImage = `url("${src}")`;
+
+        const shade = document.createElement("div");
+        shade.className = "shade";
+
         const img = document.createElement("img");
         img.src = src;
         img.alt = "Work " + (idx + 1);
+
+        s.appendChild(bg);
+        s.appendChild(shade);
         s.appendChild(img);
+
         container.appendChild(s);
         return s;
       });
@@ -199,11 +233,9 @@
     (async function init(){
       loadingCover.classList.add("show");
 
-      // garante que a primeira carrega
       try{
         await preload(photos[0]);
       }catch(e){
-        // tenta outra
         for (let i = 1; i < photos.length; i++){
           try{
             await preload(photos[i]);
