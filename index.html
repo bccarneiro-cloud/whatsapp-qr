@@ -18,33 +18,13 @@
       background:#fff;
     }
 
-    /* Fundo base suave */
-    .base{
-      position: fixed;
-      inset: 0;
-      z-index: -6;
-      background:
-        radial-gradient(900px 600px at 20% 25%, rgba(255,120,180,.10), transparent 60%),
-        radial-gradient(900px 600px at 80% 30%, rgba(90,220,255,.08), transparent 58%),
-        #ffffff;
-    }
-
-    /* Logo original (sem esticar) */
-    .logo-bg{
-      position: fixed;
-      inset: 0;
-      z-index: -5;
-      background: url("./background.png") center/contain no-repeat;
-      opacity: .95;
-      pointer-events:none;
-    }
-
-    /* Slideshow por cima */
+    /* Slideshow por cima (fotos 100% opacas) */
     .slideshow{
       position: fixed;
       inset: 0;
-      z-index: -4;
+      z-index: 1;
       overflow: hidden;
+      background:#fff;
     }
 
     .slide{
@@ -61,29 +41,50 @@
       height:100%;
       object-fit: cover;
       display:block;
-      transform: scale(1.06);
-      animation: kenburns 10s ease-in-out infinite;
-      filter: saturate(1.02) contrast(1.02);
+      /* ✅ sem zoom / sem animação */
+      transform: none;
+      animation: none;
+      filter: none;
     }
 
-    @keyframes kenburns{
-      0%   { transform: scale(1.06) translate3d(0,0,0); }
-      50%  { transform: scale(1.12) translate3d(-1%, -1%, 0); }
-      100% { transform: scale(1.06) translate3d(0,0,0); }
-    }
-
-    /* Overlay para manter o logo sempre legível */
-    .overlay{
+    /* Logo fixo em baixo (sem esticar) */
+    .logo-fixed-bottom{
       position: fixed;
-      inset:0;
-      z-index: -3;
-      background:
-        radial-gradient(circle at 50% 45%, rgba(255,255,255,.28), rgba(255,255,255,.55)),
-        linear-gradient(to bottom, rgba(255,255,255,.10), rgba(255,255,255,.26));
-      pointer-events:none;
+      left: 0;
+      right: 0;
+      bottom: calc(env(safe-area-inset-bottom) + 10px);
+      height: min(32vh, 280px);     /* ocupa só parte inferior */
+      z-index: 2;
+      pointer-events: none;
+
+      background-image: url("./background.png");
+      background-repeat: no-repeat;
+      background-position: center bottom;
+      background-size: contain;
+
+      /* Para ficar bem “limpo” por cima das fotos */
+      filter: none;
     }
 
-    /* Botão canto superior direito */
+    /* Um gradiente leve para dar contraste ao logo sem “apagar” as fotos */
+    .logo-fade{
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 38vh;
+      z-index: 2;
+      pointer-events: none;
+
+      background: linear-gradient(
+        to top,
+        rgba(255,255,255,0.85),
+        rgba(255,255,255,0.35),
+        rgba(255,255,255,0)
+      );
+    }
+
+    /* Botão no topo */
     .corner{
       position: fixed;
       top: calc(14px + env(safe-area-inset-top));
@@ -95,42 +96,41 @@
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      gap: 8px;
       padding: 12px 14px;
       border-radius: 999px;
       text-decoration:none;
       font-weight: 900;
       font-size: 13px;
       color: rgba(10,10,10,.92);
-      background: rgba(255,255,255,.58);
+      background: rgba(255,255,255,.75);
       border: 1px solid rgba(255,255,255,.55);
       box-shadow: 0 14px 40px rgba(0,0,0,.12);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
     }
-
     .corner a:active{ transform: scale(.98); }
 
-    /* (Opcional) Evitar “flash” antes de carregar a 1ª imagem */
+    /* Evitar flash inicial */
     .loadingCover{
       position: fixed;
       inset: 0;
       z-index: 20;
-      background: transparent;
-      pointer-events:none;
+      background: #fff;
       opacity: 0;
       transition: opacity .2s ease;
+      pointer-events:none;
     }
     .loadingCover.show{ opacity: 1; }
   </style>
 </head>
 
 <body>
-  <div class="base"></div>
-  <div class="logo-bg" aria-hidden="true"></div>
-
   <div class="slideshow" id="slideshow" aria-hidden="true"></div>
-  <div class="overlay" aria-hidden="true"></div>
+
+  <!-- leve “fade” inferior para o logo ficar sempre legível -->
+  <div class="logo-fade" aria-hidden="true"></div>
+  <!-- logo fixo em baixo -->
+  <div class="logo-fixed-bottom" aria-hidden="true"></div>
 
   <div class="corner">
     <a href="./qr_contact/">Contactos / Contacts</a>
@@ -139,7 +139,7 @@
   <div class="loadingCover" id="loadingCover"></div>
 
   <script>
-    // ✅ 14 fotos (em /assets/) com nomes EXACTOS: photo01.jpg ... photo14.jpg
+    // 14 fotos (em /assets/) com nomes EXACTOS: photo01.jpg ... photo14.jpg
     const photos = [
       "./assets/photo01.jpg",
       "./assets/photo02.jpg",
@@ -200,17 +200,16 @@
     }
 
     (async function init(){
-      // Preload 1ª imagem para garantir que aparece logo
       loadingCover.classList.add("show");
 
+      // garante que pelo menos uma imagem carrega antes de começar
       try{
         await preload(photos[0]);
       }catch(e){
-        // Se a primeira falhar mas as outras existirem, tenta encontrar uma que carregue
+        // tenta encontrar uma que carregue
         for (let i = 1; i < photos.length; i++){
           try{
             await preload(photos[i]);
-            // troca a primeira para esta para arrancar
             const ok = photos.splice(i,1)[0];
             photos.unshift(ok);
             break;
@@ -218,10 +217,9 @@
         }
       }
 
-      // Criar slides e iniciar
       const slides = createSlides(photos);
 
-      // Preload das próximas 2 para transição suave (não bloqueia se falhar)
+      // preload das próximas 2 (suave)
       Promise.allSettled([preload(photos[1]), preload(photos[2])]);
 
       loadingCover.classList.remove("show");
