@@ -1,170 +1,156 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Little Things</title>
 
 <style>
-*{
-  box-sizing:border-box;
-  margin:0;
-  padding:0;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-html,body{
-  width:100%;
-  height:100%;
-  overflow:hidden;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background:#000; /* evita flashes brancos */
+html, body {
+  height: 100%;
+  overflow: hidden;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 /* ===== LAYOUT ===== */
-.wrap{
-  width:100%;
-  height:100vh;
-  display:grid;
+.page {
+  height: 100vh;
+  display: grid;
   grid-template-rows: 2fr 1fr; /* 2/3 slideshow | 1/3 logo */
+  background: #000;
 }
 
 /* ===== SLIDESHOW ===== */
-.slideshow{
-  display:flex;
-  flex-direction:column;
-  overflow:hidden;
-  background:#000;
+.slideshow {
+  overflow: hidden;
 }
 
-.lane{
-  flex:1;
-  display:flex;
-  align-items:stretch;
-  overflow:hidden;
+.row {
+  height: 50%;
+  display: flex;
+  overflow: hidden;
 }
 
-.track{
-  display:flex;
-  gap:0; /* SEM ESPAÇOS */
-  animation: scroll linear infinite;
+.track {
+  display: flex;
+  width: max-content;
+  animation: scroll 18s linear infinite;
 }
 
-.track.reverse{
+.track.reverse {
   animation-direction: reverse;
 }
 
-.slide{
-  height:100%;
-  width:auto;
-  aspect-ratio: 4 / 3;
-  flex-shrink:0;
-  overflow:hidden;
+.slide {
+  flex-shrink: 0;
 }
 
-.slide img{
-  width:100%;
-  height:100%;
-  object-fit: cover;   /* 🔥 ISTO REMOVE OS ESPAÇOS */
-  display:block;
+.slide img {
+  height: 100%;
+  display: block;
 }
 
-/* ===== ANIMAÇÃO ===== */
-@keyframes scroll{
-  from{ transform: translateX(0); }
-  to{ transform: translateX(-50%); }
+/* animação */
+@keyframes scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
 }
-
-/* VELOCIDADE */
-.lane:nth-child(1) .track{ animation-duration: 45s; }
-.lane:nth-child(2) .track{ animation-duration: 55s; }
 
 /* ===== LOGO ===== */
-.logoArea{
-  position:relative;
-  width:100%;
-  height:100%;
-  background:#fff;
+.logoArea {
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 
-.logoInner{
-  position:absolute;
-  inset:0;
-  display:flex;
-  align-items:stretch;
-  justify-content:center;
+.logoArea img {
+  height: 100%;
+  width: auto;
+  object-fit: contain;
 }
 
-.logoInner img{
-  height:100%;
-  width:auto;
-  max-width:100%;
-  object-fit:contain;
-}
-
-/* ===== MOBILE ===== */
-@media (max-width:768px){
-
-  .logoInner{
-    padding-bottom: 6vh; /* sobe o logo */
-    padding-top: 2vh;
+/* ===== MOBILE FIX ===== */
+@media (max-width: 768px) {
+  .page {
+    grid-template-rows: 2.2fr 1.2fr;
   }
 
-  .logoInner img{
-    height: 92%; /* evita corte em baixo */
+  .logoArea {
+    padding-bottom: 6vh;
   }
 
+  .logoArea img {
+    height: 90%;
+  }
 }
 </style>
 </head>
 
 <body>
 
-<div class="wrap">
+<div class="page">
 
   <!-- SLIDESHOW -->
-  <section class="slideshow">
+  <div class="slideshow">
 
-    <div class="lane">
+    <!-- LINHA 1 -->
+    <div class="row">
       <div class="track">
-        <div class="slide"><img src="./assets/photo01.jpg"></div>
-        <div class="slide"><img src="./assets/photo02.jpg"></div>
-        <div class="slide"><img src="./assets/photo03.jpg"></div>
-        <div class="slide"><img src="./assets/photo04.jpg"></div>
-        <div class="slide"><img src="./assets/photo05.jpg"></div>
+        <div class="slide"><img src="photo01.jpg"></div>
+        <div class="slide"><img src="photo02.jpg"></div>
+        <div class="slide"><img src="photo03.jpg"></div>
+        <div class="slide"><img src="photo04.jpg"></div>
+        <div class="slide"><img src="photo05.jpg"></div>
+        <div class="slide"><img src="photo06.jpg"></div>
+        <div class="slide"><img src="photo07.jpg"></div>
+
+        <!-- duplicação para loop perfeito -->
+        <div class="slide"><img src="photo01.jpg"></div>
+        <div class="slide"><img src="photo02.jpg"></div>
+        <div class="slide"><img src="photo03.jpg"></div>
+        <div class="slide"><img src="photo04.jpg"></div>
+        <div class="slide"><img src="photo05.jpg"></div>
+        <div class="slide"><img src="photo06.jpg"></div>
+        <div class="slide"><img src="photo07.jpg"></div>
+      </div>
+    </div>
+
+    <!-- LINHA 2 (sentido contrário) -->
+    <div class="row">
+      <div class="track reverse">
+        <div class="slide"><img src="photo08.jpg"></div>
+        <div class="slide"><img src="photo09.jpg"></div>
+        <div class="slide"><img src="photo10.jpg"></div>
+        <div class="slide"><img src="photo11.jpg"></div>
+        <div class="slide"><img src="photo12.jpg"></div>
+        <div class="slide"><img src="photo13.jpg"></div>
+        <div class="slide"><img src="photo14.jpg"></div>
 
         <!-- duplicação -->
-        <div class="slide"><img src="./assets/photo01.jpg"></div>
-        <div class="slide"><img src="./assets/photo02.jpg"></div>
-        <div class="slide"><img src="./assets/photo03.jpg"></div>
-        <div class="slide"><img src="./assets/photo04.jpg"></div>
-        <div class="slide"><img src="./assets/photo05.jpg"></div>
+        <div class="slide"><img src="photo08.jpg"></div>
+        <div class="slide"><img src="photo09.jpg"></div>
+        <div class="slide"><img src="photo10.jpg"></div>
+        <div class="slide"><img src="photo11.jpg"></div>
+        <div class="slide"><img src="photo12.jpg"></div>
+        <div class="slide"><img src="photo13.jpg"></div>
+        <div class="slide"><img src="photo14.jpg"></div>
       </div>
     </div>
 
-    <div class="lane">
-      <div class="track reverse">
-        <div class="slide"><img src="./assets/photo06.jpg"></div>
-        <div class="slide"><img src="./assets/photo07.jpg"></div>
-        <div class="slide"><img src="./assets/photo08.jpg"></div>
-        <div class="slide"><img src="./assets/photo09.jpg"></div>
-        <div class="slide"><img src="./assets/photo10.jpg"></div>
-
-        <div class="slide"><img src="./assets/photo06.jpg"></div>
-        <div class="slide"><img src="./assets/photo07.jpg"></div>
-        <div class="slide"><img src="./assets/photo08.jpg"></div>
-        <div class="slide"><img src="./assets/photo09.jpg"></div>
-        <div class="slide"><img src="./assets/photo10.jpg"></div>
-      </div>
-    </div>
-
-  </section>
+  </div>
 
   <!-- LOGO -->
-  <section class="logoArea">
-    <div class="logoInner">
-      <img src="./background.png" alt="Little Things Logo">
-    </div>
-  </section>
+  <div class="logoArea">
+    <img src="background.png" alt="Little Things logo">
+  </div>
 
 </div>
 
