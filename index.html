@@ -6,10 +6,6 @@
 <title>Little Things</title>
 
 <style>
-:root{
-  --bg:#fff;
-}
-
 *{
   box-sizing:border-box;
   margin:0;
@@ -34,53 +30,57 @@ html,body{
 
 /* ===== SLIDESHOW ===== */
 .slideshow{
-  position:relative;
-  overflow:hidden;
   display:flex;
   flex-direction:column;
+  overflow:hidden;
 }
 
+/* cada linha */
 .lane{
   flex:1;
   display:flex;
-  gap:20px;
   align-items:center;
+  overflow:hidden;
 }
 
+/* faixa animada */
 .track{
   display:flex;
-  gap:10px;
+  gap:0;                         /* ❌ SEM ESPAÇAMENTO */
   animation: scroll linear infinite;
 }
 
+/* direção contrária */
 .track.reverse{
   animation-direction: reverse;
 }
 
+/* cada foto */
 .slide{
   height:100%;
   aspect-ratio: 4 / 3;
-  border-radius:18px;
-  overflow:hidden;
   flex-shrink:0;
+  overflow:hidden;
+  background:#fff;
 }
 
 .slide img{
   width:100%;
   height:100%;
-  object-fit:contain; /* ❌ sem zoom */
+  object-fit:contain;            /* sem zoom */
+  display:block;
   background:#fff;
 }
 
-/* animação */
+/* ===== ANIMAÇÃO ===== */
 @keyframes scroll{
   from{ transform: translateX(0); }
   to{ transform: translateX(-50%); }
 }
 
-/* velocidades diferentes */
-.lane:nth-child(1) .track{ animation-duration: 120s; }
-.lane:nth-child(2) .track{ animation-duration: 150s; }
+/* ⚡ VELOCIDADE MAIS RÁPIDA */
+.lane:nth-child(1) .track{ animation-duration: 45s; }
+.lane:nth-child(2) .track{ animation-duration: 55s; }
 
 /* ===== LOGO ===== */
 .logoArea{
@@ -118,19 +118,19 @@ html,body{
 
 <div class="wrap">
 
-  <!-- ===== SLIDESHOW ===== -->
+  <!-- ===== SLIDESHOW (2/3) ===== -->
   <section class="slideshow">
 
     <!-- Linha 1 -->
     <div class="lane">
       <div class="track">
-        <!-- DUPLICA as imagens para loop infinito -->
         <div class="slide"><img src="./assets/photo01.jpg"></div>
         <div class="slide"><img src="./assets/photo02.jpg"></div>
         <div class="slide"><img src="./assets/photo03.jpg"></div>
         <div class="slide"><img src="./assets/photo04.jpg"></div>
         <div class="slide"><img src="./assets/photo05.jpg"></div>
 
+        <!-- duplicação para loop infinito -->
         <div class="slide"><img src="./assets/photo01.jpg"></div>
         <div class="slide"><img src="./assets/photo02.jpg"></div>
         <div class="slide"><img src="./assets/photo03.jpg"></div>
@@ -139,7 +139,7 @@ html,body{
       </div>
     </div>
 
-    <!-- Linha 2 -->
+    <!-- Linha 2 (sentido contrário) -->
     <div class="lane">
       <div class="track reverse">
         <div class="slide"><img src="./assets/photo06.jpg"></div>
@@ -158,7 +158,7 @@ html,body{
 
   </section>
 
-  <!-- ===== LOGO ===== -->
+  <!-- ===== LOGO (1/3) ===== -->
   <section class="logoArea">
     <div class="logoInner">
       <img src="./background.png" alt="Little Things Logo">
