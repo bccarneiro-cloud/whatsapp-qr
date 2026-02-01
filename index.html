@@ -7,19 +7,18 @@
 
   <style>
     :root{
-      /* velocidade: mais baixo = mais rápido */
       --speed-top: 60s;
       --speed-bottom: 60s;
-
-      --logo-height: 33vh; /* 1/3 do ecrã */
-      --rows-height: 67vh; /* 2/3 do ecrã */
+      --logo-height: 33vh;
+      --rows-height: 67vh;
     }
 
     *{ box-sizing:border-box; }
-    html, body { height:100%; margin:0; }
-    body{
-      overflow:hidden;
+    html, body {
+      height:100%;
+      margin:0;
       background:#fff;
+      overflow:hidden;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
     }
 
@@ -29,7 +28,7 @@
       flex-direction:column;
     }
 
-    /* TOP: 2/3 com 2 linhas */
+    /* ================= SLIDES (2/3) ================= */
     .rows{
       height: var(--rows-height);
       display:flex;
@@ -38,121 +37,103 @@
 
     .row{
       flex:1;
-      position:relative;
       overflow:hidden;
       background:#fff;
     }
 
-    /* Track que anda */
     .track{
       height:100%;
       display:flex;
-      flex-wrap:nowrap;
-      gap:0;              /* sem espaçamento */
+      gap:0;
       will-change: transform;
     }
 
-    /* Cada tile ocupa a altura toda da linha */
-    .tile{
-      height:100%;
-      flex: 0 0 auto;     /* sem encolher */
-      background:#fff;    /* evita “pretos” se falhar algo */
-    }
-
-    /*
-      IMPORTANTE:
-      - Sem “zoom”: nada de scale()
-      - Sem branco em baixo: height 100% + display:block
-      - Sem cortar a meio: object-fit: cover (preenche sempre o tile)
-    */
-    .tile img{
-      width:100%;
-      height:100%;
-      display:block;
-      object-fit: cover;
-      object-position: center;
-      transform: none !important;  /* mata qualquer scale() que tenhas por acidente */
-      animation: none !important;  /* mata animações tipo "ken burns" */
-    }
-
-    /*
-      Largura dos tiles:
-      Ajusta a quantidade de fotos visíveis por linha.
-      (mantém-se sem gaps)
-    */
-    .tile{
-      width: 33.3333vw;          /* desktop: 3 por ecrã aprox */
-      max-width: 520px;
-      min-width: 240px;
-    }
-
-    @media (max-width: 900px){
-      .tile{ width: 50vw; min-width: 180px; }
-    }
-    @media (max-width: 520px){
-      .tile{ width: 70vw; min-width: 160px; }
-    }
-
-    /* Animações (loop infinito suave) */
     .row.top .track{
       animation: scroll-left var(--speed-top) linear infinite;
     }
+
     .row.bottom .track{
       animation: scroll-right var(--speed-bottom) linear infinite;
     }
 
-    /* Anda 50% porque duplicamos o conteúdo (list + list) */
     @keyframes scroll-left{
       from { transform: translateX(0); }
       to   { transform: translateX(-50%); }
     }
+
     @keyframes scroll-right{
       from { transform: translateX(-50%); }
       to   { transform: translateX(0); }
     }
 
-    /* BOTTOM: logo 1/3 */
-    .logo-area{
+    .tile{
+      height:100%;
+      flex:0 0 auto;
+      width:33.333vw;
+      min-width:240px;
+      max-width:520px;
+      overflow:hidden;
+      background:#fff;
+    }
+
+    @media (max-width:900px){
+      .tile{ width:50vw; min-width:180px; }
+    }
+
+    @media (max-width:520px){
+      .tile{ width:70vw; min-width:160px; }
+    }
+
+    .tile img{
+      width:100%;
+      height:100%;
+      display:block;
+      object-fit:cover;
+      object-position:center;
+      transform:none !important;
+      animation:none !important;
+    }
+
+    /* ================= LOGO + CONTACTOS (1/3) ================= */
+    .logoWrap{
       height: var(--logo-height);
-      position:relative;
       background:#fff;
       display:flex;
+      flex-direction:column;
       align-items:center;
       justify-content:center;
       padding-bottom: env(safe-area-inset-bottom);
     }
 
-    .logo-area img{
-      height: 100%;
-      width: auto;
-      max-width: 100%;
-      object-fit: contain;
+    .logoWrap img{
+      height:100%;
+      max-height: calc(100% - 60px);
+      width:auto;
+      max-width:100%;
+      object-fit:contain;
       display:block;
     }
 
-    /* Botão contactos (se já tens, mantém; se não quiseres, apaga este bloco) */
-    .contacts{
-      position:absolute;
-      left:50%;
-      transform:translateX(-50%);
-      bottom: calc(env(safe-area-inset-bottom) + 10px);
-      padding: 10px 18px;
-      border-radius: 999px;
-      border: 0;
-      cursor:pointer;
-      background: rgba(255, 192, 203, 0.35);
-      color:#7a2d4b;
-      font-weight: 700;
-      letter-spacing: 0.2px;
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-      box-shadow: 0 10px 24px rgba(0,0,0,0.12);
-      animation: flash 1.2s ease-in-out infinite;
+    /* ✅ BOTÃO CORRETO: SEM position:absolute */
+    .cta{
+      margin-top:10px;
+
+      padding:14px 22px;
+      border-radius:999px;
+      font-size:18px;
+      font-weight:800;
+      background:#ffd6e6;
+      color:#6a1b4d;
       text-decoration:none;
+
+      animation: flash 1.2s infinite;
+      box-shadow:0 8px 20px rgba(0,0,0,.12);
+      white-space:nowrap;
     }
+
     @keyframes flash{
-      0%,100% { filter: brightness(1); }
-      50% { filter: brightness(1.25); }
+      0%,100%{ opacity:1; }
+      50%{ opacity:.65; }
     }
   </style>
 </head>
@@ -160,24 +141,28 @@
 <body>
   <div class="page">
 
+    <!-- SLIDES -->
     <div class="rows">
       <div class="row top">
-        <div class="track" id="trackTop" aria-hidden="true"></div>
+        <div class="track" id="trackTop"></div>
       </div>
       <div class="row bottom">
-        <div class="track" id="trackBottom" aria-hidden="true"></div>
+        <div class="track" id="trackBottom"></div>
       </div>
     </div>
 
-    <div class="logo-area">
-      <img src="background.png" alt="Little Things" />
-      <a class="contacts" href="https://www.littlethings.events/qr_contact/">Contactos / Contacts</a>
+    <!-- LOGO + CONTACTOS -->
+    <div class="logoWrap">
+      <img src="background.png" alt="Little Things">
+      <a class="cta" href="https://www.littlethings.events/qr_contact/">
+        Contactos / Contacts
+      </a>
     </div>
 
   </div>
 
   <script>
-    // ✅ usa SEMPRE photo01..photo14 (em ambas as linhas)
+    // TODAS as fotos, SEM filtros
     const photos = [
       "assets/photo01.jpg","assets/photo02.jpg","assets/photo03.jpg","assets/photo04.jpg",
       "assets/photo05.jpg","assets/photo06.jpg","assets/photo07.jpg","assets/photo08.jpg",
@@ -186,19 +171,10 @@
     ];
 
     function buildTrack(trackEl, list){
-      // duplicar para loop infinito perfeito
       const loop = list.concat(list);
-
-      trackEl.innerHTML = loop.map(src => `
-        <div class="tile"><img src="${src}" alt=""></div>
-      `).join("");
-
-      // garantir que o "to -50%" é correto (largura total duplicada)
-      // (não mexe no layout, só evita saltos em alguns browsers)
-      requestAnimationFrame(() => {
-        const half = trackEl.scrollWidth / 2;
-        trackEl.style.width = (half * 2) + "px";
-      });
+      trackEl.innerHTML = loop.map(src =>
+        `<div class="tile"><img src="${src}" alt=""></div>`
+      ).join("");
     }
 
     buildTrack(document.getElementById("trackTop"), photos);
