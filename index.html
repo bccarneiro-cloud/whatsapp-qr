@@ -6,161 +6,227 @@
   <title>Little Things</title>
 
   <style>
-    *{ box-sizing:border-box; }
-    html{ height:-webkit-fill-available; }
+    :root{
+      --gap: 12px;
 
+      /* slideshow speeds */
+      --speedTop: 26s;
+      --speedBottom: 30s;
+
+      /* layout min heights */
+      --minLogoBlock: 240px;
+      --minSlideBlock: 260px;
+
+      --shadow: 0 18px 55px rgba(0,0,0,0.18);
+      --radius: 18px;
+    }
+
+    *{ box-sizing: border-box; }
+    html{ height: -webkit-fill-available; }
     body{
-      margin:0;
-      height:100vh;
-      height:100svh;
-      height:100dvh;
-      height:-webkit-fill-available;
-      overflow:hidden;
+      margin: 0;
+      height: 100vh;
+      height: 100svh;
+      height: 100dvh;
+      height: -webkit-fill-available;
+      overflow: hidden;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background:#fff;
+      background: #fff;
     }
 
     /* subtle background */
     .bg{
-      position:fixed;
-      inset:0;
+      position: fixed;
+      inset: 0;
       background:
         radial-gradient(circle at 25% 10%, rgba(255,192,203,0.18), transparent 55%),
         radial-gradient(circle at 80% 70%, rgba(255,182,193,0.14), transparent 60%),
         #ffffff;
-      z-index:-1;
+      z-index: -2;
     }
 
     .page{
-      position:fixed;
-      inset:0;
-      display:grid;
-      grid-template-rows: 2fr 1fr;
+      position: fixed;
+      inset: 0;
+      display: grid;
+      gap: var(--gap);
       padding:
         calc(10px + env(safe-area-inset-top))
-        0
+        12px
         calc(10px + env(safe-area-inset-bottom))
-        0;
+        12px;
+
+      /* 2/3 slideshow + 1/3 bottom area */
+      grid-template-rows:
+        minmax(var(--minSlideBlock), 2fr)
+        minmax(var(--minLogoBlock), 1fr);
     }
 
-    /* ===== SLIDESHOW ===== */
+    /* ===== SLIDESHOW (keeps its own container styling) ===== */
     .slideshow{
-      display:grid;
-      grid-template-rows:1fr 1fr;
-      overflow:hidden;
+      border-radius: 26px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.10);
+      border: 1px solid rgba(255,255,255,0.35);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+
+      display: grid;
+      grid-template-rows: 1fr 1fr;
+      gap: 10px;
+      padding: 10px;
+      min-height: 0;
     }
 
     .lane{
-      position:relative;
-      overflow:hidden;
+      position: relative;
+      overflow: hidden;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.25);
+      border: 1px solid rgba(255,255,255,0.45);
     }
 
     .track{
-      position:absolute;
-      top:0;
-      left:0;
-      height:100%;
-      display:flex;
-      width:max-content;
-      will-change:transform;
+      position: absolute;
+      top: 0; left: 0;
+      height: 100%;
+      display: flex;
+      gap: 10px;
+      padding: 10px;
+      width: max-content;
+      will-change: transform;
+      align-items: center;
     }
 
-    .lane.top .track{
-      animation: moveLeft 30s linear infinite;
-    }
-    .lane.bottom .track{
-      animation: moveRight 36s linear infinite;
-    }
+    .lane.top .track{ animation: moveLeft var(--speedTop) linear infinite; }
+    .lane.bottom .track{ animation: moveRight var(--speedBottom) linear infinite; }
 
     @keyframes moveLeft{
-      from{ transform:translateX(0); }
-      to{ transform:translateX(calc(-1 * var(--shift))); }
+      from { transform: translateX(0); }
+      to   { transform: translateX(calc(-1 * var(--shift))); }
     }
     @keyframes moveRight{
-      from{ transform:translateX(calc(-1 * var(--shift))); }
-      to{ transform:translateX(0); }
+      from { transform: translateX(calc(-1 * var(--shift))); }
+      to   { transform: translateX(0); }
     }
 
-    /* images = continuous strip */
     .slide{
-      flex:0 0 auto;
-      height:100%;
+      flex: 0 0 auto;
+      height: 100%;
+      width: min(46vw, 420px);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 10px 28px rgba(0,0,0,0.18);
+      background: #fff;
     }
 
     .slide img{
-      height:100%;
-      width:auto;
-      display:block;
-      object-fit:contain;
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: contain;        /* no zoom / no crop */
+      object-position: center;
+      background: #fff;
     }
 
-    /* ===== BOTTOM (FULL WHITE) ===== */
+    /* ===== BOTTOM AREA: FULL WHITE, NO CARD/BORDER ===== */
     .bottomBar{
-      background:#fff;
-      display:grid;
-      grid-template-rows:1fr auto;
-      align-items:center;
+      width: 100%;
+      height: 100%;
+      background: #ffffff;     /* full white bottom */
+      border-radius: 0;        /* no rounded card */
+      box-shadow: none;        /* no shadow */
+      border: none;            /* no border */
+      padding: 0;              /* flush */
+      margin: 0;
+
+      display: grid;
+      grid-template-rows: 1fr auto;
+      align-items: center;
+      justify-items: center;
+      gap: 10px;
+      min-height: 0;
     }
 
+    /* logo should fill the available area of the bottom bar */
     .logoWrap{
-      width:100%;
-      height:100%;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      padding: 0;
+      min-height: 0;
     }
 
     .logoWrap img{
-      width:100%;
-      height:100%;
-      object-fit:contain;
-      display:block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain; /* logo complete */
+      display: block;
     }
 
+    /* contact "imprinted" button on white background */
     .contactRow{
-      padding:0 16px 12px;
-      display:flex;
-      justify-content:center;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      padding: 0 12px 10px 12px;
     }
 
     .contactBtn{
-      width:min(520px,100%);
-      text-align:center;
-      padding:14px 16px;
-      border-radius:999px;
-      text-decoration:none;
-      font-weight:900;
-      color:#111;
-      background:#fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: min(520px, 100%);
+      padding: 14px 16px;
+      border-radius: 999px;
+      text-decoration: none;
+      font-weight: 900;
+      color: rgba(10,10,10,0.92);
+
+      /* “imprinted” look on white */
+      background: #ffffff;
+      border: none;
       box-shadow:
         inset 0 2px 6px rgba(0,0,0,0.08),
         0 10px 24px rgba(0,0,0,0.10);
     }
+    .contactBtn:active{ transform: scale(0.985); }
 
-    .contactBtn:active{ transform:scale(.98); }
-
-    @media (max-height:700px){
-      .contactBtn{ padding:12px 14px; }
+    /* smaller heights */
+    @media (max-height: 700px){
+      :root{
+        --minLogoBlock: 210px;
+        --minSlideBlock: 240px;
+      }
+      .slide{ width: min(52vw, 380px); }
+      .contactBtn{ padding: 12px 14px; }
     }
   </style>
 </head>
 
 <body>
-  <div class="bg"></div>
+  <div class="bg" aria-hidden="true"></div>
 
   <div class="page">
 
-    <!-- Slideshow -->
-    <section class="slideshow">
+    <!-- Slideshow 2 lines (top left, bottom right) -->
+    <section class="slideshow" aria-label="Slideshow">
       <div class="lane top">
         <div class="track" id="trackTop"></div>
       </div>
+
       <div class="lane bottom">
         <div class="track" id="trackBottom"></div>
       </div>
     </section>
 
-    <!-- Bottom -->
-    <section class="bottomBar">
+    <!-- Bottom: FULL WHITE, no border/card -->
+    <section class="bottomBar" aria-label="Logo and contacts">
       <div class="logoWrap">
-        <img src="./background.png" alt="Little Things">
+        <img src="./background.png" alt="Little Things" />
       </div>
 
       <div class="contactRow">
@@ -171,6 +237,7 @@
   </div>
 
   <script>
+    // Adjust extensions/paths if needed
     const topPhotos = [
       "./assets/photo01.jpg",
       "./assets/photo02.jpg",
@@ -179,7 +246,7 @@
       "./assets/photo05.jpg",
       "./assets/photo06.jpg",
       "./assets/photo07.jpg",
-      "./assets/photo08.jpg"
+      "./assets/photo08.jpg",
     ];
 
     const bottomPhotos = [
@@ -188,32 +255,39 @@
       "./assets/photo11.jpg",
       "./assets/photo12.jpg",
       "./assets/photo13.jpg",
-      "./assets/photo14.jpg"
+      "./assets/photo14.jpg",
     ];
 
-    function createSlide(src){
-      const d = document.createElement("div");
-      d.className = "slide";
-      const i = document.createElement("img");
-      i.src = src;
-      d.appendChild(i);
-      return d;
+    function makeSlide(src){
+      const wrap = document.createElement("div");
+      wrap.className = "slide";
+
+      const img = document.createElement("img");
+      img.src = src;
+      img.alt = "Little Things";
+
+      wrap.appendChild(img);
+      return wrap;
     }
 
-    function setup(track, photos){
-      track.innerHTML = "";
-      const sequence = photos.concat(photos); // duplicate for seamless loop
-      sequence.forEach(p => track.appendChild(createSlide(p)));
+    function fillTrack(trackEl, photos){
+      trackEl.innerHTML = "";
 
-      requestAnimationFrame(()=>{
-        const shift = track.scrollWidth / 2;
-        track.style.setProperty("--shift", shift + "px");
+      // Duplicate sequence for seamless loop
+      const seq = photos.concat(photos);
+      seq.forEach(src => trackEl.appendChild(makeSlide(src)));
+
+      // compute shift distance after layout
+      requestAnimationFrame(() => {
+        const fullWidth = trackEl.scrollWidth;
+        const shift = fullWidth / 2; // because duplicated
+        trackEl.style.setProperty("--shift", shift + "px");
       });
     }
 
     function init(){
-      setup(document.getElementById("trackTop"), topPhotos);
-      setup(document.getElementById("trackBottom"), bottomPhotos);
+      fillTrack(document.getElementById("trackTop"), topPhotos);
+      fillTrack(document.getElementById("trackBottom"), bottomPhotos);
     }
 
     init();
