@@ -7,19 +7,24 @@
 
   <style>
     :root{
-      --speed: 60s;         /* velocidade do loop (menor = mais rápido) */
-      --topH: 67vh;         /* slideshow 2/3 */
-      --bottomH: 33vh;      /* logo 1/3 */
-      --gap: 0px;           /* distância entre fotos */
-      --tileW-desktop: 25vw;/* largura de cada “tile” no desktop */
-      --tileW-mobile: 50vw; /* largura de cada “tile” no mobile */
+      --speedTop: 60s;     /* velocidade linha 1 */
+      --speedBottom: 60s;  /* velocidade linha 2 */
+      --gap: 0px;          /* sem espaçamento entre fotos */
+
+      --topH: 67dvh;       /* 2/3 */
+      --bottomH: 33dvh;    /* 1/3 */
+
+      --tileW-desktop: 25vw;
+      --tileW-mobile: 50vw;
+
+      --btnH: 52px;        /* altura aprox do botão */
     }
 
     *{ margin:0; padding:0; box-sizing:border-box; }
-    html,body{ width:100%; height:100%; overflow:hidden; background:#fff; }
+    html,body{ width:100%; height:100%; background:#fff; overflow:hidden; }
 
     .page{
-      height:100vh;
+      height: 100dvh;
       display:flex;
       flex-direction:column;
       background:#fff;
@@ -44,45 +49,47 @@
       display:flex;
       width:max-content;
       gap: var(--gap);
-      animation: scroll var(--speed) linear infinite;
       will-change: transform;
     }
 
-    .row.reverse .track{
-      animation-direction: reverse;
+    /* animações separadas por linha (para poderes mexer na velocidade independentemente) */
+    .row.top .track{
+      animation: scrollTop var(--speedTop) linear infinite;
+    }
+    .row.bottom .track{
+      animation: scrollBottom var(--speedBottom) linear infinite reverse;
     }
 
-    /* ✅ cada tile tem largura fixa -> imagem pode “caber” sem crop */
-    .tile{
-      height:100%;
-      flex: 0 0 auto;
-      width: var(--tileW-desktop);
-      display:flex;
-      align-items:stretch;
-      justify-content:stretch;
-      background: transparent;
-      line-height:0;
+    @keyframes scrollTop{
+      from{ transform: translateX(0); }
+      to{ transform: translateX(-50%); }
     }
-
-    /* ✅ SEM ZOOM / SEM CORTE */
-    .tile img{
-      width:100% !important;
-      height:100% !important;
-      display:block;
-      background: transparent;
-
-      object-fit: contain !important;  /* mostra a foto inteira */
-      object-position: center center;
-      transform: none !important;      /* mata qualquer scale */
-      filter: none !important;
-    }
-
-    @keyframes scroll{
+    @keyframes scrollBottom{
       from{ transform: translateX(0); }
       to{ transform: translateX(-50%); }
     }
 
-    /* Mobile: tiles maiores (2 por ecrã) */
+    /* ✅ tiles fixos (os “quadrados/rectângulos” do teu array) */
+    .tile{
+      height:100%;
+      flex:0 0 auto;
+      width: var(--tileW-desktop);
+      background:#fff;
+      line-height:0;
+      overflow:hidden; /* importante: garante que a foto fica "recortada" ao tile */
+    }
+
+    /* ✅ Ajusta a foto ao tile, sem branco em baixo */
+    .tile img{
+      width:100%;
+      height:100%;
+      display:block;
+      object-fit: cover;          /* <-- ISTO remove brancos e “metade vazia” */
+      object-position:center;
+      transform:none !important;  /* mata qualquer scale/zoom por CSS */
+      filter:none !important;
+    }
+
     @media (max-width: 768px){
       .tile{ width: var(--tileW-mobile); }
     }
@@ -90,51 +97,60 @@
     /* ================= BOTTOM (logo + botão) ================= */
     .logoWrap{
       height: var(--bottomH);
+      position: relative;
       background:#fff;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:flex-start;
-      /* ✅ safe area (iPhone) para não cortar em baixo */
-      padding: 10px 12px calc(14px + env(safe-area-inset-bottom));
-      overflow: visible; /* ✅ não cortar o botão */
-      gap: 10px;
+      overflow: hidden;
+
+      /* ✅ reserva espaço para o botão + safe area (iPhone) */
+      padding-bottom: calc(var(--btnH) + 14px + env(safe-area-inset-bottom));
     }
 
-    /* logo ocupa o máximo possível sem empurrar o botão para fora */
     .logo{
-      flex: 1 1 auto;
-      width: 100%;
+      position:absolute;
+      inset: 0;
       display:flex;
       align-items:center;
       justify-content:center;
-      min-height: 0; /* importante para flex não “rebentar” */
+      padding: 10px 12px;
+      padding-bottom: calc(var(--btnH) + 24px + env(safe-area-inset-bottom)); /* não deixar o logo “bater” no botão */
     }
 
     .logo img{
-      max-height: 100%;
-      max-width: 100%;
+      width: 100%;
+      height: 100%;
       object-fit: contain;
       display:block;
     }
 
-    /* botão sempre visível */
+    /* ✅ botão sempre visível no mobile, nunca cortado */
     .cta{
-      flex: 0 0 auto;
-      padding: 14px 22px;
+      position:absolute;
+      left:50%;
+      transform:translateX(-50%);
+      bottom: calc(12px + env(safe-area-inset-bottom));
+
+      height: var(--btnH);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+
+      padding: 0 22px;
       border-radius: 999px;
       font-size: 18px;
       font-weight: 800;
+
       background: #ffd6e6;
       color: #6a1b4d;
       text-decoration: none;
+
       animation: flash 1.2s infinite;
       box-shadow: 0 8px 20px rgba(0,0,0,.12);
+      white-space: nowrap;
     }
 
     @keyframes flash{
       0%,100%{ opacity:1; }
-      50%{ opacity:.6; }
+      50%{ opacity:.65; }
     }
   </style>
 </head>
@@ -143,82 +159,18 @@
   <div class="page">
 
     <div class="slides">
-      <!-- LINHA 1 -->
-      <div class="row">
-        <div class="track">
-          <div class="tile"><img src="assets/photo01.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo02.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo03.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo04.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo05.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo06.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo07.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo08.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo09.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo10.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo11.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo12.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo13.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo14.jpg" alt=""></div>
-
-          <!-- duplicado para loop -->
-          <div class="tile"><img src="assets/photo01.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo02.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo03.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo04.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo05.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo06.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo07.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo08.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo09.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo10.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo11.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo12.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo13.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo14.jpg" alt=""></div>
-        </div>
+      <div class="row top">
+        <div class="track" id="trackTop"></div>
       </div>
 
-      <!-- LINHA 2 (reverse) -->
-      <div class="row reverse">
-        <div class="track">
-          <div class="tile"><img src="assets/photo08.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo09.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo10.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo11.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo12.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo13.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo14.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo01.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo02.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo03.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo04.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo05.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo06.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo07.jpg" alt=""></div>
-
-          <!-- duplicado para loop -->
-          <div class="tile"><img src="assets/photo08.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo09.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo10.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo11.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo12.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo13.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo14.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo01.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo02.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo03.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo04.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo05.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo06.jpg" alt=""></div>
-          <div class="tile"><img src="assets/photo07.jpg" alt=""></div>
-        </div>
+      <div class="row bottom">
+        <div class="track" id="trackBottom"></div>
       </div>
     </div>
 
     <div class="logoWrap">
       <div class="logo">
-        <img src="background.png" alt="Little Things">
+        <img src="background.png" alt="Little Things" />
       </div>
 
       <a class="cta" href="https://www.littlethings.events/qr_contact/">
@@ -227,5 +179,39 @@
     </div>
 
   </div>
+
+  <script>
+    // fotos disponíveis (assets/photo01.jpg ... assets/photo14.jpg)
+    const photos = Array.from({ length: 14 }, (_, i) => {
+      const n = String(i + 1).padStart(2, "0");
+      return `assets/photo${n}.jpg`;
+    });
+
+    // shuffle simples (Fisher-Yates)
+    function shuffle(arr){
+      const a = arr.slice();
+      for(let i=a.length-1; i>0; i--){
+        const j = Math.floor(Math.random() * (i+1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function buildTrack(trackEl, list){
+      // 1) mete as fotos
+      // 2) duplica as mesmas fotos para fazer “loop” sem buracos
+      const full = list.concat(list);
+
+      trackEl.innerHTML = full.map(src => `
+        <div class="tile"><img src="${src}" alt=""></div>
+      `).join("");
+    }
+
+    // Linha 1: ordem random
+    buildTrack(document.getElementById("trackTop"), shuffle(photos));
+
+    // Linha 2: outra ordem random (diferente), também 01-14
+    buildTrack(document.getElementById("trackBottom"), shuffle(photos));
+  </script>
 </body>
 </html>
