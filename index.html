@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Little Things</title>
 
 <style>
 :root{
-  --speed: 52s;          /* +15% vs 60s */
-  --tileW: 320px;        /* largura de cada foto (desktop) */
-  --tileWMobile: 240px;  /* largura de cada foto (mobile) */
+  --speed: 52s;
+  --tileW: 320px;
+  --tileWMobile: 240px;
 }
 
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{width:100%;height:100%;overflow:hidden;font-family:system-ui,-apple-system,BlinkMacSystemFont}
+html,body{width:100%;height:100%;overflow:hidden;font-family:system-ui}
 
 .page{
   display:grid;
@@ -22,20 +22,15 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:system-ui,-apple-sy
   background:#000;
 }
 
-/* ================= SLIDES ================= */
 .slides{
-  overflow:hidden;
-  background:#000;
   display:flex;
   flex-direction:column;
-  justify-content:center;
-  gap:0;
+  height:100%;
 }
 
 .row{
-  overflow:hidden;
-  white-space:nowrap;
   height:50%;
+  overflow:hidden;
 }
 
 .track{
@@ -48,7 +43,6 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:system-ui,-apple-sy
   animation-direction: reverse;
 }
 
-/* TILE = evita cortes/zoom: foto inteira dentro de um bloco fixo */
 .tile{
   width:var(--tileW);
   height:100%;
@@ -56,7 +50,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:system-ui,-apple-sy
   display:flex;
   align-items:center;
   justify-content:center;
-  background:#000;  /* sem “linhas”/separações */
+  background:#000;
 }
 
 .tile img{
@@ -64,24 +58,20 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:system-ui,-apple-sy
   max-height:100%;
   width:auto;
   height:auto;
-  object-fit:contain;   /* foto inteira, SEM crop */
-  display:block;
+  object-fit:contain;
 }
 
-/* animação */
 @keyframes scroll{
   from{transform:translateX(0)}
   to{transform:translateX(-50%)}
 }
 
-/* ================= LOGO ================= */
 .logoWrap{
   background:#fff;
   display:flex;
   flex-direction:column;
   align-items:center;
   justify-content:center;
-  padding:0;
 }
 
 .logoWrap img{
@@ -90,18 +80,14 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:system-ui,-apple-sy
   object-fit:contain;
 }
 
-/* BOTÃO CONTACTOS */
 .cta{
   margin-top:10px;
-  border:0;
-  border-radius:999px;
   padding:14px 22px;
+  border-radius:999px;
   font-size:18px;
   font-weight:800;
-  letter-spacing:.3px;
-  color:#0f3d2e;
   background:#ffd6e6;
-  box-shadow:0 18px 45px rgba(0,0,0,.12);
+  color:#6a1b4d;
   text-decoration:none;
   animation:flash 1.2s infinite;
 }
@@ -111,20 +97,12 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:system-ui,-apple-sy
   50%{opacity:.55}
 }
 
-/* ================= MOBILE ================= */
-@media (max-width:768px){
-  .page{
-    grid-template-rows: 2.2fr 0.8fr;
-  }
-
-  .logoWrap{
-    padding-bottom:6vh; /* evita corte no fundo */
-  }
-
+@media(max-width:768px){
   .tile{
     width:var(--tileWMobile);
     flex-basis:var(--tileWMobile);
   }
+  .logoWrap{padding-bottom:6vh}
 }
 </style>
 </head>
@@ -132,66 +110,64 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:system-ui,-apple-sy
 <body>
 <div class="page">
 
-  <!-- SLIDES -->
-  <div class="slides">
+<!-- SLIDES -->
+<div class="slides">
 
-    <!-- LINHA 1 -->
-    <div class="row">
-      <div class="track">
+<!-- LINHA 1 -->
+<div class="row">
+<div class="track">
+  <!-- ORIGINAL -->
+  <div class="tile"><img src="assets/photo01.jpg"></div>
+  <div class="tile"><img src="assets/photo02.jpg"></div>
+  <div class="tile"><img src="assets/photo03.jpg"></div>
+  <div class="tile"><img src="assets/photo04.jpg"></div>
+  <div class="tile"><img src="assets/photo05.jpg"></div>
+  <div class="tile"><img src="assets/photo06.jpg"></div>
+  <div class="tile"><img src="assets/photo07.jpg"></div>
 
-        <div class="tile"><img src="assets/photo01.jpg" alt=""></div>
-        <div class="tile"><img src="assets/photo02.jpg" alt=""></div>
-        <div class="tile"><img src="assets/photo03.jpg" alt=""></div>
-        <div class="tile"><img src="assets/photo04.jpg" alt=""></div>
-        <div class="tile"><img src="assets/photo05.jpg" alt=""></div>
-        <div class="tile"><img src="assets/photo06.jpg" alt=""></div>
-        <div class="tile"><img src="assets/photo07.jpg" alt=""></div>
+  <!-- DUPLICADO IDENTICO -->
+  <div class="tile"><img src="assets/photo01.jpg"></div>
+  <div class="tile"><img src="assets/photo02.jpg"></div>
+  <div class="tile"><img src="assets/photo03.jpg"></div>
+  <div class="tile"><img src="assets/photo04.jpg"></div>
+  <div class="tile"><img src="assets/photo05.jpg"></div>
+  <div class="tile"><img src="assets/photo06.jpg"></div>
+  <div class="tile"><img src="assets/photo07.jpg"></div>
+</div>
+</div>
 
-        <!-- DUPLICADO PARA LOOP -->
-        <div class="tile"><img src="assets/photo01.jpg" alt=""></div>
-        <div class="tile"><img src="assets/photo02.jpg" alt=""></div>
-        <div class="tile"><img src="assets/photo03.jpg" alt=""></div>
-        <div class="tile"><img src="assets/photo04.jpg" alt=""></div>
-        <div class="tile"><img src="assets/photo05.jpg" alt=""></div>
-        <div class="tile"><img src="assets/photo06.jpg" alt=""></div>
-        <div class="tile"><img src="assets/photo07.jpg" alt=""></div>
+<!-- LINHA 2 -->
+<div class="row reverse">
+<div class="track">
+  <!-- ORIGINAL -->
+  <div class="tile"><img src="assets/photo08.jpg"></div>
+  <div class="tile"><img src="assets/photo09.jpg"></div>
+  <div class="tile"><img src="assets/photo10.jpg"></div>
+  <div class="tile"><img src="assets/photo11.jpg"></div>
+  <div class="tile"><img src="assets/photo12.jpg"></div>
+  <div class="tile"><img src="assets/photo13.jpg"></div>
+  <div class="tile"><img src="assets/photo14.jpg"></div>
 
-      </div>
-    </div>
+  <!-- DUPLICADO IDENTICO -->
+  <div class="tile"><img src="assets/photo08.jpg"></div>
+  <div class="tile"><img src="assets/photo09.jpg"></div>
+  <div class="tile"><img src="assets/photo10.jpg"></div>
+  <div class="tile"><img src="assets/photo11.jpg"></div>
+  <div class="tile"><img src="assets/photo12.jpg"></div>
+  <div class="tile"><img src="assets/photo13.jpg"></div>
+  <div class="tile"><img src="assets/photo14.jpg"></div>
+</div>
+</div>
 
-    <!-- LINHA 2 -->
-    <div class="row reverse">
-      <div class="track">
+</div>
 
-        <div class="tile"><img src="assets/photo08.jpg" alt=""></div>
-        <div class="tile"><img src="assets/photo09.jpg" alt=""></div>
-        <div class="tile"><img src="assets/photo10.jpg" alt=""></div>
-        <div class="tile"><img src="assets/photo11.jpg" alt=""></div>
-        <div class="tile"><img src="assets/photo12.jpg" alt=""></div>
-        <div class="tile"><img src="assets/photo13.jpg" alt=""></div>
-        <div class="tile"><img src="assets/photo14.jpg" alt=""></div>
-
-        <!-- DUPLICADO PARA LOOP -->
-        <div class="tile"><img src="assets/photo08.jpg" alt=""></div>
-        <div class="tile"><img src="assets/photo09.jpg" alt=""></div>
-        <div class="tile"><img src="assets/photo10.jpg" alt=""></div>
-        <div class="tile"><img src="assets/photo11.jpg" alt=""></div>
-        <div class="tile"><img src="assets/photo12.jpg" alt=""></div>
-        <div class="tile"><img src="assets/photo13.jpg" alt=""></div>
-        <div class="tile"><img src="assets/photo14.jpg" alt=""></div>
-
-      </div>
-    </div>
-
-  </div>
-
-  <!-- LOGO -->
-  <div class="logoWrap">
-    <img src="background.png" alt="Little Things">
-    <a class="cta" href="https://www.littlethings.events/qr_contact/">
-      Contactos / Contacts
-    </a>
-  </div>
+<!-- LOGO -->
+<div class="logoWrap">
+  <img src="background.png" alt="Little Things">
+  <a class="cta" href="https://www.littlethings.events/qr_contact/">
+    Contactos / Contacts
+  </a>
+</div>
 
 </div>
 </body>
