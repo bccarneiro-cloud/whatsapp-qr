@@ -1,315 +1,171 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Little Things</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Little Things</title>
 
-  <style>
-    :root{
-      --gap: 14px;
-      --radius: 18px;
-      --glass: rgba(255,255,255,0.55);
-      --glassBorder: rgba(255,255,255,0.60);
-      --shadow: 0 18px 55px rgba(0,0,0,0.18);
-    }
+<style>
+:root{
+  --bg:#fff;
+}
 
-    *{ box-sizing: border-box; }
-    html{ height: -webkit-fill-available; }
-    body{
-      margin:0;
-      min-height: 100vh;
-      min-height: 100svh;
-      min-height: 100dvh;
-      min-height: -webkit-fill-available;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: #fff;
-      overflow: hidden;
-    }
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
 
-    /* Fundo suave */
-    .bg{
-      position: fixed;
-      inset: 0;
-      background:
-        radial-gradient(circle at 20% 10%, rgba(255,192,203,0.22), transparent 55%),
-        radial-gradient(circle at 80% 60%, rgba(255,182,193,0.18), transparent 60%),
-        #ffffff;
-      z-index: -2;
-    }
+html,body{
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background:#fff;
+}
 
-    /* Botão Contactos */
-    .corner{
-      position: fixed;
-      top: calc(14px + env(safe-area-inset-top));
-      right: 14px;
-      z-index: 10;
-    }
-    .corner a{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      padding: 12px 14px;
-      border-radius: 999px;
-      text-decoration:none;
-      font-weight: 900;
-      font-size: 13px;
-      color: rgba(10,10,10,.92);
-      background: rgba(255,255,255,.78);
-      border: 1px solid rgba(255,255,255,.55);
-      box-shadow: 0 14px 40px rgba(0,0,0,.12);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-    }
-    .corner a:active{ transform: scale(.98); }
+/* ===== LAYOUT ===== */
+.wrap{
+  width:100%;
+  height:100vh;
+  display:grid;
+  grid-template-rows: 2fr 1fr; /* 2/3 slideshow | 1/3 logo */
+}
 
-    /* Layout: topo (2/3) + fundo (1/3) */
-    .wrap{
-      position: fixed;
-      inset: 0;
-      padding: calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom)) 16px;
-      display: grid;
-      grid-template-rows: 2fr 1fr; /* ✅ 2/3 e 1/3 */
-      gap: var(--gap);
-    }
+/* ===== SLIDESHOW ===== */
+.slideshow{
+  position:relative;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+}
 
-    /* Topo tem 2 linhas */
-    .top{
-      display: grid;
-      grid-template-rows: 1fr 1fr;
-      gap: var(--gap);
-      min-height: 0;
-    }
+.lane{
+  flex:1;
+  display:flex;
+  gap:20px;
+  align-items:center;
+}
 
-    .laneCard{
-      border-radius: 28px;
-      background: var(--glass);
-      border: 1px solid var(--glassBorder);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      overflow: hidden;
-      position: relative;
-      min-height: 0;
-    }
+.track{
+  display:flex;
+  gap:20px;
+  animation: scroll linear infinite;
+}
 
-    .marquee{
-      position: absolute;
-      inset: 0;
-      overflow: hidden;
-    }
+.track.reverse{
+  animation-direction: reverse;
+}
 
-    .track{
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 14px;
-      width: max-content;
-      will-change: transform;
-      animation: scroll var(--duration, 60s) linear infinite;
-    }
+.slide{
+  height:100%;
+  aspect-ratio: 4 / 3;
+  border-radius:18px;
+  overflow:hidden;
+  flex-shrink:0;
+}
 
-    .reverse .track{
-      animation-name: scrollReverse;
-    }
+.slide img{
+  width:100%;
+  height:100%;
+  object-fit:contain; /* ❌ sem zoom */
+  background:#fff;
+}
 
-    @keyframes scroll{
-      from { transform: translateX(0); }
-      to   { transform: translateX(calc(-1 * var(--shift))); }
-    }
-    @keyframes scrollReverse{
-      from { transform: translateX(calc(-1 * var(--shift))); }
-      to   { transform: translateX(0); }
-    }
+/* animação */
+@keyframes scroll{
+  from{ transform: translateX(0); }
+  to{ transform: translateX(-50%); }
+}
 
-    /* Tiles */
-    .tile{
-      position: relative;
-      flex: 0 0 auto;
-      width: var(--tileW, 240px);
-      height: var(--tileH, 170px);
-      border-radius: var(--radius);
-      overflow: hidden;
-      box-shadow: 0 12px 28px rgba(0,0,0,0.18);
-      background: #000;
-    }
+/* velocidades diferentes */
+.lane:nth-child(1) .track{ animation-duration: 90s; }
+.lane:nth-child(2) .track{ animation-duration: 120s; }
 
-    /* blur para preencher atrás (sem barras brancas) */
-    .tile .blur{
-      position: absolute;
-      inset: -22px;
-      background-position: center;
-      background-size: cover;
-      filter: blur(14px);
-      transform: scale(1.08);
-      opacity: 0.92;
-    }
+/* ===== LOGO ===== */
+.logoArea{
+  position:relative;
+  width:100%;
+  height:100%;
+  background:#fff;
+}
 
-    /* Foto completa (sem cortar) */
-    .tile img{
-      position: relative;
-      z-index: 1;
-      width: 100%;
-      height: 100%;
-      object-fit: contain; /* ✅ foto inteira */
-      object-position: center;
-      display: block;
-    }
+.logoInner{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:stretch;
+  justify-content:center;
+}
 
-    /* Ajustes por tamanho */
-    .laneA .tile{ --tileW: 280px; --tileH: 190px; }
-    .laneB .tile{ --tileW: 240px; --tileH: 170px; }
+.logoInner img{
+  height:100%;
+  width:auto;
+  max-width:100%;
+  object-fit:contain;
+}
 
-    @media (max-width: 520px){
-      .wrap{
-        padding: calc(14px + env(safe-area-inset-top)) 12px calc(14px + env(safe-area-inset-bottom)) 12px;
-        gap: 12px;
-      }
-      .laneA .tile{ --tileW: 250px; --tileH: 180px; }
-      .laneB .tile{ --tileW: 220px; --tileH: 160px; }
-    }
-
-    /* Logo em baixo (1/3) */
-    .logoCard{
-      border-radius: 28px;
-      background: rgba(255,255,255,0.55);
-      border: 1px solid rgba(255,255,255,0.60);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      overflow: hidden;
-      position: relative;
-      display: grid;
-      place-items: center;
-    }
-
-    /* O logo deve tocar “por dentro” sem margem extra */
-    .logoInner{
-      position: absolute;
-      inset: 0;
-      display: grid;
-      place-items: center;
-      padding: 0; /* ✅ sem margem */
-    }
-
-    .logoInner img{
-      width: 100%;
-      height: 100%;
-      object-fit: contain; /* ✅ não deturpa */
-      object-position: center;
-      display:block;
-    }
-  </style>
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px){
+  .slide{
+    aspect-ratio: 1 / 1;
+  }
+}
+</style>
 </head>
 
 <body>
-  <div class="bg" aria-hidden="true"></div>
 
-  <div class="corner">
-    <a href="./qr_contact/">Contactos / Contacts</a>
-  </div>
+<div class="wrap">
 
-  <main class="wrap">
-    <section class="top">
-      <div class="laneCard laneA" id="lane1">
-        <div class="marquee">
-          <div class="track" id="track1"></div>
-        </div>
+  <!-- ===== SLIDESHOW ===== -->
+  <section class="slideshow">
+
+    <!-- Linha 1 -->
+    <div class="lane">
+      <div class="track">
+        <!-- DUPLICA as imagens para loop infinito -->
+        <div class="slide"><img src="./assets/photo01.jpg"></div>
+        <div class="slide"><img src="./assets/photo02.jpg"></div>
+        <div class="slide"><img src="./assets/photo03.jpg"></div>
+        <div class="slide"><img src="./assets/photo04.jpg"></div>
+        <div class="slide"><img src="./assets/photo05.jpg"></div>
+
+        <div class="slide"><img src="./assets/photo01.jpg"></div>
+        <div class="slide"><img src="./assets/photo02.jpg"></div>
+        <div class="slide"><img src="./assets/photo03.jpg"></div>
+        <div class="slide"><img src="./assets/photo04.jpg"></div>
+        <div class="slide"><img src="./assets/photo05.jpg"></div>
       </div>
+    </div>
 
-      <div class="laneCard laneB reverse" id="lane2">
-        <div class="marquee">
-          <div class="track" id="track2"></div>
-        </div>
+    <!-- Linha 2 -->
+    <div class="lane">
+      <div class="track reverse">
+        <div class="slide"><img src="./assets/photo06.jpg"></div>
+        <div class="slide"><img src="./assets/photo07.jpg"></div>
+        <div class="slide"><img src="./assets/photo08.jpg"></div>
+        <div class="slide"><img src="./assets/photo09.jpg"></div>
+        <div class="slide"><img src="./assets/photo10.jpg"></div>
+
+        <div class="slide"><img src="./assets/photo06.jpg"></div>
+        <div class="slide"><img src="./assets/photo07.jpg"></div>
+        <div class="slide"><img src="./assets/photo08.jpg"></div>
+        <div class="slide"><img src="./assets/photo09.jpg"></div>
+        <div class="slide"><img src="./assets/photo10.jpg"></div>
       </div>
-    </section>
+    </div>
 
-    <section class="logoCard" aria-label="Logo Little Things">
-      <div class="logoInner">
-        <img src="./background.png" alt="Little Things logo" />
-      </div>
-    </section>
-  </main>
+  </section>
 
-  <script>
-    // ✅ Mete as 14 fotos nesta pasta: /assets/photo01.jpg ... photo14.jpg
-    const photos = [
-      "./assets/photo01.jpg",
-      "./assets/photo02.jpg",
-      "./assets/photo03.jpg",
-      "./assets/photo04.jpg",
-      "./assets/photo05.jpg",
-      "./assets/photo06.jpg",
-      "./assets/photo07.jpg",
-      "./assets/photo08.jpg",
-      "./assets/photo09.jpg",
-      "./assets/photo10.jpg",
-      "./assets/photo11.jpg",
-      "./assets/photo12.jpg",
-      "./assets/photo13.jpg",
-      "./assets/photo14.jpg"
-    ];
+  <!-- ===== LOGO ===== -->
+  <section class="logoArea">
+    <div class="logoInner">
+      <img src="./background.png" alt="Little Things Logo">
+    </div>
+  </section>
 
-    function makeTile(src){
-      const tile = document.createElement("div");
-      tile.className = "tile";
+</div>
 
-      const blur = document.createElement("div");
-      blur.className = "blur";
-      blur.style.backgroundImage = `url("${src}")`;
-
-      const img = document.createElement("img");
-      img.src = src;
-      img.alt = "Little Things";
-
-      tile.appendChild(blur);
-      tile.appendChild(img);
-      return tile;
-    }
-
-    function shuffle(arr){
-      const a = [...arr];
-      for(let i=a.length-1; i>0; i--){
-        const j = Math.floor(Math.random()*(i+1));
-        [a[i], a[j]] = [a[j], a[i]];
-      }
-      return a;
-    }
-
-    function fillTrack(trackEl, list, repeatTimes){
-      trackEl.innerHTML = "";
-      for(let r=0; r<repeatTimes; r++){
-        for(const src of list){
-          trackEl.appendChild(makeTile(src));
-        }
-      }
-    }
-
-    function setupMarquee(trackId, speedSeconds, list){
-      const track = document.getElementById(trackId);
-
-      const shuffled = shuffle(list);
-      // duplicar 2x para scroll contínuo
-      fillTrack(track, shuffled, 2);
-
-      requestAnimationFrame(() => {
-        const fullWidth = track.scrollWidth;
-        const shift = fullWidth / 2; // metade porque duplicámos
-        track.style.setProperty("--shift", shift + "px");
-        track.style.setProperty("--duration", speedSeconds + "s");
-      });
-    }
-
-    // ✅ Devagar + sentidos contrários
-    setupMarquee("track1", 70, photos); // mais lento
-    setupMarquee("track2", 70, photos); // mais lento
-
-    window.addEventListener("resize", () => {
-      setupMarquee("track1", 70, photos);
-      setupMarquee("track2", 70, photos);
-    });
-  </script>
 </body>
 </html>
