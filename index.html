@@ -7,14 +7,10 @@
 
   <style>
     :root{
-      /* Mantive o speed que pediste (60) */
+      /* velocidade do loop */
       --speed: 60s;
 
-      /* Largura fixa para não haver "espaços" entre fotos */
-      --tileW: 340px;
-      --tileWMobile: 250px;
-
-      /* Alturas: slideshow 2/3 + logo 1/3 */
+      /* 2/3 slideshow + 1/3 logo */
       --topH: 67vh;
       --bottomH: 33vh;
     }
@@ -35,16 +31,12 @@
       display:flex;
       flex-direction:column;
       overflow:hidden;
-
-      /* IMPORTANTE: fundo branco para nunca aparecer preto */
       background:#fff;
     }
 
     .row{
       height:50%;
       overflow:hidden;
-
-      /* fundo branco (em vez de preto) */
       background:#fff;
     }
 
@@ -53,31 +45,30 @@
       width:max-content;
       animation: scroll var(--speed) linear infinite;
       will-change: transform;
+      gap: 0; /* sem espaçamento */
     }
 
     .row.reverse .track{
       animation-direction: reverse;
     }
 
+    /* ✅ AQUI ESTÁ A CORREÇÃO:
+       - sem largura fixa
+       - cada tile ajusta à largura natural da foto (pela altura da row)
+    */
     .tile{
-      width: var(--tileW);
       height:100%;
-      flex: 0 0 var(--tileW);
-
+      flex: 0 0 auto;
       display:flex;
-      align-items:center;
-      justify-content:center;
-
-      /* CRÍTICO: remover preto */
+      align-items:stretch;
+      justify-content:flex-start;
       background: transparent;
     }
 
     .tile img{
-      /* SEM ZOOM: não uso cover */
-      width: 100%;
       height: 100%;
-      object-fit: contain;  /* mantém foto inteira, sem zoom */
-      display:block;
+      width: auto;         /* ✅ largura automática -> elimina "metade branco" */
+      display: block;
       background: transparent;
     }
 
@@ -106,7 +97,6 @@
       display:block;
     }
 
-    /* Botão (mantido simples e igual ao tema) */
     .cta{
       margin-top: 10px;
       padding: 14px 22px;
@@ -124,17 +114,9 @@
       50%{ opacity:.55; }
     }
 
-    /* Mobile: tiles menores */
     @media (max-width: 768px){
-      .tile{
-        width: var(--tileWMobile);
-        flex-basis: var(--tileWMobile);
-      }
-
-      /* Se no telemóvel o logo ficar cortado em baixo,
-         esta padding ajuda sem mexer na estrutura */
       .logoWrap{
-        padding-bottom: 16px;
+        padding-bottom: 16px; /* ajuda no corte em baixo */
       }
     }
   </style>
@@ -146,10 +128,9 @@
     <!-- TOP: 2 linhas -->
     <div class="slides">
 
-      <!-- LINHA 1 (exemplo: 1..7) -->
+      <!-- LINHA 1 -->
       <div class="row">
         <div class="track">
-          <!-- ORIGINAL -->
           <div class="tile"><img src="assets/photo01.jpg" alt=""></div>
           <div class="tile"><img src="assets/photo02.jpg" alt=""></div>
           <div class="tile"><img src="assets/photo03.jpg" alt=""></div>
@@ -158,7 +139,7 @@
           <div class="tile"><img src="assets/photo06.jpg" alt=""></div>
           <div class="tile"><img src="assets/photo07.jpg" alt=""></div>
 
-          <!-- DUPLICADO IGUAL (para loop infinito) -->
+          <!-- duplicado para loop infinito -->
           <div class="tile"><img src="assets/photo01.jpg" alt=""></div>
           <div class="tile"><img src="assets/photo02.jpg" alt=""></div>
           <div class="tile"><img src="assets/photo03.jpg" alt=""></div>
@@ -169,10 +150,9 @@
         </div>
       </div>
 
-      <!-- LINHA 2 (exemplo: 8..14) -->
+      <!-- LINHA 2 -->
       <div class="row reverse">
         <div class="track">
-          <!-- ORIGINAL -->
           <div class="tile"><img src="assets/photo08.jpg" alt=""></div>
           <div class="tile"><img src="assets/photo09.jpg" alt=""></div>
           <div class="tile"><img src="assets/photo10.jpg" alt=""></div>
@@ -181,7 +161,7 @@
           <div class="tile"><img src="assets/photo13.jpg" alt=""></div>
           <div class="tile"><img src="assets/photo14.jpg" alt=""></div>
 
-          <!-- DUPLICADO IGUAL (evita preto no fim) -->
+          <!-- duplicado para loop infinito -->
           <div class="tile"><img src="assets/photo08.jpg" alt=""></div>
           <div class="tile"><img src="assets/photo09.jpg" alt=""></div>
           <div class="tile"><img src="assets/photo10.jpg" alt=""></div>
