@@ -9,16 +9,17 @@
     :root{
       --gap: 12px;
 
-      /* slideshow speeds */
+      /* speeds */
       --speedTop: 26s;
       --speedBottom: 30s;
 
-      /* layout min heights */
+      /* layout */
       --minLogoBlock: 240px;
       --minSlideBlock: 260px;
 
       --shadow: 0 18px 55px rgba(0,0,0,0.18);
-      --radius: 18px;
+      --radiusOuter: 26px;
+      --radiusInner: 18px;
     }
 
     *{ box-sizing: border-box; }
@@ -56,21 +57,20 @@
         calc(10px + env(safe-area-inset-bottom))
         12px;
 
-      /* 2/3 slideshow + 1/3 bottom area */
       grid-template-rows:
         minmax(var(--minSlideBlock), 2fr)
         minmax(var(--minLogoBlock), 1fr);
     }
 
-    /* ===== SLIDESHOW (keeps its own container styling) ===== */
+    /* ===== SLIDESHOW: COM MOLDURA ===== */
     .slideshow{
-      border-radius: 26px;
+      border-radius: var(--radiusOuter);
       overflow: hidden;
-      background: rgba(255,255,255,0.10);
-      border: 1px solid rgba(255,255,255,0.35);
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.45);
       box-shadow: var(--shadow);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
 
       display: grid;
       grid-template-rows: 1fr 1fr;
@@ -82,21 +82,20 @@
     .lane{
       position: relative;
       overflow: hidden;
-      border-radius: 18px;
-      background: rgba(255,255,255,0.25);
+      border-radius: var(--radiusInner);
+      background: rgba(255,255,255,0.18);
       border: 1px solid rgba(255,255,255,0.45);
     }
 
     .track{
       position: absolute;
-      top: 0; left: 0;
-      height: 100%;
+      inset: 0;
       display: flex;
-      gap: 10px;
-      padding: 10px;
+      gap: 10px;        /* espaço entre fotos */
+      padding: 10px;    /* padding dentro da lane */
       width: max-content;
-      will-change: transform;
       align-items: center;
+      will-change: transform;
     }
 
     .lane.top .track{ animation: moveLeft var(--speedTop) linear infinite; }
@@ -115,30 +114,30 @@
       flex: 0 0 auto;
       height: 100%;
       width: min(46vw, 420px);
-      border-radius: var(--radius);
+      border-radius: var(--radiusInner);
       overflow: hidden;
       box-shadow: 0 10px 28px rgba(0,0,0,0.18);
-      background: #fff;
+      background: transparent;
     }
 
+    /* ✅ Preenche a moldura toda (sem branco) */
     .slide img{
       width: 100%;
       height: 100%;
       display: block;
-      object-fit: contain;        /* no zoom / no crop */
+      object-fit: cover;        /* <--- isto remove as “partes brancas” */
       object-position: center;
-      background: #fff;
     }
 
-    /* ===== BOTTOM AREA: FULL WHITE, NO CARD/BORDER ===== */
+    /* ===== BOTTOM: branco total, sem border/card ===== */
     .bottomBar{
       width: 100%;
       height: 100%;
-      background: #ffffff;     /* full white bottom */
-      border-radius: 0;        /* no rounded card */
-      box-shadow: none;        /* no shadow */
-      border: none;            /* no border */
-      padding: 0;              /* flush */
+      background: #ffffff;
+      border: none;
+      border-radius: 0;
+      box-shadow: none;
+      padding: 0;
       margin: 0;
 
       display: grid;
@@ -149,25 +148,22 @@
       min-height: 0;
     }
 
-    /* logo should fill the available area of the bottom bar */
     .logoWrap{
       width: 100%;
       height: 100%;
       display: flex;
       align-items: stretch;
       justify-content: center;
-      padding: 0;
       min-height: 0;
     }
 
     .logoWrap img{
       width: 100%;
       height: 100%;
-      object-fit: contain; /* logo complete */
+      object-fit: contain;
       display: block;
     }
 
-    /* contact "imprinted" button on white background */
     .contactRow{
       width: 100%;
       display: flex;
@@ -185,8 +181,6 @@
       text-decoration: none;
       font-weight: 900;
       color: rgba(10,10,10,0.92);
-
-      /* “imprinted” look on white */
       background: #ffffff;
       border: none;
       box-shadow:
@@ -195,7 +189,6 @@
     }
     .contactBtn:active{ transform: scale(0.985); }
 
-    /* smaller heights */
     @media (max-height: 700px){
       :root{
         --minLogoBlock: 210px;
@@ -212,7 +205,6 @@
 
   <div class="page">
 
-    <!-- Slideshow 2 lines (top left, bottom right) -->
     <section class="slideshow" aria-label="Slideshow">
       <div class="lane top">
         <div class="track" id="trackTop"></div>
@@ -223,7 +215,6 @@
       </div>
     </section>
 
-    <!-- Bottom: FULL WHITE, no border/card -->
     <section class="bottomBar" aria-label="Logo and contacts">
       <div class="logoWrap">
         <img src="./background.png" alt="Little Things" />
@@ -237,7 +228,6 @@
   </div>
 
   <script>
-    // Adjust extensions/paths if needed
     const topPhotos = [
       "./assets/photo01.jpg",
       "./assets/photo02.jpg",
@@ -265,24 +255,63 @@
       const img = document.createElement("img");
       img.src = src;
       img.alt = "Little Things";
+      img.loading = "eager"; // ajuda a carregar cedo
 
       wrap.appendChild(img);
-      return wrap;
+      return { wrap, img };
+    }
+
+    function restartAnimation(trackEl){
+      // força reinício suave da animação (para garantir autoplay)
+      const anim = getComputedStyle(trackEl).animationName;
+      trackEl.style.animation = "none";
+      // força reflow
+      trackEl.offsetHeight; // eslint-disable-line no-unused-expressions
+      trackEl.style.animation = "";
+      // mantém o nome original
+      // (as classes .top/.bottom continuam a aplicar a animação correcta)
+    }
+
+    function recalcShift(trackEl){
+      const fullWidth = trackEl.scrollWidth;
+      const shift = fullWidth / 2; // duplicado
+      trackEl.style.setProperty("--shift", shift + "px");
+      restartAnimation(trackEl);
     }
 
     function fillTrack(trackEl, photos){
       trackEl.innerHTML = "";
 
-      // Duplicate sequence for seamless loop
+      // duplicar para loop perfeito
       const seq = photos.concat(photos);
-      seq.forEach(src => trackEl.appendChild(makeSlide(src)));
 
-      // compute shift distance after layout
-      requestAnimationFrame(() => {
-        const fullWidth = trackEl.scrollWidth;
-        const shift = fullWidth / 2; // because duplicated
-        trackEl.style.setProperty("--shift", shift + "px");
+      const imgs = [];
+      seq.forEach(src => {
+        const { wrap, img } = makeSlide(src);
+        imgs.push(img);
+        trackEl.appendChild(wrap);
       });
+
+      // calcula shift quando TODAS as imagens estiverem prontas (corrige o “só anda após refresh”)
+      let pending = imgs.length;
+
+      const doneOne = () => {
+        pending--;
+        if (pending <= 0) {
+          requestAnimationFrame(() => recalcShift(trackEl));
+        }
+      };
+
+      imgs.forEach(img => {
+        if (img.complete) doneOne();
+        else {
+          img.addEventListener("load", doneOne, { once: true });
+          img.addEventListener("error", doneOne, { once: true });
+        }
+      });
+
+      // fallback rápido (caso alguma imagem demore muito)
+      setTimeout(() => recalcShift(trackEl), 1200);
     }
 
     function init(){
@@ -290,7 +319,8 @@
       fillTrack(document.getElementById("trackBottom"), bottomPhotos);
     }
 
-    init();
+    // ✅ garante autoplay mesmo no primeiro load
+    window.addEventListener("load", init);
     window.addEventListener("resize", init);
   </script>
 </body>
