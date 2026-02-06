@@ -5,6 +5,11 @@
   <title>WhatsApp Contact</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
+  <!-- ✅ Fonte estilo "brush" (parecida com a imagem) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat+Brush&display=swap" rel="stylesheet">
+
   <style>
     :root{
       --wa: #25D366;
@@ -13,11 +18,16 @@
       --glass: rgba(255,255,255,.30);
       --glass-border: rgba(255,255,255,.35);
       --shadow: 0 18px 50px rgba(0,0,0,.18);
-      --text: rgba(10,10,10,.90);
 
-      /* overlay leve (não apaga fundo) */
+      /* texto */
+      --text: rgba(0,0,0,.92);
+
+      /* overlay leve */
       --overlay1: rgba(255,255,255,.04);
       --overlay2: rgba(0,0,0,.10);
+
+      /* ✅ tipografia global */
+      --font: "Caveat Brush", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
     }
 
     html{ height: -webkit-fill-available; }
@@ -35,7 +45,7 @@
       justify-content: flex-end;
       align-items: center;
 
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      font-family: var(--font);
       color: var(--text);
 
       /* mobile */
@@ -92,7 +102,13 @@
 
       border-radius: 12px;
       text-decoration:none;
-      font-weight: 800;
+
+      /* ✅ tudo com o mesmo estilo */
+      font-family: var(--font);
+      font-weight: 400;
+      letter-spacing: .2px;
+      font-size: clamp(20px, 2.6vw, 26px);
+      line-height: 1.05;
 
       background: rgba(37, 211, 102, .88);
       border: 1px solid rgba(255,255,255,.35);
@@ -102,20 +118,43 @@
       transition: transform .08s ease, filter .12s ease;
       -webkit-tap-highlight-color: transparent;
       user-select:none;
+      cursor:pointer;
     }
 
     .btn:hover{ filter: brightness(1.03); }
     .btn:active{ transform: scale(.985); }
 
+    /* ✅ reset para button */
+    button.btn{
+      -webkit-appearance: none;
+      appearance: none;
+      font: inherit;
+      text-align: center;
+    }
+
+    /* Email & Instagram (estilo igual) */
+    .btn-email,
     .btn-instagram{
       margin-top: 0;
       margin-bottom: 12px;
 
       background: rgba(255,255,255,.50);
-      color: rgba(10,10,10,.92);
+      color: rgba(0,0,0,.92);
       border: 1px solid rgba(255,255,255,.55);
       box-shadow: 0 10px 22px rgba(0,0,0,.10);
-      font-weight: 900;
+    }
+
+    .btn-email{
+      margin-bottom: 10px;
+
+      width: 100%;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .btn-email span{
+      display:inline-block;
+      text-align:center;
     }
 
     .ig-icon{
@@ -136,6 +175,7 @@
     .header{
       text-align:center;
       margin-bottom: 10px;
+      font-family: var(--font);
     }
 
     .lang-row{
@@ -151,9 +191,8 @@
       justify-content:center;
     }
 
-    /* 🔧 ajuste: remover largura extra do texto e colar bandeira */
     .lang-row .wrap{
-      display:inline-flex;          /* <- importante */
+      display:inline-flex;
       align-items:center;
       gap:6px;
     }
@@ -167,27 +206,30 @@
     }
 
     .lang-row .wrap span{
-      display:inline-block;         /* <- importante */
-      font-weight: 800;
-      font-size: 12px;
-      line-height: 1.15;
-      color: rgba(20,20,20,.90);
+      display:inline-block;
+      font-family: var(--font);
+      font-weight: 400;
+      font-size: clamp(16px, 2.2vw, 20px);
+      line-height: 1.05;
+      color: rgba(0,0,0,.92);
       text-align:center;
       white-space: normal;
-      max-width: 120px;             /* controla o wrap de forma consistente */
+      max-width: 140px;
     }
 
-    /* ✅ WhatsApp centrado (como estava) */
     .subtitle{
-      font-size: 12px;
-      opacity: .78;
-      margin: 0;
+      font-family: var(--font);
+      font-weight: 400;
+      font-size: clamp(18px, 2.2vw, 22px);
+      opacity: .72;
+      margin: 2px 0 0;
       text-align:center;
+      color: rgba(0,0,0,.85);
     }
 
     @media (max-width: 380px){
       .lang-row{ gap: 8px; }
-      .lang-row .wrap span{ font-size: 11px; max-width: 105px; }
+      .lang-row .wrap span{ max-width: 120px; }
       .btn{ padding: 11px 11px; }
       .ig-icon{ width: 20px; height: 20px; }
     }
@@ -197,7 +239,6 @@
       body{
         justify-content: center;
 
-        /* ✅ sem esticar */
         background:
           radial-gradient(circle at center, rgba(255,255,255,.25), rgba(255,255,255,.08)),
           url("./background.png") center / contain no-repeat;
@@ -214,32 +255,11 @@
         width: 520px;
         padding: 16px 16px 16px;
 
-        /* ✅ baixar a box no desktop */
         transform: translateY(270px);
       }
 
-      .lang-row .wrap span{
-        font-size: 13px;
-        max-width: 150px;
-      }
-
-      .btn{
-        padding: 14px 14px;
-        font-size: 16px;
-      }
-
-      .btn-instagram{
-        font-size: 16px;
-      }
-
-      .ig-icon{
-        width: 24px;
-        height: 24px;
-      }
-
-      .lang-row img{
-        width: 20px;
-      }
+      .lang-row img{ width: 20px; }
+      .ig-icon{ width: 24px; height: 24px; }
     }
 
     @media (orientation: landscape) and (max-height: 430px){
@@ -251,6 +271,11 @@
 
 <body>
   <div class="card">
+
+    <!-- ✅ EMAIL (copia + centrado) -->
+    <button class="btn btn-email" id="emailBtn" type="button">
+      <span>info@littlethings.events</span>
+    </button>
 
     <a class="btn btn-instagram"
        href="https://www.instagram.com/little.things.artdecor"
@@ -291,5 +316,23 @@
     <a class="btn" href="https://wa.me/351918373423?text=Hello%2C%20I%20would%20like%20more%20information.">English</a>
 
   </div>
+
+  <script>
+    const emailBtn = document.getElementById("emailBtn");
+    const email = "info@littlethings.events";
+    const originalHTML = emailBtn.innerHTML;
+
+    emailBtn.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(email);
+        emailBtn.innerHTML = "<span>Copiado / Copied</span>";
+        setTimeout(() => {
+          emailBtn.innerHTML = originalHTML;
+        }, 1500);
+      } catch {
+        emailBtn.innerHTML = "<span>Erro</span>";
+      }
+    });
+  </script>
 </body>
 </html>
