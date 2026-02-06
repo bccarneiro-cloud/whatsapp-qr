@@ -79,11 +79,10 @@
     /* ---------- BOTÕES ---------- */
 
     .btn{
-      position: relative;
-
       display:flex;
       align-items:center;
       justify-content:center;
+      gap:10px;
 
       margin: 10px 0;
       padding: 12px 12px;
@@ -106,7 +105,7 @@
     .btn:hover{ filter: brightness(1.03); }
     .btn:active{ transform: scale(.985); }
 
-    /* Email & Instagram (estilo igual) */
+    /* Email & Instagram (EXATAMENTE IGUAIS) */
     .btn-email,
     .btn-instagram{
       margin-top: 0;
@@ -117,15 +116,8 @@
       font-weight: 900;
     }
 
-    .btn-instagram{ margin-bottom: 12px; }
     .btn-email{ margin-bottom: 10px; }
-
-    /* ✅ garante centragem perfeita do texto */
-    .btn-email span{
-      width: 100%;
-      text-align: center;
-      display: block;
-    }
+    .btn-instagram{ margin-bottom: 12px; }
 
     .ig-icon{
       width: 22px;
@@ -210,9 +202,9 @@
 <body>
   <div class="card">
 
-    <!-- ✅ BOTÃO EMAIL (texto centrado + copiar) -->
+    <!-- ✅ BOTÃO EMAIL (centrado correto + copiar) -->
     <button class="btn btn-email" id="emailBtn">
-      <span>info@littlethings.events</span>
+      info@littlethings.events
     </button>
 
     <a class="btn btn-instagram"
@@ -256,17 +248,17 @@
   <script>
     const emailBtn = document.getElementById("emailBtn");
     const email = "info@littlethings.events";
-    const originalText = emailBtn.innerHTML;
+    const originalText = emailBtn.textContent;
 
     emailBtn.addEventListener("click", async () => {
       try {
         await navigator.clipboard.writeText(email);
-        emailBtn.innerHTML = "<span>Copiado / Copied</span>";
+        emailBtn.textContent = "Copiado / Copied";
         setTimeout(() => {
-          emailBtn.innerHTML = originalText;
+          emailBtn.textContent = originalText;
         }, 1500);
       } catch {
-        emailBtn.innerHTML = "<span>Erro</span>";
+        emailBtn.textContent = "Erro";
       }
     });
   </script>
