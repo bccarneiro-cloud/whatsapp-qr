@@ -24,6 +24,7 @@
 
     body{
       margin:0;
+
       height: 100vh;
       height: 100svh;
       height: 100dvh;
@@ -37,6 +38,7 @@
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       color: var(--text);
 
+      /* mobile */
       background: url("./background.png") center / cover no-repeat;
 
       padding-top:    calc(10px + env(safe-area-inset-top));
@@ -68,6 +70,7 @@
 
       background: var(--glass);
       border: 1px solid var(--glass-border);
+
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
 
@@ -99,16 +102,26 @@
       transition: transform .08s ease, filter .12s ease;
       -webkit-tap-highlight-color: transparent;
       user-select:none;
-      cursor: pointer;
+      cursor:pointer;
     }
 
     .btn:hover{ filter: brightness(1.03); }
     .btn:active{ transform: scale(.985); }
 
-    /* Email & Instagram (EXATAMENTE IGUAIS) */
+    /* ✅ RESET para botão nativo não estragar alinhamento */
+    button.btn{
+      -webkit-appearance: none;
+      appearance: none;
+      text-align: center;
+      font: inherit;
+    }
+
+    /* Email & Instagram (estilo igual) */
     .btn-email,
     .btn-instagram{
       margin-top: 0;
+      margin-bottom: 12px;
+
       background: rgba(255,255,255,.50);
       color: rgba(10,10,10,.92);
       border: 1px solid rgba(255,255,255,.55);
@@ -116,8 +129,19 @@
       font-weight: 900;
     }
 
-    .btn-email{ margin-bottom: 10px; }
-    .btn-instagram{ margin-bottom: 12px; }
+    .btn-email{
+      margin-bottom: 10px;
+
+      /* ✅ forçar comportamento idêntico ao Instagram */
+      width: 100%;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .btn-email span{
+      display: inline-block;   /* ✅ não ocupa 100% (evita "puxar" para a esquerda) */
+      text-align: center;
+    }
 
     .ig-icon{
       width: 22px;
@@ -160,15 +184,21 @@
 
     .lang-row img{
       width: 18px;
+      height: auto;
+      flex-shrink: 0;
       border-radius: 3px;
       box-shadow: 0 2px 6px rgba(0,0,0,.12);
     }
 
     .lang-row .wrap span{
+      display:inline-block;
       font-weight: 800;
       font-size: 12px;
-      max-width: 120px;
+      line-height: 1.15;
+      color: rgba(20,20,20,.90);
       text-align:center;
+      white-space: normal;
+      max-width: 120px;
     }
 
     .subtitle{
@@ -176,6 +206,13 @@
       opacity: .78;
       margin: 0;
       text-align:center;
+    }
+
+    @media (max-width: 380px){
+      .lang-row{ gap: 8px; }
+      .lang-row .wrap span{ font-size: 11px; max-width: 105px; }
+      .btn{ padding: 11px 11px; }
+      .ig-icon{ width: 20px; height: 20px; }
     }
 
     @media (min-width: 900px){
@@ -186,15 +223,46 @@
           url("./background.png") center / contain no-repeat;
       }
 
+      :root{
+        --glass: rgba(255,255,255,.22);
+        --glass-border: rgba(255,255,255,.32);
+        --overlay1: rgba(255,255,255,.02);
+        --overlay2: rgba(0,0,0,.08);
+      }
+
       .card{
         width: 520px;
+        padding: 16px 16px 16px;
         transform: translateY(270px);
       }
 
+      .lang-row .wrap span{
+        font-size: 13px;
+        max-width: 150px;
+      }
+
       .btn{
-        padding: 14px;
+        padding: 14px 14px;
         font-size: 16px;
       }
+
+      .btn-instagram{
+        font-size: 16px;
+      }
+
+      .ig-icon{
+        width: 24px;
+        height: 24px;
+      }
+
+      .lang-row img{
+        width: 20px;
+      }
+    }
+
+    @media (orientation: landscape) and (max-height: 430px){
+      body{ justify-content: center; }
+      .card{ margin-bottom: 0; }
     }
   </style>
 </head>
@@ -202,9 +270,9 @@
 <body>
   <div class="card">
 
-    <!-- ✅ BOTÃO EMAIL (centrado correto + copiar) -->
-    <button class="btn btn-email" id="emailBtn">
-      info@littlethings.events
+    <!-- ✅ EMAIL (copia + centrado igual ao Instagram) -->
+    <button class="btn btn-email" id="emailBtn" type="button">
+      <span>info@littlethings.events</span>
     </button>
 
     <a class="btn btn-instagram"
@@ -222,12 +290,14 @@
             <span>Escolhe o teu idioma</span>
           </div>
         </div>
+
         <div class="item">
           <div class="wrap">
             <img src="./flag-es.png" alt="ES">
             <span>Elige tu idioma</span>
           </div>
         </div>
+
         <div class="item">
           <div class="wrap">
             <img src="./flag-gb.png" alt="EN">
@@ -248,17 +318,17 @@
   <script>
     const emailBtn = document.getElementById("emailBtn");
     const email = "info@littlethings.events";
-    const originalText = emailBtn.textContent;
+    const originalHTML = emailBtn.innerHTML;
 
     emailBtn.addEventListener("click", async () => {
       try {
         await navigator.clipboard.writeText(email);
-        emailBtn.textContent = "Copiado / Copied";
+        emailBtn.innerHTML = "<span>Copiado / Copied</span>";
         setTimeout(() => {
-          emailBtn.textContent = originalText;
+          emailBtn.innerHTML = originalHTML;
         }, 1500);
       } catch {
-        emailBtn.textContent = "Erro";
+        emailBtn.innerHTML = "<span>Erro</span>";
       }
     });
   </script>
