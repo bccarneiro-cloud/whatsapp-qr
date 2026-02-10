@@ -2,17 +2,22 @@
 <html lang="pt">
 <head>
   <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-YQN46F71DS"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-YQN46F71DS"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-YQN46F71DS');
+  </script>
 
-  gtag('config', 'G-YQN46F71DS');
-</script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Little Things</title>
+
+  <!-- ✅ Fonte "brush" para os botões -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat+Brush&display=swap" rel="stylesheet">
 
   <style>
     :root{
@@ -29,6 +34,12 @@
       --shadow: 0 18px 55px rgba(0,0,0,0.18);
       --radiusOuter: 26px;
       --radiusInner: 18px;
+
+      /* ✅ fonte dos botões */
+      --btnFont: "Caveat Brush", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+
+      /* ✅ tamanho único (igual nos 3) */
+      --btnSize: 22px;
     }
 
     *{ box-sizing: border-box; }
@@ -100,8 +111,8 @@
       position: absolute;
       inset: 0;
       display: flex;
-      gap: 10px;        /* espaço entre fotos */
-      padding: 10px;    /* padding dentro da lane */
+      gap: 10px;
+      padding: 10px;
       width: max-content;
       align-items: center;
       will-change: transform;
@@ -129,12 +140,11 @@
       background: transparent;
     }
 
-    /* ✅ Preenche a moldura toda (sem branco) */
     .slide img{
       width: 100%;
       height: 100%;
       display: block;
-      object-fit: cover;        /* <--- isto remove as “partes brancas” */
+      object-fit: cover;
       object-position: center;
     }
 
@@ -184,14 +194,16 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
+
       width: min(520px, 100%);
       padding: 14px 16px;
       border-radius: 999px;
       text-decoration: none;
-      font-weight: 900;
+
       color: rgba(10,10,10,0.92);
       background: #ffffff;
       border: none;
+
       box-shadow:
         inset 0 2px 6px rgba(0,0,0,0.08),
         0 10px 24px rgba(0,0,0,0.10);
@@ -202,9 +214,95 @@
       :root{
         --minLogoBlock: 210px;
         --minSlideBlock: 240px;
+        --btnSize: 20px; /* ✅ igual, só um pouco menor em ecrãs baixos */
       }
       .slide{ width: min(52vw, 380px); }
       .contactBtn{ padding: 12px 14px; }
+    }
+
+    /* =======================================================
+       ✅ 3 botões + ícones + brilho + tamanho igual (sem clamp)
+    ======================================================= */
+
+    .contactGroup{
+      width: min(980px, 100%);
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .contactBtn{
+      flex: 1 1 240px;
+      max-width: 520px;
+
+      gap: 10px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      transition: transform .10s ease, filter .12s ease;
+
+      font-family: var(--btnFont);
+      font-weight: 400;
+      letter-spacing: .2px;
+      font-size: var(--btnSize);
+      line-height: 1.05;
+    }
+
+    .contactBtn *{
+      font-family: var(--btnFont);
+      font-weight: 400;
+      font-size: var(--btnSize);
+      line-height: 1.05;
+    }
+
+    .contactBtn:hover{ filter: brightness(1.02); }
+
+    button.contactBtn{
+      -webkit-appearance: none;
+      appearance: none;
+      font: inherit;
+      color: inherit;
+      background: #ffffff;
+      text-align: center;
+    }
+
+    .icon{
+      width: 18px;
+      height: 18px;
+      display: inline-block;
+      opacity: .9;
+      flex: 0 0 auto;
+    }
+
+    .glow{
+      animation-name: glowPulse;
+      animation-timing-function: ease-in-out;
+      animation-iteration-count: infinite;
+    }
+
+    @keyframes glowPulse{
+      0%{
+        box-shadow:
+          inset 0 2px 6px rgba(0,0,0,0.08),
+          0 10px 24px rgba(0,0,0,0.10);
+      }
+      50%{
+        box-shadow:
+          inset 0 2px 6px rgba(0,0,0,0.08),
+          0 14px 34px rgba(255,105,180,0.22);
+      }
+      100%{
+        box-shadow:
+          inset 0 2px 6px rgba(0,0,0,0.08),
+          0 10px 24px rgba(0,0,0,0.10);
+      }
+    }
+
+    /* ✅ ÚNICA MUDANÇA: letras (span) do Instagram + Contactos alinhadas ao tamanho visual do Email */
+    #btnInsta span,
+    #btnContacts span{
+      font-size: calc(var(--btnSize) - 2px);
     }
   </style>
 </head>
@@ -230,8 +328,34 @@
       </div>
 
       <div class="contactRow">
-        <a class="contactBtn" href="./qr_contact/">Contactos / Contacts</a>
+        <div class="contactGroup">
+
+          <a class="contactBtn glow" id="btnInsta"
+             href="https://www.instagram.com/little.things.artdecor"
+             target="_blank" rel="noopener">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="currentColor" d="M7.5 2h9A5.5 5.5 0 0 1 22 7.5v9A5.5 5.5 0 0 1 16.5 22h-9A5.5 5.5 0 0 1 2 16.5v-9A5.5 5.5 0 0 1 7.5 2Zm0 2A3.5 3.5 0 0 0 4 7.5v9A3.5 3.5 0 0 0 7.5 20h9a3.5 3.5 0 0 0 3.5-3.5v-9A3.5 3.5 0 0 0 16.5 4h-9Zm11.25 1.75a1 1 0 1 1 0 2a1 1 0 0 1 0-2ZM12 7a5 5 0 1 1 0 10a5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6a3 3 0 0 0 0-6Z"/>
+            </svg>
+            <span>Instagram</span>
+          </a>
+
+          <a class="contactBtn glow" id="btnContacts" href="./qr_contact/">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="currentColor" d="M12 12a4 4 0 1 0-4-4a4 4 0 0 0 4 4Zm0 2c-4.42 0-8 2.01-8 4.5V20h16v-1.5c0-2.49-3.58-4.5-8-4.5Z"/>
+            </svg>
+            <span>Contactos / Contacts</span>
+          </a>
+
+          <button class="contactBtn glow" id="emailBtn" type="button">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="currentColor" d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2Zm0 4.2l-8 5.3l-8-5.3V6l8 5.3L20 6v2.2Z"/>
+            </svg>
+            <span id="emailText">info@littlethings.events</span>
+          </button>
+
+        </div>
       </div>
+
     </section>
 
   </div>
@@ -264,34 +388,28 @@
       const img = document.createElement("img");
       img.src = src;
       img.alt = "Little Things";
-      img.loading = "eager"; // ajuda a carregar cedo
+      img.loading = "eager";
 
       wrap.appendChild(img);
       return { wrap, img };
     }
 
     function restartAnimation(trackEl){
-      // força reinício suave da animação (para garantir autoplay)
       const anim = getComputedStyle(trackEl).animationName;
       trackEl.style.animation = "none";
-      // força reflow
-      trackEl.offsetHeight; // eslint-disable-line no-unused-expressions
+      trackEl.offsetHeight;
       trackEl.style.animation = "";
-      // mantém o nome original
-      // (as classes .top/.bottom continuam a aplicar a animação correcta)
     }
 
     function recalcShift(trackEl){
       const fullWidth = trackEl.scrollWidth;
-      const shift = fullWidth / 2; // duplicado
+      const shift = fullWidth / 2;
       trackEl.style.setProperty("--shift", shift + "px");
       restartAnimation(trackEl);
     }
 
     function fillTrack(trackEl, photos){
       trackEl.innerHTML = "";
-
-      // duplicar para loop perfeito
       const seq = photos.concat(photos);
 
       const imgs = [];
@@ -301,36 +419,79 @@
         trackEl.appendChild(wrap);
       });
 
-      // calcula shift quando TODAS as imagens estiverem prontas (corrige o “só anda após refresh”)
       let pending = imgs.length;
-
       const doneOne = () => {
         pending--;
-        if (pending <= 0) {
-          requestAnimationFrame(() => recalcShift(trackEl));
-        }
+        if (pending <= 0) requestAnimationFrame(() => recalcShift(trackEl));
       };
 
       imgs.forEach(img => {
         if (img.complete) doneOne();
-        else {
+        else{
           img.addEventListener("load", doneOne, { once: true });
           img.addEventListener("error", doneOne, { once: true });
         }
       });
 
-      // fallback rápido (caso alguma imagem demore muito)
       setTimeout(() => recalcShift(trackEl), 1200);
     }
 
     function init(){
       fillTrack(document.getElementById("trackTop"), topPhotos);
       fillTrack(document.getElementById("trackBottom"), bottomPhotos);
+
+      syncGlow();
+      setTimeout(syncGlow, 1300);
     }
 
-    // ✅ garante autoplay mesmo no primeiro load
     window.addEventListener("load", init);
     window.addEventListener("resize", init);
+
+    function parseSeconds(val){
+      const s = String(val).trim();
+      if (s.endsWith("ms")) return parseFloat(s) / 1000;
+      if (s.endsWith("s")) return parseFloat(s);
+      const num = parseFloat(s);
+      return Number.isFinite(num) ? num : 3.5;
+    }
+
+    function syncGlow(){
+      const root = getComputedStyle(document.documentElement);
+      const speedTop = parseSeconds(root.getPropertyValue("--speedTop")) || 26;
+
+      const ids = ["btnInsta", "btnContacts", "emailBtn"];
+      const els = ids.map(id => document.getElementById(id)).filter(Boolean);
+      if (!els.length) return;
+
+      els.forEach((el, idx) => {
+        el.style.animationDuration = speedTop + "s";
+        el.style.animationDelay = ((speedTop / 3) * idx) + "s";
+
+        el.style.animationName = "none";
+        el.offsetHeight;
+        el.style.animationName = "glowPulse";
+      });
+    }
+
+    (function bindEmailCopy(){
+      const emailBtn = document.getElementById("emailBtn");
+      const emailText = document.getElementById("emailText");
+      if (!emailBtn || !emailText) return;
+
+      const email = "info@littlethings.events";
+      const original = emailText.textContent;
+
+      emailBtn.addEventListener("click", async () => {
+        try{
+          await navigator.clipboard.writeText(email);
+          emailText.textContent = "Copiado / Copied";
+          setTimeout(() => { emailText.textContent = original; }, 1500);
+        }catch{
+          emailText.textContent = "Erro";
+          setTimeout(() => { emailText.textContent = original; }, 1500);
+        }
+      });
+    })();
   </script>
 </body>
 </html>
