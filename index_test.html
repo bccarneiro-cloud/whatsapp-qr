@@ -14,7 +14,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Little Things</title>
 
-  <!-- ✅ Fonte "brush" para usar NOS BOTÕES -->
+  <!-- ✅ Fonte "brush" para os botões -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Caveat+Brush&display=swap" rel="stylesheet">
@@ -108,8 +108,8 @@
       position: absolute;
       inset: 0;
       display: flex;
-      gap: 10px;        /* espaço entre fotos */
-      padding: 10px;    /* padding dentro da lane */
+      gap: 10px;
+      padding: 10px;
       width: max-content;
       align-items: center;
       will-change: transform;
@@ -137,7 +137,6 @@
       background: transparent;
     }
 
-    /* ✅ Preenche a moldura toda (sem branco) */
     .slide img{
       width: 100%;
       height: 100%;
@@ -192,14 +191,16 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
+
       width: min(520px, 100%);
       padding: 14px 16px;
       border-radius: 999px;
       text-decoration: none;
-      font-weight: 900;
+
       color: rgba(10,10,10,0.92);
       background: #ffffff;
       border: none;
+
       box-shadow:
         inset 0 2px 6px rgba(0,0,0,0.08),
         0 10px 24px rgba(0,0,0,0.10);
@@ -216,7 +217,7 @@
     }
 
     /* =======================================================
-       ✅ ADIÇÕES: 3 botões + ícones + brilho + font Caveat Brush
+       ✅ 3 botões + ícones + brilho + fonte igual e SEM negrito
     ======================================================= */
 
     .contactGroup{
@@ -227,26 +228,32 @@
       flex-wrap: wrap;
     }
 
-    /* reaproveita estilo, só torna flexível e aplica a fonte */
     .contactBtn{
       flex: 1 1 240px;
       max-width: 520px;
-      cursor: pointer;
+
       gap: 10px;
+      cursor: pointer;
       -webkit-tap-highlight-color: transparent;
       user-select: none;
       transition: transform .10s ease, filter .12s ease;
 
-      /* ✅ fonte pedida (só nos botões de baixo) */
+      /* ✅ força exatamente a mesma letra/estilo em TODOS */
       font-family: var(--btnFont);
       font-weight: 400;
       letter-spacing: .2px;
       font-size: clamp(18px, 2.4vw, 24px);
       line-height: 1.05;
     }
+
+    /* ✅ também força nos filhos (span + svg) */
+    .contactBtn *{
+      font-family: var(--btnFont);
+      font-weight: 400;
+    }
+
     .contactBtn:hover{ filter: brightness(1.02); }
 
-    /* reset para o botão nativo (email) */
     button.contactBtn{
       -webkit-appearance: none;
       appearance: none;
@@ -313,7 +320,6 @@
       <div class="contactRow">
         <div class="contactGroup">
 
-          <!-- Instagram -->
           <a class="contactBtn glow" id="btnInsta"
              href="https://www.instagram.com/little.things.artdecor"
              target="_blank" rel="noopener">
@@ -323,7 +329,6 @@
             <span>Instagram</span>
           </a>
 
-          <!-- ✅ Contactos (o original) -->
           <a class="contactBtn glow" id="btnContacts" href="./qr_contact/">
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
               <path fill="currentColor" d="M12 12a4 4 0 1 0-4-4a4 4 0 0 0 4 4Zm0 2c-4.42 0-8 2.01-8 4.5V20h16v-1.5c0-2.49-3.58-4.5-8-4.5Z"/>
@@ -331,7 +336,6 @@
             <span>Contactos / Contacts</span>
           </a>
 
-          <!-- Email (copia) -->
           <button class="contactBtn glow" id="emailBtn" type="button">
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
               <path fill="currentColor" d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2Zm0 4.2l-8 5.3l-8-5.3V6l8 5.3L20 6v2.2Z"/>
@@ -374,32 +378,28 @@
       const img = document.createElement("img");
       img.src = src;
       img.alt = "Little Things";
-      img.loading = "eager"; // ajuda a carregar cedo
+      img.loading = "eager";
 
       wrap.appendChild(img);
       return { wrap, img };
     }
 
     function restartAnimation(trackEl){
-      // força reinício suave da animação (para garantir autoplay)
       const anim = getComputedStyle(trackEl).animationName;
       trackEl.style.animation = "none";
-      // força reflow
-      trackEl.offsetHeight; // eslint-disable-line no-unused-expressions
+      trackEl.offsetHeight;
       trackEl.style.animation = "";
     }
 
     function recalcShift(trackEl){
       const fullWidth = trackEl.scrollWidth;
-      const shift = fullWidth / 2; // duplicado
+      const shift = fullWidth / 2;
       trackEl.style.setProperty("--shift", shift + "px");
       restartAnimation(trackEl);
     }
 
     function fillTrack(trackEl, photos){
       trackEl.innerHTML = "";
-
-      // duplicar para loop perfeito
       const seq = photos.concat(photos);
 
       const imgs = [];
@@ -409,25 +409,20 @@
         trackEl.appendChild(wrap);
       });
 
-      // calcula shift quando TODAS as imagens estiverem prontas
       let pending = imgs.length;
-
       const doneOne = () => {
         pending--;
-        if (pending <= 0) {
-          requestAnimationFrame(() => recalcShift(trackEl));
-        }
+        if (pending <= 0) requestAnimationFrame(() => recalcShift(trackEl));
       };
 
       imgs.forEach(img => {
         if (img.complete) doneOne();
-        else {
+        else{
           img.addEventListener("load", doneOne, { once: true });
           img.addEventListener("error", doneOne, { once: true });
         }
       });
 
-      // fallback rápido
       setTimeout(() => recalcShift(trackEl), 1200);
     }
 
@@ -435,15 +430,12 @@
       fillTrack(document.getElementById("trackTop"), topPhotos);
       fillTrack(document.getElementById("trackBottom"), bottomPhotos);
 
-      // ✅ sincroniza brilho sem mexer no slideshow
       syncGlow();
       setTimeout(syncGlow, 1300);
     }
 
     window.addEventListener("load", init);
     window.addEventListener("resize", init);
-
-    /* ===== ADIÇÕES JS: brilho sincronizado + copiar email ===== */
 
     function parseSeconds(val){
       const s = String(val).trim();
@@ -461,13 +453,10 @@
       const els = ids.map(id => document.getElementById(id)).filter(Boolean);
       if (!els.length) return;
 
-      // mesmo ciclo do topo
       els.forEach((el, idx) => {
         el.style.animationDuration = speedTop + "s";
-        // desfasar para parecer orgânico (3 botões)
         el.style.animationDelay = ((speedTop / 3) * idx) + "s";
 
-        // reiniciar para alinhar
         el.style.animationName = "none";
         el.offsetHeight;
         el.style.animationName = "glowPulse";
