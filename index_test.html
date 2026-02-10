@@ -37,6 +37,9 @@
 
       /* ✅ fonte dos botões */
       --btnFont: "Caveat Brush", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+
+      /* ✅ tamanho único (igual nos 3) */
+      --btnSize: 22px;
     }
 
     *{ box-sizing: border-box; }
@@ -211,13 +214,14 @@
       :root{
         --minLogoBlock: 210px;
         --minSlideBlock: 240px;
+        --btnSize: 20px; /* ✅ igual, só um pouco menor em ecrãs baixos */
       }
       .slide{ width: min(52vw, 380px); }
       .contactBtn{ padding: 12px 14px; }
     }
 
     /* =======================================================
-       ✅ 3 botões + ícones + brilho + fonte igual e SEM negrito
+       ✅ 3 botões + ícones + brilho + tamanho igual (sem clamp)
     ======================================================= */
 
     .contactGroup{
@@ -238,18 +242,18 @@
       user-select: none;
       transition: transform .10s ease, filter .12s ease;
 
-      /* ✅ força exatamente a mesma letra/estilo em TODOS */
       font-family: var(--btnFont);
       font-weight: 400;
       letter-spacing: .2px;
-      font-size: clamp(18px, 2.4vw, 24px);
+      font-size: var(--btnSize);  /* ✅ único para todos */
       line-height: 1.05;
     }
 
-    /* ✅ também força nos filhos (span + svg) */
     .contactBtn *{
       font-family: var(--btnFont);
       font-weight: 400;
+      font-size: var(--btnSize);  /* ✅ garante igual também no <span> */
+      line-height: 1.05;
     }
 
     .contactBtn:hover{ filter: brightness(1.02); }
