@@ -2,14 +2,14 @@
 <html lang="pt">
 <head>
   <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-YQN46F71DS"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-YQN46F71DS"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-YQN46F71DS');
+  </script>
 
-  gtag('config', 'G-YQN46F71DS');
-</script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Little Things</title>
@@ -134,7 +134,7 @@
       width: 100%;
       height: 100%;
       display: block;
-      object-fit: cover;        /* <--- isto remove as “partes brancas” */
+      object-fit: cover;
       object-position: center;
     }
 
@@ -173,18 +173,31 @@
       display: block;
     }
 
+    /* ===== CONTACTOS (2 botões) ===== */
     .contactRow{
       width: 100%;
       display: flex;
       justify-content: center;
-      padding: 0 12px 10px 12px;
+      padding: 0 12px 12px 12px;
+    }
+
+    .contactGroup{
+      width: min(820px, 100%);
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
     }
 
     .contactBtn{
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: min(520px, 100%);
+      gap: 10px;
+
+      flex: 1 1 260px;
+      max-width: 420px;
+
       padding: 14px 16px;
       border-radius: 999px;
       text-decoration: none;
@@ -192,11 +205,64 @@
       color: rgba(10,10,10,0.92);
       background: #ffffff;
       border: none;
+
       box-shadow:
         inset 0 2px 6px rgba(0,0,0,0.08),
         0 10px 24px rgba(0,0,0,0.10);
+
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      cursor: pointer;
+
+      transition: transform .10s ease, filter .12s ease;
     }
+
+    .contactBtn:hover{ filter: brightness(1.02); }
     .contactBtn:active{ transform: scale(0.985); }
+
+    /* reset button nativo */
+    button.contactBtn{
+      -webkit-appearance: none;
+      appearance: none;
+      font: inherit;
+      text-align: center;
+    }
+
+    /* ícones */
+    .icon{
+      width: 20px;
+      height: 20px;
+      display: inline-block;
+      flex: 0 0 auto;
+      opacity: .9;
+    }
+
+    /* ===== BRILHO sincronizável ===== */
+    .glow{
+      position: relative;
+      animation-name: glowPulse;
+      animation-timing-function: ease-in-out;
+      animation-iteration-count: infinite;
+      /* duration e delay serão sincronizados via JS */
+    }
+
+    @keyframes glowPulse{
+      0%{
+        box-shadow:
+          inset 0 2px 6px rgba(0,0,0,0.08),
+          0 10px 24px rgba(0,0,0,0.10);
+      }
+      50%{
+        box-shadow:
+          inset 0 2px 6px rgba(0,0,0,0.08),
+          0 14px 34px rgba(255,105,180,0.26);
+      }
+      100%{
+        box-shadow:
+          inset 0 2px 6px rgba(0,0,0,0.08),
+          0 10px 24px rgba(0,0,0,0.10);
+      }
+    }
 
     @media (max-height: 700px){
       :root{
@@ -205,6 +271,7 @@
       }
       .slide{ width: min(52vw, 380px); }
       .contactBtn{ padding: 12px 14px; }
+      .icon{ width: 19px; height: 19px; }
     }
   </style>
 </head>
@@ -230,107 +297,21 @@
       </div>
 
       <div class="contactRow">
-        <a class="contactBtn" href="./qr_contact/">Contactos / Contacts</a>
-      </div>
-    </section>
+        <div class="contactGroup">
 
-  </div>
+          <!-- Instagram -->
+          <a class="contactBtn glow" id="btnInsta"
+             href="https://www.instagram.com/little.things.artdecor"
+             target="_blank" rel="noopener">
+            <!-- Instagram icon (SVG) -->
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="currentColor" d="M7.5 2h9A5.5 5.5 0 0 1 22 7.5v9A5.5 5.5 0 0 1 16.5 22h-9A5.5 5.5 0 0 1 2 16.5v-9A5.5 5.5 0 0 1 7.5 2Zm0 2A3.5 3.5 0 0 0 4 7.5v9A3.5 3.5 0 0 0 7.5 20h9a3.5 3.5 0 0 0 3.5-3.5v-9A3.5 3.5 0 0 0 16.5 4h-9Zm11.25 1.75a1 1 0 1 1 0 2a1 1 0 0 1 0-2ZM12 7a5 5 0 1 1 0 10a5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6a3 3 0 0 0 0-6Z"/>
+            </svg>
+            <span>Instagram</span>
+          </a>
 
-  <script>
-    const topPhotos = [
-      "./assets/photo01.jpg",
-      "./assets/photo02.jpg",
-      "./assets/photo03.jpg",
-      "./assets/photo04.jpg",
-      "./assets/photo05.jpg",
-      "./assets/photo06.jpg",
-      "./assets/photo07.jpg",
-      "./assets/photo08.jpg",
-    ];
-
-    const bottomPhotos = [
-      "./assets/photo09.jpg",
-      "./assets/photo10.jpg",
-      "./assets/photo11.jpg",
-      "./assets/photo12.jpg",
-      "./assets/photo13.jpg",
-      "./assets/photo14.jpg",
-    ];
-
-    function makeSlide(src){
-      const wrap = document.createElement("div");
-      wrap.className = "slide";
-
-      const img = document.createElement("img");
-      img.src = src;
-      img.alt = "Little Things";
-      img.loading = "eager"; // ajuda a carregar cedo
-
-      wrap.appendChild(img);
-      return { wrap, img };
-    }
-
-    function restartAnimation(trackEl){
-      // força reinício suave da animação (para garantir autoplay)
-      const anim = getComputedStyle(trackEl).animationName;
-      trackEl.style.animation = "none";
-      // força reflow
-      trackEl.offsetHeight; // eslint-disable-line no-unused-expressions
-      trackEl.style.animation = "";
-      // mantém o nome original
-      // (as classes .top/.bottom continuam a aplicar a animação correcta)
-    }
-
-    function recalcShift(trackEl){
-      const fullWidth = trackEl.scrollWidth;
-      const shift = fullWidth / 2; // duplicado
-      trackEl.style.setProperty("--shift", shift + "px");
-      restartAnimation(trackEl);
-    }
-
-    function fillTrack(trackEl, photos){
-      trackEl.innerHTML = "";
-
-      // duplicar para loop perfeito
-      const seq = photos.concat(photos);
-
-      const imgs = [];
-      seq.forEach(src => {
-        const { wrap, img } = makeSlide(src);
-        imgs.push(img);
-        trackEl.appendChild(wrap);
-      });
-
-      // calcula shift quando TODAS as imagens estiverem prontas (corrige o “só anda após refresh”)
-      let pending = imgs.length;
-
-      const doneOne = () => {
-        pending--;
-        if (pending <= 0) {
-          requestAnimationFrame(() => recalcShift(trackEl));
-        }
-      };
-
-      imgs.forEach(img => {
-        if (img.complete) doneOne();
-        else {
-          img.addEventListener("load", doneOne, { once: true });
-          img.addEventListener("error", doneOne, { once: true });
-        }
-      });
-
-      // fallback rápido (caso alguma imagem demore muito)
-      setTimeout(() => recalcShift(trackEl), 1200);
-    }
-
-    function init(){
-      fillTrack(document.getElementById("trackTop"), topPhotos);
-      fillTrack(document.getElementById("trackBottom"), bottomPhotos);
-    }
-
-    // ✅ garante autoplay mesmo no primeiro load
-    window.addEventListener("load", init);
-    window.addEventListener("resize", init);
-  </script>
-</body>
-</html>
+          <!-- Email (copia) -->
+          <button class="contactBtn glow" id="emailBtn" type="button">
+            <!-- email icon (SVG) -->
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="currentColor" d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2Zm0 4.2l-8 5.3l-8-5.3V6l8 5.
