@@ -100,8 +100,8 @@
       position: absolute;
       inset: 0;
       display: flex;
-      gap: 10px;        /* espaço entre fotos */
-      padding: 10px;    /* padding dentro da lane */
+      gap: 10px;
+      padding: 10px;
       width: max-content;
       align-items: center;
       will-change: transform;
@@ -129,7 +129,6 @@
       background: transparent;
     }
 
-    /* ✅ Preenche a moldura toda (sem branco) */
     .slide img{
       width: 100%;
       height: 100%;
@@ -202,6 +201,7 @@
       border-radius: 999px;
       text-decoration: none;
       font-weight: 900;
+
       color: rgba(10,10,10,0.92);
       background: #ffffff;
       border: none;
@@ -220,15 +220,15 @@
     .contactBtn:hover{ filter: brightness(1.02); }
     .contactBtn:active{ transform: scale(0.985); }
 
-    /* reset button nativo */
+    /* ✅ IMPORTANT: garantir que <button> herda cor e não fica "em branco" */
     button.contactBtn{
       -webkit-appearance: none;
       appearance: none;
       font: inherit;
-      text-align: center;
+      color: inherit;
+      background: #ffffff;
     }
 
-    /* ícones */
     .icon{
       width: 20px;
       height: 20px;
@@ -243,7 +243,6 @@
       animation-name: glowPulse;
       animation-timing-function: ease-in-out;
       animation-iteration-count: infinite;
-      /* duration e delay serão sincronizados via JS */
     }
 
     @keyframes glowPulse{
@@ -303,7 +302,6 @@
           <a class="contactBtn glow" id="btnInsta"
              href="https://www.instagram.com/little.things.artdecor"
              target="_blank" rel="noopener">
-            <!-- Instagram icon (SVG) -->
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
               <path fill="currentColor" d="M7.5 2h9A5.5 5.5 0 0 1 22 7.5v9A5.5 5.5 0 0 1 16.5 22h-9A5.5 5.5 0 0 1 2 16.5v-9A5.5 5.5 0 0 1 7.5 2Zm0 2A3.5 3.5 0 0 0 4 7.5v9A3.5 3.5 0 0 0 7.5 20h9a3.5 3.5 0 0 0 3.5-3.5v-9A3.5 3.5 0 0 0 16.5 4h-9Zm11.25 1.75a1 1 0 1 1 0 2a1 1 0 0 1 0-2ZM12 7a5 5 0 1 1 0 10a5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6a3 3 0 0 0 0-6Z"/>
             </svg>
@@ -312,6 +310,166 @@
 
           <!-- Email (copia) -->
           <button class="contactBtn glow" id="emailBtn" type="button">
-            <!-- email icon (SVG) -->
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-              <path fill="currentColor" d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2Zm0 4.2l-8 5.3l-8-5.3V6l8 5.
+              <path fill="currentColor" d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2Zm0 4.2l-8 5.3l-8-5.3V6l8 5.3L20 6v2.2Z"/>
+            </svg>
+            <span id="emailText">info@littlethings.events</span>
+          </button>
+
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    // ✅ resolve paths corretamente mesmo em subpastas (ex: /site/ )
+    const u = (p) => new URL(p, document.baseURI).href;
+
+    const topPhotos = [
+      u("./assets/photo01.jpg"),
+      u("./assets/photo02.jpg"),
+      u("./assets/photo03.jpg"),
+      u("./assets/photo04.jpg"),
+      u("./assets/photo05.jpg"),
+      u("./assets/photo06.jpg"),
+      u("./assets/photo07.jpg"),
+      u("./assets/photo08.jpg"),
+    ];
+
+    const bottomPhotos = [
+      u("./assets/photo09.jpg"),
+      u("./assets/photo10.jpg"),
+      u("./assets/photo11.jpg"),
+      u("./assets/photo12.jpg"),
+      u("./assets/photo13.jpg"),
+      u("./assets/photo14.jpg"),
+    ];
+
+    function makeSlide(src){
+      const wrap = document.createElement("div");
+      wrap.className = "slide";
+
+      const img = document.createElement("img");
+      img.src = src;
+      img.alt = "Little Things";
+      img.loading = "eager";
+
+      wrap.appendChild(img);
+      return { wrap, img };
+    }
+
+    function restartAnimation(trackEl){
+      trackEl.style.animation = "none";
+      trackEl.offsetHeight; // force reflow
+      trackEl.style.animation = "";
+    }
+
+    function recalcShift(trackEl){
+      const fullWidth = trackEl.scrollWidth;
+      const shift = fullWidth / 2; // duplicado
+      trackEl.style.setProperty("--shift", shift + "px");
+      restartAnimation(trackEl);
+    }
+
+    function fillTrack(trackEl, photos){
+      trackEl.innerHTML = "";
+
+      const seq = photos.concat(photos); // duplicar para loop perfeito
+      const imgs = [];
+
+      seq.forEach(src => {
+        const { wrap, img } = makeSlide(src);
+        imgs.push(img);
+        trackEl.appendChild(wrap);
+      });
+
+      let pending = imgs.length;
+
+      const doneOne = () => {
+        pending--;
+        if (pending <= 0) requestAnimationFrame(() => recalcShift(trackEl));
+      };
+
+      imgs.forEach(img => {
+        if (img.complete) doneOne();
+        else{
+          img.addEventListener("load", doneOne, { once: true });
+          img.addEventListener("error", doneOne, { once: true });
+        }
+      });
+
+      // fallback
+      setTimeout(() => recalcShift(trackEl), 1200);
+    }
+
+    function parseSeconds(val){
+      const s = String(val).trim();
+      if (s.endsWith("ms")) return parseFloat(s) / 1000;
+      if (s.endsWith("s")) return parseFloat(s);
+      const num = parseFloat(s);
+      return Number.isFinite(num) ? num : 3.5;
+    }
+
+    function syncGlow(){
+      const root = getComputedStyle(document.documentElement);
+      const speedTop = parseSeconds(root.getPropertyValue("--speedTop")) || 26;
+
+      const btnInsta = document.getElementById("btnInsta");
+      const emailBtn = document.getElementById("emailBtn");
+
+      if (!btnInsta || !emailBtn) return;
+
+      btnInsta.style.animationDuration = speedTop + "s";
+      emailBtn.style.animationDuration = speedTop + "s";
+
+      // desfasado para parecer orgânico
+      btnInsta.style.animationDelay = "0s";
+      emailBtn.style.animationDelay = (speedTop / 2) + "s";
+
+      // reiniciar para alinhar
+      btnInsta.style.animationName = "none";
+      emailBtn.style.animationName = "none";
+      btnInsta.offsetHeight;
+      emailBtn.offsetHeight;
+      btnInsta.style.animationName = "glowPulse";
+      emailBtn.style.animationName = "glowPulse";
+    }
+
+    function init(){
+      const tTop = document.getElementById("trackTop");
+      const tBottom = document.getElementById("trackBottom");
+
+      if (tTop) fillTrack(tTop, topPhotos);
+      if (tBottom) fillTrack(tBottom, bottomPhotos);
+
+      syncGlow();
+      setTimeout(syncGlow, 1300); // após cálculo do shift
+    }
+
+    window.addEventListener("load", init);
+    window.addEventListener("resize", init);
+
+    // ===== Email: copiar + feedback (sem quebrar slideshow se falhar) =====
+    (function bindEmailCopy(){
+      const emailBtn = document.getElementById("emailBtn");
+      const emailText = document.getElementById("emailText");
+      if (!emailBtn || !emailText) return;
+
+      const email = "info@littlethings.events";
+      const original = emailText.textContent;
+
+      emailBtn.addEventListener("click", async () => {
+        try{
+          await navigator.clipboard.writeText(email);
+          emailText.textContent = "Copiado / Copied";
+          setTimeout(() => { emailText.textContent = original; }, 1600);
+        }catch{
+          emailText.textContent = "Erro";
+          setTimeout(() => { emailText.textContent = original; }, 1600);
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
