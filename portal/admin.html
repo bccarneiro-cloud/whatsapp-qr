@@ -1,276 +1,148 @@
-<!doctype html>
-<html lang="pt">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Admin — Pedidos</title>
-  <style>
-    body{margin:0;font-family:system-ui;background:#071225;color:#eaf1ff}
-    .wrap{max-width:1100px;margin:0 auto;padding:28px 16px}
-    .top{display:flex;align-items:center;justify-content:space-between;gap:12px}
-    .btn{padding:10px 14px;border-radius:12px;border:0;background:#7c5cff;color:#fff;cursor:pointer}
-    .btn2{padding:10px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.15);background:transparent;color:#eaf1ff;cursor:pointer}
-    .card{background:#0b1b35;border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:18px;margin-top:16px}
-    table{width:100%;border-collapse:collapse}
-    th,td{padding:10px 8px;border-bottom:1px solid rgba(255,255,255,.08);text-align:left;font-size:14px}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-    @media(max-width:860px){.grid{grid-template-columns:1fr}}
-    label{display:block;margin:12px 0 6px;font-size:13px;opacity:.9}
-    input,select,textarea{width:100%;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:#071225;color:#eaf1ff}
-    textarea{min-height:84px;resize:vertical}
-    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    .pill{display:inline-block;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.08);font-size:12px}
-    .msg{margin-top:10px;font-size:13px;opacity:.95;white-space:pre-wrap}
-    .right{display:flex;gap:10px;align-items:center}
-  </style>
-</head>
-<body>
-  <div class="wrap">
-    <div class="top">
-      <h1 style="margin:0">Admin — Pedidos</h1>
-      <div class="right">
-        <span id="who" class="pill">…</span>
-        <button id="btnLogout" class="btn2">Sair</button>
-      </div>
-    </div>
+<script>
+  const $ = (id) => document.getElementById(id);
+  const setMsg = (el, t) => { if (el) el.textContent = t || ""; };
 
-    <div class="card">
-      <div class="row">
-        <button id="btnRefresh" class="btn2">Atualizar</button>
-        <span class="pill" id="count">0 pedidos</span>
-      </div>
-      <div style="margin-top:10px;overflow:auto">
-        <table>
-          <thead>
-            <tr>
-              <th>Criado</th>
-              <th>Cliente</th>
-              <th>Evento</th>
-              <th>Estado</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody id="rows"></tbody>
-        </table>
-      </div>
-      <div class="msg" id="msgList"></div>
-    </div>
+  window.addEventListener("error", (e) => console.error("JS ERROR:", e.message, e));
+  window.addEventListener("unhandledrejection", (e) => console.error("PROMISE ERROR:", e.reason || e));
 
-    <div class="card">
-      <h2 style="margin:0 0 8px">Editar pedido</h2>
-      <div class="grid">
-        <div>
-          <label>ID</label>
-          <input id="id" type="text" readonly />
-          <label>Preço final (€)</label>
-          <input id="final_price" type="number" step="0.01" placeholder="Ex.: 450.00" />
-        </div>
-        <div>
-          <label>Estado</label>
-          <select id="status">
-            <option value="submetido">submetido</option>
-            <option value="em_analise">em_analise</option>
-            <option value="aprovado">aprovado</option>
-            <option value="rejeitado">rejeitado</option>
-            <option value="enviado">enviado</option>
-          </select>
-          <label>Notas/condições (para o email)</label>
-          <textarea id="admin_notes" placeholder="Ex.: validade 7 dias, sinal 30%..."></textarea>
-        </div>
-      </div>
+  if (!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY) {
+    alert("Falta SUPABASE_URL / SUPABASE_ANON_KEY no supabase-config.js");
+  }
+  if (!window.supabase) {
+    alert("SDK Supabase nao carregou. Confirma o <script src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'></script>");
+  }
 
-      <div class="row" style="margin-top:12px">
-        <button id="btnSave" class="btn2">Guardar</button>
-        <button id="btnSend" class="btn">Aprovar e enviar (PDF)</button>
-      </div>
-      <div class="msg" id="msgEdit"></div>
-    </div>
-  </div>
+  const sb = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
 
-  <!-- Config com URL + ANON KEY -->
-  <script src="./supabase-config.js"></script>
+  let current = null;
 
-  <!-- SDK Supabase -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  async function requireSession() {
+    const { data } = await sb.auth.getSession();
+    if (!data.session) {
+      alert("Sem sessao. Faz login.");
+      return null;
+    }
+    return data.session;
+  }
 
-  <script>
-    // ---------- helpers ----------
-    const $ = (id) => document.getElementById(id);
-    const setMsg = (el, t) => { el.textContent = t || ""; };
+  async function ensureAdmin(session) {
+    const { data: prof, error } = await sb
+      .from("profiles")
+      .select("role, name")
+      .eq("id", session.user.id)
+      .single();
 
-    // Debug global (para nunca mais ficar "silencioso")
-    window.addEventListener("error", (e) => console.error("JS ERROR:", e.message, e));
-    window.addEventListener("unhandledrejection", (e) => console.error("PROMISE ERROR:", e.reason || e));
+    if (error) throw error;
+    $("who").textContent = (prof?.name ? prof.name + " — " : "") + (prof?.role || "user");
+    if (prof?.role !== "admin") {
+      alert("Sem permissoes de admin.");
+      return false;
+    }
+    return true;
+  }
 
-    // ---------- supabase ----------
-    if (!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY) {
-      alert("Falta SUPABASE_URL / SUPABASE_ANON_KEY no supabase-config.js");
+  function fillForm(row) {
+    current = row;
+    $("id").value = row.id || "";
+    $("final_price").value = (row.final_price ?? "");
+    $("status").value = row.status || "submetido";
+    $("admin_notes").value = (row.admin_notes ?? "");
+    setMsg($("msgEdit"), "");
+  }
+
+  async function loadList() {
+    setMsg($("msgList"), "");
+    $("rows").innerHTML = "";
+    $("count").textContent = "a carregar...";
+
+    const { data, error } = await sb
+      .from("quote_requests")
+      .select("id, created_at, user_id, event_type, status, final_price, admin_notes")
+      .order("created_at", { ascending: false })
+      .limit(50);
+
+    if (error) {
+      setMsg($("msgList"), "Erro a carregar: " + error.message);
+      $("count").textContent = "0 pedidos";
+      return;
     }
 
-    const sb = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+    $("count").textContent = data.length + " pedidos";
 
-    let current = null; // pedido selecionado
+    data.forEach((r) => {
+      const tr = document.createElement("tr");
+      const created = r.created_at ? new Date(r.created_at).toLocaleString("pt-PT") : "—";
+      tr.innerHTML =
+        "<td>" + created + "</td>" +
+        "<td style='opacity:.9'>" + r.user_id + "</td>" +
+        "<td>" + (r.event_type || "—") + "</td>" +
+        "<td><span class='pill'>" + (r.status || "—") + "</span></td>" +
+        "<td><button class='btn2' data-id='" + r.id + "'>Abrir</button></td>";
+      $("rows").appendChild(tr);
+    });
 
-    async function requireSession() {
-      const { data } = await sb.auth.getSession();
-      if (!data.session) {
-        window.location.href = "./login.html"; // se não tiveres login.html, muda para a tua página de login
-        return null;
-      }
-      return data.session;
-    }
+    document.querySelectorAll("button[data-id]").forEach((b) => {
+      b.onclick = async () => {
+        const id = b.getAttribute("data-id");
+        const { data: one, error: e2 } = await sb
+          .from("quote_requests")
+          .select("id, created_at, user_id, event_type, status, final_price, admin_notes")
+          .eq("id", id)
+          .single();
 
-    async function ensureAdmin(session) {
-      const { data: prof, error } = await sb
-        .from("profiles")
-        .select("role, name")
-        .eq("id", session.user.id)
-        .single();
-
-      if (error) throw error;
-      $("who").textContent = (prof?.name ? prof.name + " — " : "") + (prof?.role || "user");
-      if (prof?.role !== "admin") {
-        alert("Sem permissões de admin.");
-        await sb.auth.signOut();
-        window.location.href = "./login.html";
-        return false;
-      }
-      return true;
-    }
-
-    function fillForm(row) {
-      current = row;
-      $("id").value = row.id || "";
-      $("final_price").value = row.final_price ?? "";
-      $("status").value = row.status || "submetido";
-      $("admin_notes").value = row.admin_notes ?? "";
-      setMsg($("msgEdit"), "");
-    }
-
-    async function loadList() {
-      setMsg($("msgList"), "");
-      $("rows").innerHTML = "";
-      $("count").textContent = "a carregar...";
-
-      const { data, error } = await sb
-        .from("quote_requests")
-        .select("id, created_at, user_id, event_type, status, final_price, admin_notes")
-        .order("created_at", { ascending: false })
-        .limit(50);
-
-      if (error) {
-        setMsg($("msgList"), "Erro a carregar: " + error.message);
-        $("count").textContent = "0 pedidos";
-        return;
-      }
-
-      $("count").textContent = `${data.length} pedidos`;
-
-      for (const r of data) {
-        const tr = document.createElement("tr");
-        const created = r.created_at ? new Date(r.created_at).toLocaleString("pt-PT") : "—";
-        tr.innerHTML = `
-          <td>${created}</td>
-          <td style="opacity:.9">${r.user_id}</td>
-          <td>${r.event_type || "—"}</td>
-          <td><span class="pill">${r.status || "—"}</span></td>
-          <td><button class="btn2" data-id="${r.id}">Abrir</button></td>
-        `;
-        $("rows").appendChild(tr);
-      }
-
-      // bind abrir
-      [...document.querySelectorAll("button[data-id]")].forEach((b) => {
-        b.onclick = async () => {
-          const id = b.getAttribute("data-id");
-          const { data: one, error: e2 } = await sb
-            .from("quote_requests")
-            .select("id, created_at, user_id, event_type, event_date, location, guests, details, status, final_price, admin_notes")
-            .eq("id", id)
-            .single();
-
-          if (e2) { setMsg($("msgList"), "Erro a abrir: " + e2.message); return; }
-          fillForm(one);
-        };
-      });
-    }
-
-    async function saveCurrent() {
-      if (!current?.id) { setMsg($("msgEdit"), "Seleciona um pedido primeiro."); return false; }
-
-      const patch = {
-        final_price: $("final_price").value === "" ? null : Number($("final_price").value),
-        status: $("status").value,
-        admin_notes: $("admin_notes").value || null,
+        if (e2) { setMsg($("msgList"), "Erro a abrir: " + e2.message); return; }
+        fillForm(one);
       };
+    });
+  }
 
-      const { error } = await sb
-        .from("quote_requests")
-        .update(patch)
-        .eq("id", current.id);
+  async function saveCurrent() {
+    if (!current || !current.id) { setMsg($("msgEdit"), "Seleciona um pedido primeiro."); return false; }
 
-      if (error) {
-        setMsg($("msgEdit"), "Erro a guardar: " + error.message);
-        return false;
-      }
-
-      setMsg($("msgEdit"), "Guardado.");
-      await loadList();
-      return true;
-    }
-
-    async function approveAndSend() {
-      setMsg($("msgEdit"), "");
-
-      if (!current?.id) { setMsg($("msgEdit"), "Seleciona um pedido primeiro."); return; }
-      if ($("final_price").value === "") { setMsg($("msgEdit"), "Define o preço final antes de enviar."); return; }
-
-      // 1) guardar primeiro
-      const ok = await saveCurrent();
-      if (!ok) return;
-
-      // 2) chamar Edge Function
-      try {
-        const { data, error } = await sb.functions.invoke("send-quote", {
-          body: { quote_request_id: current.id },
-        });
-
-        if (error) {
-          // Mostra o motivo real (responseText vem do body do erro)
-          console.error("invoke error:", error);
-          setMsg($("msgEdit"), error.context?.responseText || error.message || "Erro ao enviar.");
-          return;
-        }
-
-        setMsg($("msgEdit"), "Email enviado com PDF.");
-        // opcional: marcar como enviado
-        await sb.from("quote_requests").update({ status: "enviado" }).eq("id", current.id);
-        await loadList();
-
-      } catch (e) {
-        console.error(e);
-        setMsg($("msgEdit"), "Erro inesperado: " + (e?.message || e));
-      }
-    }
-
-    // ---------- wiring ----------
-    $("btnLogout").onclick = async () => {
-      await sb.auth.signOut();
-      window.location.href = "./login.html";
+    const patch = {
+      final_price: ($("final_price").value === "" ? null : Number($("final_price").value)),
+      status: $("status").value,
+      admin_notes: ($("admin_notes").value || null),
     };
 
-    $("btnRefresh").onclick = loadList;
-    $("btnSave").onclick = saveCurrent;
-    $("btnSend").onclick = approveAndSend;
+    const { error } = await sb.from("quote_requests").update(patch).eq("id", current.id);
+    if (error) { setMsg($("msgEdit"), "Erro a guardar: " + error.message); return false; }
 
-    // ---------- init ----------
-    (async () => {
-      const session = await requireSession();
-      if (!session) return;
-      const isAdmin = await ensureAdmin(session);
-      if (!isAdmin) return;
-      await loadList();
-    })();
-  </script>
-</body>
-</html>
+    setMsg($("msgEdit"), "Guardado.");
+    await loadList();
+    return true;
+  }
+
+  async function approveAndSend() {
+    setMsg($("msgEdit"), "");
+    if (!current || !current.id) { setMsg($("msgEdit"), "Seleciona um pedido primeiro."); return; }
+    if ($("final_price").value === "") { setMsg($("msgEdit"), "Define o preco final antes de enviar."); return; }
+
+    const ok = await saveCurrent();
+    if (!ok) return;
+
+    const { data, error } = await sb.functions.invoke("send-quote", { body: { quote_request_id: current.id } });
+    if (error) {
+      console.error("invoke error:", error);
+      setMsg($("msgEdit"), (error.context && error.context.responseText) ? error.context.responseText : error.message);
+      return;
+    }
+
+    setMsg($("msgEdit"), "Email enviado com PDF.");
+    await sb.from("quote_requests").update({ status: "enviado" }).eq("id", current.id);
+    await loadList();
+  }
+
+  $("btnLogout").onclick = async () => { await sb.auth.signOut(); location.reload(); };
+  $("btnRefresh").onclick = loadList;
+  $("btnSave").onclick = saveCurrent;
+  $("btnSend").onclick = approveAndSend;
+
+  (async () => {
+    const session = await requireSession();
+    if (!session) return;
+    const ok = await ensureAdmin(session);
+    if (!ok) return;
+    await loadList();
+  })();
+</script>
