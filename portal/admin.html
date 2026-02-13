@@ -12,7 +12,7 @@
     .btn2{padding:10px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.15);background:transparent;color:#eaf1ff;cursor:pointer}
     .card{background:#0b1b35;border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:18px;margin-top:16px}
     table{width:100%;border-collapse:collapse}
-    th,td{padding:10px 8px;border-bottom:1px solid rgba(255,255,255,.08);text-align:left;font-size:14px}
+    th,td{padding:10px 8px;border-bottom:1px solid rgba(255,255,255,.08);text-align:left;font-size:14px;vertical-align:top}
     .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
     @media(max-width:860px){.grid{grid-template-columns:1fr}}
     label{display:block;margin:12px 0 6px;font-size:13px;opacity:.9}
@@ -22,6 +22,8 @@
     .pill{display:inline-block;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.08);font-size:12px}
     .msg{margin-top:10px;font-size:13px;opacity:.95;white-space:pre-wrap}
     .right{display:flex;gap:10px;align-items:center}
+    .sub{font-size:12px;opacity:.75;margin-top:2px}
+    .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
   </style>
 </head>
 <body>
@@ -43,11 +45,11 @@
         <table>
           <thead>
             <tr>
-              <th>Criado</th>
-              <th>Cliente</th>
-              <th>Evento</th>
-              <th>Estado</th>
-              <th>Ações</th>
+              <th style="min-width:170px">Criado</th>
+              <th style="min-width:260px">Cliente</th>
+              <th style="min-width:160px">Evento</th>
+              <th style="min-width:120px">Estado</th>
+              <th style="min-width:120px">Ações</th>
             </tr>
           </thead>
           <tbody id="rows"></tbody>
@@ -87,23 +89,20 @@
     </div>
   </div>
 
-  <!-- 1) Config (tens de ter este ficheiro) -->
+  <!-- 1) Config -->
   <script src="./supabase-config.js"></script>
 
-  <!-- 2) SDK Supabase (UMD) -->
+  <!-- 2) SDK Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <!-- 3) Admin logic -->
   <script>
-    // helpers
     function $(id){ return document.getElementById(id); }
     function setMsg(el, t){ if(el) el.textContent = t || ""; }
 
-    // debug global (para nunca mais ficar "silencioso")
     window.addEventListener("error", function(e){ console.error("JS ERROR:", e.message, e); });
     window.addEventListener("unhandledrejection", function(e){ console.error("PROMISE ERROR:", e.reason || e); });
 
-    // config checks
     if(!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY){
       alert("Falta SUPABASE_URL / SUPABASE_ANON_KEY no supabase-config.js");
     }
@@ -118,7 +117,6 @@
       var r = await sb.auth.getSession();
       var session = r && r.data ? r.data.session : null;
       if(!session){
-        // Se tiveres outra pagina de login, troca aqui:
         window.location.href = "./login.html";
         return null;
       }
@@ -158,14 +156,28 @@
       setMsg($("msgEdit"), "");
     }
 
+    function renderClientCell(r){
+      var name = (r.client_name && String(r.client_name).trim()) ? String(r.client_name).trim() : "—";
+      var email = (r.client_email && String(r.client_email).trim()) ? String(r.client_email).trim() : "";
+      var fallback = r.user_id ? String(r.user_id) : "";
+      var line2 = email ? email : fallback;
+
+      var html =
+        "<div>" + name + "</div>" +
+        "<div class='sub mono'>" + (line2 || "—") + "</div>";
+
+      return html;
+    }
+
     async function loadList(){
       setMsg($("msgList"), "");
       $("rows").innerHTML = "";
       $("count").textContent = "a carregar...";
 
+      // Nota: inclui client_name/client_email (snapshot)
       var res = await sb
         .from("quote_requests")
-        .select("id, created_at, user_id, event_type, status, final_price, admin_notes")
+        .select("id, created_at, user_id, client_name, client_email, event_type, status, final_price, admin_notes")
         .order("created_at", { ascending: false })
         .limit(50);
 
@@ -185,7 +197,7 @@
 
         tr.innerHTML =
           "<td>" + created + "</td>" +
-          "<td style='opacity:.9'>" + r.user_id + "</td>" +
+          "<td>" + renderClientCell(r) + "</td>" +
           "<td>" + (r.event_type || "—") + "</td>" +
           "<td><span class='pill'>" + (r.status || "—") + "</span></td>" +
           "<td><button class='btn2' data-id='" + r.id + "'>Abrir</button></td>";
@@ -199,7 +211,7 @@
           var id = this.getAttribute("data-id");
           var one = await sb
             .from("quote_requests")
-            .select("id, created_at, user_id, event_type, event_date, location, guests, details, status, final_price, admin_notes")
+            .select("id, created_at, user_id, client_name, client_email, event_type, event_date, location, guests, details, status, final_price, admin_notes")
             .eq("id", id)
             .single();
 
@@ -264,7 +276,6 @@
 
         setMsg($("msgEdit"), "Email enviado com PDF.");
 
-        // marcar enviado (opcional)
         await sb.from("quote_requests").update({ status: "enviado" }).eq("id", current.id);
         await loadList();
 
