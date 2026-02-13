@@ -54,17 +54,41 @@
   <script src="supabase-config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="app.js"></script>
+
   <script>
     const msg = document.getElementById("msg");
     document.getElementById("btnOut").onclick = LT.signOut;
 
     (async () => {
+      // garante login
       const me = await LT.requireAuth();
+
+      // buscar email da sessão
+      const sessRes = await LT.sb.auth.getSession();
+      const session = (sessRes && sessRes.data) ? sessRes.data.session : null;
+      const email = (session && session.user) ? session.user.email : null;
+
+      // buscar nome do perfil
+      const profRes = await LT.sb
+        .from("profiles")
+        .select("name")
+        .eq("id", me.id)
+        .single();
+
+      const clientName = (profRes && profRes.data && profRes.data.name)
+        ? profRes.data.name
+        : null;
+
       document.getElementById("btnSend").onclick = async () => {
         msg.textContent = "";
 
         const payload = {
           user_id: me.id,
+
+          // ✅ snapshot humano (para admin ver nome/email)
+          client_name: clientName,
+          client_email: email,
+
           event_type: document.getElementById("event_type").value.trim(),
           event_date: document.getElementById("event_date").value || null,
           location: document.getElementById("location").value.trim() || null,
@@ -73,10 +97,16 @@
           status: "submetido"
         };
 
-        if (!payload.event_type) { msg.textContent = "Preenche o tipo de evento."; return; }
+        if (!payload.event_type) {
+          msg.textContent = "Preenche o tipo de evento.";
+          return;
+        }
 
         const { error } = await LT.sb.from("quote_requests").insert(payload);
-        if (error) { msg.textContent = error.message; return; }
+        if (error) {
+          msg.textContent = error.message;
+          return;
+        }
 
         location.href = "my-requests.html";
       };
@@ -84,4 +114,3 @@
   </script>
 </body>
 </html>
-
