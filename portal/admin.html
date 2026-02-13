@@ -24,6 +24,7 @@
     .right{display:flex;gap:10px;align-items:center}
     .sub{font-size:12px;opacity:.75;margin-top:2px}
     .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
+    .ro textarea,.ro input{background:rgba(255,255,255,.04)}
   </style>
 </head>
 <body>
@@ -41,6 +42,7 @@
         <button id="btnRefresh" class="btn2">Atualizar</button>
         <span class="pill" id="count">0 pedidos</span>
       </div>
+
       <div style="margin-top:10px;overflow:auto">
         <table>
           <thead>
@@ -48,6 +50,7 @@
               <th style="min-width:170px">Criado</th>
               <th style="min-width:260px">Cliente</th>
               <th style="min-width:160px">Evento</th>
+              <th style="min-width:120px">Data</th>
               <th style="min-width:120px">Estado</th>
               <th style="min-width:120px">Ações</th>
             </tr>
@@ -55,15 +58,59 @@
           <tbody id="rows"></tbody>
         </table>
       </div>
+
       <div class="msg" id="msgList"></div>
     </div>
 
-    <div class="card">
-      <h2 style="margin:0 0 8px">Editar pedido</h2>
+    <div class="card ro">
+      <h2 style="margin:0 0 8px">Pedido (leitura)</h2>
+
       <div class="grid">
         <div>
           <label>ID</label>
           <input id="id" type="text" readonly />
+        </div>
+        <div>
+          <label>Cliente</label>
+          <input id="client_ro" type="text" readonly />
+          <div class="sub mono" id="client_email_ro"></div>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div>
+          <label>Tipo de evento</label>
+          <input id="event_type_ro" type="text" readonly />
+        </div>
+        <div>
+          <label>Data do evento</label>
+          <input id="event_date_ro" type="text" readonly />
+          <div class="sub">DD/MM/AAAA</div>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div>
+          <label>Local</label>
+          <input id="location_ro" type="text" readonly />
+        </div>
+        <div>
+          <label>Nº convidados</label>
+          <input id="guests_ro" type="text" readonly />
+        </div>
+      </div>
+
+      <div>
+        <label>Detalhes do pedido</label>
+        <textarea id="details_ro" readonly></textarea>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 style="margin:0 0 8px">Aprovação / orçamento</h2>
+
+      <div class="grid">
+        <div>
           <label>Preço final (€)</label>
           <input id="final_price" type="number" step="0.01" placeholder="Ex.: 450.00" />
         </div>
@@ -76,26 +123,26 @@
             <option value="rejeitado">rejeitado</option>
             <option value="enviado">enviado</option>
           </select>
-          <label>Notas/condições (para o email)</label>
-          <textarea id="admin_notes" placeholder="Ex.: validade 7 dias, sinal 30%..."></textarea>
         </div>
+      </div>
+
+      <div>
+        <label>Notas/condições (para o email)</label>
+        <textarea id="admin_notes" placeholder="Ex.: validade 7 dias, sinal 30%..."></textarea>
       </div>
 
       <div class="row" style="margin-top:12px">
         <button id="btnSave" class="btn2">Guardar</button>
         <button id="btnSend" class="btn">Aprovar e enviar (PDF)</button>
       </div>
+
       <div class="msg" id="msgEdit"></div>
     </div>
   </div>
 
-  <!-- 1) Config -->
   <script src="./supabase-config.js"></script>
-
-  <!-- 2) SDK Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <!-- 3) Admin logic -->
   <script>
     function $(id){ return document.getElementById(id); }
     function setMsg(el, t){ if(el) el.textContent = t || ""; }
@@ -112,6 +159,19 @@
 
     var sb = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
     var current = null;
+
+    function fmtDatePT(dateISO){
+      if(!dateISO) return "—";
+      var d = new Date(dateISO);
+      if(isNaN(d.getTime())) return "—";
+      return d.toLocaleDateString("pt-PT");
+    }
+
+    function renderClientCell(r){
+      var name = (r.client_name && String(r.client_name).trim()) ? String(r.client_name).trim() : "—";
+      var email = (r.client_email && String(r.client_email).trim()) ? String(r.client_email).trim() : "—";
+      return "<div>" + name + "</div><div class='sub mono'>" + email + "</div>";
+    }
 
     async function requireSession(){
       var r = await sb.auth.getSession();
@@ -149,24 +209,23 @@
 
     function fillForm(row){
       current = row;
+
+      // leitura
       $("id").value = row.id || "";
+      $("client_ro").value = (row.client_name && String(row.client_name).trim()) ? String(row.client_name).trim() : "—";
+      $("client_email_ro").textContent = (row.client_email && String(row.client_email).trim()) ? String(row.client_email).trim() : "—";
+      $("event_type_ro").value = row.event_type || "—";
+      $("event_date_ro").value = fmtDatePT(row.event_date);
+      $("location_ro").value = row.location || "—";
+      $("guests_ro").value = (row.guests == null ? "—" : String(row.guests));
+      $("details_ro").value = row.details || "—";
+
+      // edição
       $("final_price").value = (row.final_price == null ? "" : row.final_price);
       $("status").value = row.status || "submetido";
       $("admin_notes").value = (row.admin_notes == null ? "" : row.admin_notes);
+
       setMsg($("msgEdit"), "");
-    }
-
-    function renderClientCell(r){
-      var name = (r.client_name && String(r.client_name).trim()) ? String(r.client_name).trim() : "—";
-      var email = (r.client_email && String(r.client_email).trim()) ? String(r.client_email).trim() : "";
-      var fallback = r.user_id ? String(r.user_id) : "";
-      var line2 = email ? email : fallback;
-
-      var html =
-        "<div>" + name + "</div>" +
-        "<div class='sub mono'>" + (line2 || "—") + "</div>";
-
-      return html;
     }
 
     async function loadList(){
@@ -174,10 +233,9 @@
       $("rows").innerHTML = "";
       $("count").textContent = "a carregar...";
 
-      // Nota: inclui client_name/client_email (snapshot)
       var res = await sb
         .from("quote_requests")
-        .select("id, created_at, user_id, client_name, client_email, event_type, status, final_price, admin_notes")
+        .select("id, created_at, client_name, client_email, event_type, event_date, status, final_price")
         .order("created_at", { ascending: false })
         .limit(50);
 
@@ -199,6 +257,7 @@
           "<td>" + created + "</td>" +
           "<td>" + renderClientCell(r) + "</td>" +
           "<td>" + (r.event_type || "—") + "</td>" +
+          "<td>" + fmtDatePT(r.event_date) + "</td>" +
           "<td><span class='pill'>" + (r.status || "—") + "</span></td>" +
           "<td><button class='btn2' data-id='" + r.id + "'>Abrir</button></td>";
 
