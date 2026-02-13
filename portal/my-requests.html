@@ -8,7 +8,6 @@
   <style>
     .pill{display:inline-block;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.08);font-size:12px}
     .sub{font-size:12px;opacity:.75;margin-top:2px}
-    .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
     .readonly input,.readonly textarea{background:rgba(255,255,255,.04)}
     .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
     @media(max-width:760px){.grid2{grid-template-columns:1fr}}
@@ -37,11 +36,11 @@
         <table>
           <thead>
             <tr>
-              <th style="min-width:170px">Criado</th>
-              <th style="min-width:170px">Evento</th>
-              <th style="min-width:120px">Data</th>
-              <th style="min-width:120px">Estado</th>
-              <th style="min-width:90px"></th>
+              <th>Criado</th>
+              <th>Evento</th>
+              <th>Data</th>
+              <th>Estado</th>
+              <th></th>
             </tr>
           </thead>
           <tbody id="rows"></tbody>
@@ -52,17 +51,11 @@
     </div>
 
     <div class="card readonly">
-      <h2 style="margin-top:0">Pedido (leitura)</h2>
+      <h2 style="margin-top:0">Detalhes</h2>
 
-      <div class="grid2">
-        <div>
-          <label>ID</label>
-          <input id="rid" readonly />
-        </div>
-        <div>
-          <label>Estado</label>
-          <input id="rstatus" readonly />
-        </div>
+      <div>
+        <label>Estado</label>
+        <input id="rstatus" readonly />
       </div>
 
       <div class="grid2">
@@ -99,7 +92,7 @@
           <input id="rprice" readonly />
         </div>
         <div>
-          <label>Notas do admin</label>
+          <label>Notas sobre o pedido</label>
           <textarea id="rnotes" readonly></textarea>
         </div>
       </div>
@@ -114,10 +107,6 @@
 
   <script>
     function $(id){ return document.getElementById(id); }
-
-    // debug para não ficar "silencioso"
-    window.addEventListener("error", function(e){ console.error("JS ERROR:", e.message, e); });
-    window.addEventListener("unhandledrejection", function(e){ console.error("PROMISE ERROR:", e.reason || e); });
 
     const rows = $("rows");
     const msgList = $("msgList");
@@ -135,7 +124,6 @@
 
     function setDetail(r){
       msgDetail.textContent = "";
-      $("rid").value = r.id || "";
       $("rstatus").value = r.status || "—";
       $("revent").value = r.event_type || "—";
       $("rdate").value = fmtDatePT(r.event_date);
@@ -171,10 +159,6 @@
 
       if(data.length === 0){
         msgList.textContent = "Ainda não tens pedidos.";
-        setDetail({
-          id:"", status:"", event_type:"", event_date:null, location:"", guests:null, details:"",
-          final_price:null, admin_notes:""
-        });
         return;
       }
 
@@ -192,11 +176,9 @@
         rows.appendChild(tr);
       });
 
-      // mostra o primeiro automaticamente
       setDetail(data[0]);
     }
 
-    // ✅ event delegation: clique no "Ver" funciona sempre
     rows.addEventListener("click", async function(e){
       const btn = e.target.closest("button[data-id]");
       if(!btn) return;
@@ -204,16 +186,13 @@
       const id = btn.getAttribute("data-id");
       if(!id) return;
 
-      msgDetail.textContent = "";
-
       const one = await LT.sb
         .from("quote_requests")
-        .select("id, created_at, event_type, event_date, status, location, guests, details, final_price, admin_notes")
+        .select("id, event_type, event_date, status, location, guests, details, final_price, admin_notes")
         .eq("id", id)
         .single();
 
       if(one.error){
-        console.error(one.error);
         msgDetail.textContent = "Erro a abrir: " + one.error.message;
         return;
       }
