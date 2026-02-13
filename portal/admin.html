@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin — Orçamentos</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="row" style="justify-content:space-between; margin-bottom:12px;">
+      <h1>Admin — Pedidos</h1>
+      <div class="row">
+        <button class="btn secondary" id="btnOut">Sair</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row" style="margin-bottom:10px;">
+        <button class="btn secondary" id="btnRefresh">Atualizar</button>
+        <span class="small" id="msg"></span>
+      </div>
+
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Criado</th>
+            <th>Cliente</th>
+            <th>Evento</th>
+            <th>Estado</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+
+    <div class="card" style="margin-top:14px;">
+      <h2>Editar pedido</h2>
+      <div class="grid grid-2">
+        <div>
+          <label>ID</label>
+          <input id="qid" disabled />
+        </div>
+        <div>
+          <label>Estado</label>
+          <select id="status">
+            <option value="submetido">submetido</option>
+            <option value="em_analise">em_analise</option>
+            <option value="aprovado">aprovado</option>
+            <option value="enviado">enviado</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid grid-2">
+        <div>
+          <label>Preço final (€)</label>
+          <input id="price" type="number" step="0.01" placeholder="Ex.: 450.00" />
+        </div>
+        <div>
+          <label>Notas/condições (para o email)</label>
+          <input id="notes" placeholder="Ex.: validade 7 dias, sinal 30%..." />
+        </div>
+      </div>
+
+      <div class="row">
+        <button class="btn secondary" id="btnSave">Guardar</button>
+        <button class="btn" id="btnApproveSend">Aprovar e enviar (PDF)</button>
+        <span class="small" id="msg2"></span>
+      </div>
+    </div>
+  </div>
+
+  <script src="supabase-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js"></script>
+  <script>
+    const msg = document.getElementById("msg");
+    const msg2 = document.getElementById("msg2");
+    document.getElementById("btnOut").onclick = LT.signOut;
+
+    async function guardAdmin() {
+      await LT.requireAuth();
+      const admin = await LT.isAdmin();
+      if (!admin) location.href = "my-requests.html";
+    }
+
+    async function load() {
+      msg.textContent = "A carregar…";
+      const { data, error } = await LT.sb
+        .from("quote_requests")
+        .select("id, created_at, event_type, status, user_id")
+        .order("created_at", { ascending: false })
+        .limit(50);
+
+      if (error) { msg.textContent = error.message; return; }
+      msg.textContent = "";
+
+      const tbody = document.getElementById("rows");
+      tbody.innerHTML = data.map(r => {
+        const d = new Date(r.created_at).toLocaleString("pt-PT");
+        return `
+          <tr>
+            <td>${d}</td>
+            <td>${r.user_id}</td>
+            <td>${r.event_type}</td>
+            <td><span class="badge">${r.status}</span></td>
+            <td><button class="btn secondary" data-id="${r.id}">Abrir</button></td>
+          </tr>
+        `;
+      }).join("");
+
+      tbody.querySelectorAll("button[data-id]").forEach(btn => {
+        btn.onclick = async () => {
+          const id = btn.getAttribute("data-id");
+          const { data: one } = await LT.sb
+            .from("quote_requests")
+            .select("id, status, final_price, admin_notes")
+            .eq("id", id)
+            .single();
+
+          document.getElementById("qid").value = one.id;
+          document.getElementById("status").value = one.status;
+          document.getElementById("price").value = one.final_price ?? "";
+          document.getElementById("notes").value = one.admin_notes ?? "";
+          msg2.textContent = "";
+        };
+      });
+    }
+
+    document.getElementById("btnRefresh").onclick = load;
+
+    document.getElementById("btnSave").onclick = async () => {
+      msg2.textContent = "";
+      const id = document.getElementById("qid").value;
+      if (!id) { msg2.textContent = "Abre um pedido primeiro."; return; }
+
+      const payload = {
+        status: document.getElementById("status").value,
+        final_price: document.getElementById("price").value ? Number(document.getElementById("price").value) : null,
+        admin_notes: document.getElementById("notes").value || null
+      };
+
+      const { error } = await LT.sb.from("quote_requests").update(payload).eq("id", id);
+      if (error) { msg2.textContent = error.message; return; }
+      msg2.textContent = "Guardado ✅";
+      load();
+    };
+
+    document.getElementById("btnApproveSend").onclick = async () => {
+      msg2.textContent = "";
+      const id = document.getElementById("qid").value;
+      const price = document.getElementById("price").value;
+      if (!id) { msg2.textContent = "Abre um pedido primeiro."; return; }
+      if (!price) { msg2.textContent = "Define o preço final antes de enviar."; return; }
+
+      // marcar aprovado
+      await LT.sb.from("quote_requests").update({
+        status: "aprovado",
+        final_price: Number(price),
+        admin_notes: document.getElementById("notes").value || null
+      }).eq("id", id);
+
+      // chamar Edge Function que gera PDF e envia email
+      const { data, error } = await LT.sb.functions.invoke("send-quote", {
+        body: { quote_request_id: id }
+      });
+
+      if (error) { msg2.textContent = error.message; return; }
+      msg2.textContent = "Email enviado com PDF ✅";
+      // marcar enviado
+      await LT.sb.from("quote_requests").update({ status: "enviado" }).eq("id", id);
+      load();
+    };
+
+    (async () => {
+      await guardAdmin();
+      await load();
+    })();
+  </script>
+</body>
+</html>
