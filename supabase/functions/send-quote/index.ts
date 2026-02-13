@@ -1,11 +1,11 @@
-// supabase/functions/send-quote/index.ts
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { PDFDocument, StandardFonts } from "https://esm.sh/pdf-lib@1.17.1";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!; // já tens nos secrets
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY")!;
-const FROM_EMAIL = Deno.env.get("FROM_EMAIL")!; // ex: "Little Things <onboarding@resend.dev>" or "Little Things <orcamentos@littlethings.events>"
+const FROM_EMAIL = Deno.env.get("FROM_EMAIL")!;
 
 const corsHeaders: Record<string, string> = {
   "Access-Control-Allow-Origin": "*",
@@ -16,13 +16,20 @@ const corsHeaders: Record<string, string> = {
 
 function fmtDate(dateStr?: string | null) {
   if (!dateStr) return "—";
-  // dateStr may come as YYYY-MM-DD
   try {
-    const d = new Date(dateStr);
-    return d.toLocaleDateString("pt-PT");
+    return new Date(dateStr).toLocaleDateString("pt-PT");
   } catch {
     return String(dateStr);
   }
+}
+
+function toBase64(bytes: Uint8Array) {
+  let binary = "";
+  const chunkSize = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+  }
+  return btoa(binary);
 }
 
 async function makePdf(payload: {
@@ -87,136 +94,10 @@ async function makePdf(payload: {
   return await pdf.save();
 }
 
-function toBase64(bytes: Uint8Array) {
-  // Convert Uint8Array -> base64 (safe for Deno)
-  let binary = "";
-  const chunkSize = 0x8000;
-  for (let i = 0; i < bytes.length; i += chunkSize) {
-    binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
-  }
-  return btoa(binary);
-}
-
-async function sendEmailWithResend(
-  to: string,
-  subject: string,
-  html: string,
-  pdfBytes: Uint8Array
-) {
+async function sendEmailWithResend(to: string, subject: string, html: string, pdfBytes: Uint8Array) {
   const pdfBase64 = toBase64(pdfBytes);
 
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
-      "Authorization": `Bearer ${RESEND_API_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from: FROM_EMAIL,
-      to: [to],
-      subject,
-      html,
-      attachments: [
-        {
-          filename: "orcamento-littlethings.pdf",
-          content: pdfBase64,
-        },
-      ],
-    }),
-  });
-
-  if (!res.ok) {
-    const t = await res.text();
-    throw new Error(`Resend error: ${t}`);
-  }
-}
-
-Deno.serve(async (req) => {
-  // Handle CORS preflight
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
-  }
-
-  try {
-    if (req.method !== "POST") {
-      return new Response(JSON.stringify({ ok: false, error: "Use POST." }), {
-        status: 405,
-        headers: corsHeaders,
-      });
-    }
-
-    const body = await req.json().catch(() => ({}));
-    const quote_request_id = body?.quote_request_id as string | undefined;
-
-    if (!quote_request_id) {
-      return new Response(JSON.stringify({ ok: false, error: "quote_request_id em falta." }), {
-        status: 400,
-        headers: corsHeaders,
-      });
-    }
-
-    // Service role client (server-side)
-    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-
-    // Fetch quote request
-    const { data: qr, error: qrErr } = await supabase
-      .from("quote_requests")
-      .select("id, user_id, event_type, event_date, location, guests, details, final_price, admin_notes, status")
-      .eq("id", quote_request_id)
-      .single();
-
-    if (qrErr) throw new Error(qrErr.message);
-    if (!qr) throw new Error("Pedido não encontrado.");
-    if (qr.final_price == null) throw new Error("final_price em falta.");
-
-    // Get user email from auth
-    const { data: userData, error: userErr } = await supabase.auth.admin.getUserById(qr.user_id);
-    if (userErr) throw new Error(userErr.message);
-    const customer_email = userData.user?.email;
-    if (!customer_email) throw new Error("Email do cliente não encontrado.");
-
-    // Get profile for name (optional)
-    const { data: prof } = await supabase
-      .from("profiles")
-      .select("name")
-      .eq("id", qr.user_id)
-      .single();
-
-    const payload = {
-      customer_email,
-      customer_name: prof?.name ?? null,
-      event_type: qr.event_type,
-      event_date: qr.event_date ?? null,
-      location: qr.location ?? null,
-      guests: qr.guests ?? null,
-      details: qr.details ?? null,
-      final_price: Number(qr.final_price),
-      admin_notes: qr.admin_notes ?? null,
-    };
-
-    // Generate PDF
-    const pdfBytes = await makePdf(payload);
-
-    // Email content
-    const subject = `Orçamento — ${qr.event_type}`;
-    const html = `
-      <div style="font-family:Arial,sans-serif;line-height:1.45">
-        <p>Olá${payload.customer_name ? " " + payload.customer_name : ""}, 😊</p>
-        <p>Segue em anexo o teu orçamento para <b>${qr.event_type}</b>.</p>
-        <p><b>Preço final:</b> ${payload.final_price.toFixed(2)} €</p>
-        ${payload.admin_notes ? `<p><b>Notas:</b> ${payload.admin_notes}</p>` : ""}
-        <p>Obrigada!<br/>Little Things ✨</p>
-      </div>
-    `;
-
-    // Send email with attachment
-    await sendEmailWithResend(customer_email, subject, html, pdfBytes);
-
-    return new Response(JSON.stringify({ ok: true }), { headers: corsHeaders });
-  } catch (e) {
-    return new Response(
-      JSON.stringify({ ok: false, error: String((e as any)?.message ?? e) }),
-      { status: 400, headers: corsHeaders }
-    );
-  }
-});
+      "Authorization": `Bearer ${RESEND_API_KEY}
