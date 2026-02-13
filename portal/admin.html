@@ -164,10 +164,18 @@
 
       // chamar Edge Function que gera PDF e envia email
       const { data, error } = await LT.sb.functions.invoke("send-quote", {
-        body: { quote_request_id: id }
-      });
+  body: { quote_request_id: id }
+});
 
-      if (error) { msg2.textContent = error.message; return; }
+if (error) {
+  console.error("invoke error:", error);
+  msg2.textContent =
+    error.context?.responseText ||
+    error.message ||
+    "Erro desconhecido";
+  return;
+}
+
       msg2.textContent = "Email enviado com PDF ✅";
       // marcar enviado
       await LT.sb.from("quote_requests").update({ status: "enviado" }).eq("id", id);
