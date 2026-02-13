@@ -143,7 +143,14 @@
       };
 
       const { error } = await LT.sb.from("quote_requests").update(payload).eq("id", id);
-      if (error) { msg2.textContent = error.message; return; }
+if (error) {
+  console.error("FULL ERROR:", error);
+  msg2.textContent =
+    error.context?.responseText ||
+    JSON.stringify(error, null, 2) ||
+    error.message ||
+    "Erro desconhecido";
+  return;
       msg2.textContent = "Guardado ✅";
       load();
     };
