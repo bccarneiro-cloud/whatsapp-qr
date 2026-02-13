@@ -1,1 +1,71 @@
+<!doctype html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Portal — Registo</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="card grid">
+      <h1>Criar conta</h1>
 
+      <div class="grid grid-2">
+        <div>
+          <label>Nome</label>
+          <input id="name" placeholder="Nome e apelido" />
+        </div>
+        <div>
+          <label>Telefone</label>
+          <input id="phone" placeholder="9xx xxx xxx" />
+        </div>
+      </div>
+
+      <div class="grid">
+        <div>
+          <label>Email</label>
+          <input id="email" type="email" placeholder="teu@email.com" />
+        </div>
+        <div>
+          <label>Password</label>
+          <input id="password" type="password" placeholder="mín. 6 caracteres" />
+        </div>
+      </div>
+
+      <div class="row">
+        <button class="btn" id="btnCreate">Criar conta</button>
+        <a class="link" href="login.html">Voltar ao login</a>
+      </div>
+
+      <div id="msg" class="small"></div>
+    </div>
+  </div>
+
+  <script src="supabase-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js"></script>
+  <script>
+    const msg = document.getElementById("msg");
+    document.getElementById("btnCreate").onclick = async () => {
+      msg.textContent = "";
+      const name = document.getElementById("name").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      const { data, error } = await LT.sb.auth.signUp({ email, password });
+      if (error) { msg.textContent = error.message; return; }
+
+      // guardar perfil
+      const userId = data.user?.id;
+      if (userId) {
+        await LT.sb.from("profiles").update({ name, phone }).eq("id", userId);
+      }
+
+      msg.textContent = "Conta criada. Já podes fazer login.";
+      setTimeout(() => location.href = "login.html", 900);
+    };
+  </script>
+</body>
+</html>
