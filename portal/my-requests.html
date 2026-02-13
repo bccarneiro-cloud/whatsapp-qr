@@ -6,11 +6,15 @@
   <title>Meus pedidos</title>
   <link rel="stylesheet" href="styles.css" />
   <style>
-    .pill{display:inline-block;padding:4px 10px;border-radius:999px;background:rgba(0,0,0,.06);font-size:12px}
+    .pill{display:inline-block;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.08);font-size:12px}
     .sub{font-size:12px;opacity:.75;margin-top:2px}
-    .readonly input,.readonly textarea{background:#f6f6f6}
-    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    @media(max-width:760px){.grid-2{grid-template-columns:1fr}}
+    .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
+    .readonly input,.readonly textarea{background:rgba(255,255,255,.04)}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media(max-width:760px){.grid2{grid-template-columns:1fr}}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:10px 8px;border-bottom:1px solid rgba(255,255,255,.08);text-align:left;font-size:14px;vertical-align:top}
+    .btnTiny{padding:8px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.15);background:transparent;color:#eaf1ff;cursor:pointer}
   </style>
 </head>
 <body>
@@ -24,33 +28,33 @@
     </div>
 
     <div class="card">
-      <div class="row" style="justify-content:space-between">
+      <div class="row" style="justify-content:space-between; align-items:center;">
         <button class="btn secondary" id="btnRefresh">Atualizar</button>
-        <div id="count" class="small">0 pedidos</div>
+        <div class="small" id="count">0 pedidos</div>
       </div>
 
-      <div style="overflow:auto;margin-top:10px;">
-        <table class="table" style="width:100%">
+      <div style="margin-top:10px;overflow:auto">
+        <table>
           <thead>
             <tr>
-              <th>Criado</th>
-              <th>Evento</th>
-              <th>Data</th>
-              <th>Estado</th>
-              <th></th>
+              <th style="min-width:170px">Criado</th>
+              <th style="min-width:170px">Evento</th>
+              <th style="min-width:120px">Data</th>
+              <th style="min-width:120px">Estado</th>
+              <th style="min-width:90px"></th>
             </tr>
           </thead>
           <tbody id="rows"></tbody>
         </table>
       </div>
 
-      <div id="msgList" class="small"></div>
+      <div class="small" id="msgList"></div>
     </div>
 
     <div class="card readonly">
-      <h2 style="margin-top:0">Detalhe do pedido (leitura)</h2>
+      <h2 style="margin-top:0">Pedido (leitura)</h2>
 
-      <div class="grid-2">
+      <div class="grid2">
         <div>
           <label>ID</label>
           <input id="rid" readonly />
@@ -61,7 +65,7 @@
         </div>
       </div>
 
-      <div class="grid-2">
+      <div class="grid2">
         <div>
           <label>Tipo de evento</label>
           <input id="revent" readonly />
@@ -73,7 +77,7 @@
         </div>
       </div>
 
-      <div class="grid-2">
+      <div class="grid2">
         <div>
           <label>Local</label>
           <input id="rloc" readonly />
@@ -89,7 +93,7 @@
         <textarea id="rdetails" readonly></textarea>
       </div>
 
-      <div class="grid-2">
+      <div class="grid2">
         <div>
           <label>Preço final (€)</label>
           <input id="rprice" readonly />
@@ -100,7 +104,7 @@
         </div>
       </div>
 
-      <div id="msgDetail" class="small"></div>
+      <div class="small" id="msgDetail"></div>
     </div>
   </div>
 
@@ -109,10 +113,18 @@
   <script src="app.js"></script>
 
   <script>
-    const rows = document.getElementById("rows");
-    const msgList = document.getElementById("msgList");
-    const msgDetail = document.getElementById("msgDetail");
-    document.getElementById("btnOut").onclick = LT.signOut;
+    function $(id){ return document.getElementById(id); }
+
+    // debug para não ficar "silencioso"
+    window.addEventListener("error", function(e){ console.error("JS ERROR:", e.message, e); });
+    window.addEventListener("unhandledrejection", function(e){ console.error("PROMISE ERROR:", e.reason || e); });
+
+    const rows = $("rows");
+    const msgList = $("msgList");
+    const msgDetail = $("msgDetail");
+
+    $("btnOut").onclick = LT.signOut;
+    $("btnRefresh").onclick = loadMy;
 
     function fmtDatePT(dateISO){
       if(!dateISO) return "—";
@@ -123,21 +135,21 @@
 
     function setDetail(r){
       msgDetail.textContent = "";
-      document.getElementById("rid").value = r.id || "";
-      document.getElementById("rstatus").value = r.status || "—";
-      document.getElementById("revent").value = r.event_type || "—";
-      document.getElementById("rdate").value = fmtDatePT(r.event_date);
-      document.getElementById("rloc").value = r.location || "—";
-      document.getElementById("rguests").value = (r.guests == null ? "—" : String(r.guests));
-      document.getElementById("rdetails").value = r.details || "—";
-      document.getElementById("rprice").value = (r.final_price == null ? "—" : Number(r.final_price).toFixed(2));
-      document.getElementById("rnotes").value = r.admin_notes || "—";
+      $("rid").value = r.id || "";
+      $("rstatus").value = r.status || "—";
+      $("revent").value = r.event_type || "—";
+      $("rdate").value = fmtDatePT(r.event_date);
+      $("rloc").value = r.location || "—";
+      $("rguests").value = (r.guests == null ? "—" : String(r.guests));
+      $("rdetails").value = r.details || "—";
+      $("rprice").value = (r.final_price == null ? "—" : Number(r.final_price).toFixed(2));
+      $("rnotes").value = r.admin_notes || "—";
     }
 
     async function loadMy(){
       msgList.textContent = "";
       rows.innerHTML = "";
-      document.getElementById("count").textContent = "a carregar...";
+      $("count").textContent = "a carregar...";
 
       const me = await LT.requireAuth();
 
@@ -150,46 +162,66 @@
 
       if(res.error){
         msgList.textContent = "Erro: " + res.error.message;
-        document.getElementById("count").textContent = "0 pedidos";
+        $("count").textContent = "0 pedidos";
         return;
       }
 
       const data = res.data || [];
-      document.getElementById("count").textContent = data.length + " pedidos";
+      $("count").textContent = data.length + " pedidos";
 
-      data.forEach((r) => {
+      if(data.length === 0){
+        msgList.textContent = "Ainda não tens pedidos.";
+        setDetail({
+          id:"", status:"", event_type:"", event_date:null, location:"", guests:null, details:"",
+          final_price:null, admin_notes:""
+        });
+        return;
+      }
+
+      data.forEach(function(r){
         const tr = document.createElement("tr");
         const created = r.created_at ? new Date(r.created_at).toLocaleString("pt-PT") : "—";
+
         tr.innerHTML =
           "<td>" + created + "</td>" +
           "<td>" + (r.event_type || "—") + "</td>" +
           "<td>" + fmtDatePT(r.event_date) + "</td>" +
           "<td><span class='pill'>" + (r.status || "—") + "</span></td>" +
-          "<td><button class='btn secondary' data-id='" + r.id + "'>Ver</button></td>";
+          "<td><button type='button' class='btnTiny' data-id='" + r.id + "'>Ver</button></td>";
+
         rows.appendChild(tr);
       });
 
-      document.querySelectorAll("button[data-id]").forEach((b) => {
-        b.onclick = async () => {
-          const id = b.getAttribute("data-id");
-          const one = await LT.sb
-            .from("quote_requests")
-            .select("id, created_at, event_type, event_date, status, location, guests, details, final_price, admin_notes")
-            .eq("id", id)
-            .single();
-
-          if(one.error){ msgDetail.textContent = "Erro a abrir: " + one.error.message; return; }
-          setDetail(one.data);
-        };
-      });
-
-      // se houver pelo menos 1 pedido, mostra o primeiro automaticamente
-      if(data.length > 0) setDetail(data[0]);
+      // mostra o primeiro automaticamente
+      setDetail(data[0]);
     }
 
-    document.getElementById("btnRefresh").onclick = loadMy;
+    // ✅ event delegation: clique no "Ver" funciona sempre
+    rows.addEventListener("click", async function(e){
+      const btn = e.target.closest("button[data-id]");
+      if(!btn) return;
 
-    (async () => {
+      const id = btn.getAttribute("data-id");
+      if(!id) return;
+
+      msgDetail.textContent = "";
+
+      const one = await LT.sb
+        .from("quote_requests")
+        .select("id, created_at, event_type, event_date, status, location, guests, details, final_price, admin_notes")
+        .eq("id", id)
+        .single();
+
+      if(one.error){
+        console.error(one.error);
+        msgDetail.textContent = "Erro a abrir: " + one.error.message;
+        return;
+      }
+
+      setDetail(one.data);
+    });
+
+    (async function init(){
       await LT.requireAuth();
       await loadMy();
     })();
