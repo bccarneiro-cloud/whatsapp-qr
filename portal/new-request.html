@@ -1,1 +1,87 @@
+<!doctype html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Novo pedido de orçamento</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="row" style="justify-content:space-between; margin-bottom:12px;">
+      <h1>Novo pedido</h1>
+      <div class="row">
+        <a class="link" href="my-requests.html">Meus pedidos</a>
+        <button class="btn secondary" id="btnOut">Sair</button>
+      </div>
+    </div>
+
+    <div class="card grid">
+      <div class="grid grid-2">
+        <div>
+          <label>Tipo de evento</label>
+          <input id="event_type" placeholder="Ex.: aniversário, baby shower..." />
+        </div>
+        <div>
+          <label>Data do evento</label>
+          <input id="event_date" type="date" />
+        </div>
+      </div>
+
+      <div class="grid grid-2">
+        <div>
+          <label>Local</label>
+          <input id="location" placeholder="Ex.: Lisboa, Almada..." />
+        </div>
+        <div>
+          <label>Nº convidados</label>
+          <input id="guests" type="number" min="0" placeholder="Ex.: 25" />
+        </div>
+      </div>
+
+      <div>
+        <label>Detalhes do pedido</label>
+        <textarea id="details" placeholder="Cores, tema, o que queres incluir, referências, horários..."></textarea>
+      </div>
+
+      <div class="row">
+        <button class="btn" id="btnSend">Enviar pedido</button>
+        <div id="msg" class="small"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="supabase-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js"></script>
+  <script>
+    const msg = document.getElementById("msg");
+    document.getElementById("btnOut").onclick = LT.signOut;
+
+    (async () => {
+      const me = await LT.requireAuth();
+      document.getElementById("btnSend").onclick = async () => {
+        msg.textContent = "";
+
+        const payload = {
+          user_id: me.id,
+          event_type: document.getElementById("event_type").value.trim(),
+          event_date: document.getElementById("event_date").value || null,
+          location: document.getElementById("location").value.trim() || null,
+          guests: Number(document.getElementById("guests").value) || null,
+          details: document.getElementById("details").value.trim() || null,
+          status: "submetido"
+        };
+
+        if (!payload.event_type) { msg.textContent = "Preenche o tipo de evento."; return; }
+
+        const { error } = await LT.sb.from("quote_requests").insert(payload);
+        if (error) { msg.textContent = error.message; return; }
+
+        location.href = "my-requests.html";
+      };
+    })();
+  </script>
+</body>
+</html>
 
