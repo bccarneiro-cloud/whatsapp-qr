@@ -90,7 +90,7 @@ async function makePdf(payload: {
   }
 
   y -= 14;
-  draw("Obrigada! ✨", bold, 12);
+ draw("Obrigada!", bold, 12);
 
   return await pdf.save();
 }
