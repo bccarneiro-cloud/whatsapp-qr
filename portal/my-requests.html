@@ -1,1 +1,76 @@
+<!doctype html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Meus pedidos</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="row" style="justify-content:space-between; margin-bottom:12px;">
+      <h1>Meus pedidos</h1>
+      <div class="row">
+        <a class="link" href="new-request.html">Novo pedido</a>
+        <button class="btn secondary" id="btnOut">Sair</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Evento</th>
+            <th>Estado</th>
+            <th>Preço</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+      <div class="small" id="msg" style="margin-top:10px;"></div>
+    </div>
+  </div>
+
+  <script src="supabase-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js"></script>
+  <script>
+    document.getElementById("btnOut").onclick = LT.signOut;
+
+    (async () => {
+      await LT.requireAuth();
+      const { data, error } = await LT.sb
+        .from("quote_requests")
+        .select("id, created_at, event_type, status, final_price")
+        .order("created_at", { ascending: false });
+
+      const msg = document.getElementById("msg");
+      if (error) { msg.textContent = error.message; return; }
+
+      const tbody = document.getElementById("rows");
+      if (!data.length) {
+        msg.textContent = "Ainda não tens pedidos. Clica em “Novo pedido”.";
+        return;
+      }
+
+      tbody.innerHTML = data.map(r => {
+        const d = new Date(r.created_at).toLocaleDateString("pt-PT");
+        const badgeClass = (r.status === "aprovado" || r.status === "enviado") ? "ok" : "warn";
+        const price = (r.status === "aprovado" || r.status === "enviado") && r.final_price != null
+          ? `${Number(r.final_price).toFixed(2)} €`
+          : "—";
+        return `
+          <tr>
+            <td>${d}</td>
+            <td>${r.event_type}</td>
+            <td><span class="badge ${badgeClass}">${r.status}</span></td>
+            <td>${price}</td>
+          </tr>
+        `;
+      }).join("");
+    })();
+  </script>
+</body>
+</html>
 
