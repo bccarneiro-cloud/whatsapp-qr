@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Novo pedido de orçamento</title>
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    .hint{font-size:12px;opacity:.75;margin-top:6px}
+  </style>
 </head>
 <body>
   <div class="container">
@@ -22,9 +25,12 @@
           <label>Tipo de evento</label>
           <input id="event_type" placeholder="Ex.: aniversário, baby shower..." />
         </div>
+
         <div>
           <label>Data do evento</label>
           <input id="event_date" type="date" />
+          <div class="hint">Formato apresentado no portal: DD/MM/AAAA</div>
+          <div class="hint" id="datePreview"></div>
         </div>
       </div>
 
@@ -35,7 +41,7 @@
         </div>
         <div>
           <label>Nº convidados</label>
-          <input id="guests" type="number" min="0" placeholder="Ex.: 25" />
+          <input id="guests" type="number" min="1" placeholder="Ex.: 25" />
         </div>
       </div>
 
@@ -57,122 +63,7 @@
 
   <script>
     const msg = document.getElementById("msg");
-    document.getElementById("btnOut").onclick = LT.signOut;
-
-    (async () => {
-      // garante login
-      const me = await LT.requireAuth();
-
-      // buscar email da sessão
-      const sessRes = await LT.sb.auth.getSession();
-      const session = (sessRes && sessRes.data) ? sessRes.data.session : null;
-      const email = (session && session.user) ? session.user.email : null;
-
-      // buscar nome do perfil
-      const profRes = await LT.sb
-        .from("profiles")
-        .select("name")
-        .eq("id", me.id)
-        .single();
-
-      const clientName = (profRes && profRes.data && profRes.data.name)
-        ? profRes.data.name
-        : null;
-
-      document.getElementById("btnSend").onclick = async () => {
-        msg.textContent = "";
-
-        const payload = {
-          user_id: me.id,
-
-          // ✅ snapshot humano (para admin ver nome/email)
-          client_name: clientName,
-          client_email: email,
-
-          event_type: document.getElementById("event_type").value.trim(),
-          event_date: document.getElementById("event_date").value || null,
-          location: document.getElementById("location").value.trim() || null,
-          guests: Number(document.getElementById("guests").value) || null,
-          details: document.getElementById("details").value.trim() || null,
-          status: "submetido"
-        };
-
-        if (!payload.event_type) {
-          msg.textContent = "Preenche o tipo de evento.";
-          return;
-        }
-
-        const { error } = await LT.sb.from("quote_requests").insert(payload);
-        if (error) {
-          msg.textContent = error.message;
-          return;
-        }
-
-        location.href = "my-requests.html";
-      };
-    })();
-  </script>
-</body>
-</html><!doctype html>
-<html lang="pt">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Novo pedido de orçamento</title>
-  <link rel="stylesheet" href="styles.css" />
-</head>
-<body>
-  <div class="container">
-    <div class="row" style="justify-content:space-between; margin-bottom:12px;">
-      <h1>Novo pedido</h1>
-      <div class="row">
-        <a class="link" href="my-requests.html">Meus pedidos</a>
-        <button class="btn secondary" id="btnOut">Sair</button>
-      </div>
-    </div>
-
-    <div class="card grid">
-      <div class="grid grid-2">
-        <div>
-          <label>Tipo de evento</label>
-          <input id="event_type" placeholder="Ex.: aniversário, baby shower..." />
-        </div>
-        <div>
-          <label>Data do evento</label>
-          <input id="event_date" type="date" />
-          <div class="small" style="opacity:.75;margin-top:6px;">Formato apresentado no portal: DD/MM/AAAA</div>
-        </div>
-      </div>
-
-      <div class="grid grid-2">
-        <div>
-          <label>Local</label>
-          <input id="location" placeholder="Ex.: Lisboa, Almada..." />
-        </div>
-        <div>
-          <label>Nº convidados</label>
-          <input id="guests" type="number" min="0" placeholder="Ex.: 25" />
-        </div>
-      </div>
-
-      <div>
-        <label>Detalhes do pedido</label>
-        <textarea id="details" placeholder="Cores, tema, o que queres incluir, referências, horários..."></textarea>
-      </div>
-
-      <div class="row">
-        <button class="btn" id="btnSend">Enviar pedido</button>
-        <div id="msg" class="small"></div>
-      </div>
-    </div>
-  </div>
-
-  <script src="supabase-config.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="app.js"></script>
-
-  <script>
-    const msg = document.getElementById("msg");
+    const datePreview = document.getElementById("datePreview");
     document.getElementById("btnOut").onclick = LT.signOut;
 
     function todayISO(){
@@ -183,24 +74,38 @@
       return yyyy + "-" + mm + "-" + dd;
     }
 
+    function fmtDatePT(dateISO){
+      if(!dateISO) return "";
+      const d = new Date(dateISO);
+      if (isNaN(d.getTime())) return "";
+      return d.toLocaleDateString("pt-PT"); // DD/MM/AAAA
+    }
+
     function isPastISO(dateISO){
-      // compara YYYY-MM-DD (string) de forma segura
       if(!dateISO) return false;
-      return dateISO < todayISO();
+      return dateISO < todayISO(); // YYYY-MM-DD string compare
     }
 
     (async () => {
+      // garante login
       const me = await LT.requireAuth();
 
-      // bloquear datas passadas no próprio input
+      // bloquear datas passadas no input
       const dateEl = document.getElementById("event_date");
       dateEl.min = todayISO();
 
-      // email + nome (snapshot)
+      dateEl.addEventListener("change", () => {
+        const v = dateEl.value || "";
+        if (!v) { datePreview.textContent = ""; return; }
+        datePreview.textContent = "Data escolhida: " + fmtDatePT(v);
+      });
+
+      // email da sessão
       const sessRes = await LT.sb.auth.getSession();
       const session = (sessRes && sessRes.data) ? sessRes.data.session : null;
       const email = (session && session.user) ? session.user.email : null;
 
+      // nome do perfil
       const profRes = await LT.sb
         .from("profiles")
         .select("name")
@@ -216,9 +121,18 @@
 
         const eventType = document.getElementById("event_type").value.trim();
         const eventDate = document.getElementById("event_date").value || null;
+        const location = document.getElementById("location").value.trim();
+        const guestsVal = document.getElementById("guests").value;
+        const guests = Number(guestsVal);
+        const details = document.getElementById("details").value.trim();
 
+        // ✅ obrigatórios
         if (!eventType) { msg.textContent = "Preenche o tipo de evento."; return; }
-        if (eventDate && isPastISO(eventDate)) { msg.textContent = "A data do evento não pode ser no passado."; return; }
+        if (!eventDate) { msg.textContent = "Escolhe a data do evento."; return; }
+        if (isPastISO(eventDate)) { msg.textContent = "A data do evento não pode ser no passado."; return; }
+        if (!location) { msg.textContent = "Preenche o local."; return; }
+        if (!guestsVal || !Number.isFinite(guests) || guests < 1) { msg.textContent = "Indica o nº de convidados (mínimo 1)."; return; }
+        if (!details) { msg.textContent = "Escreve os detalhes do pedido."; return; }
 
         const payload = {
           user_id: me.id,
@@ -226,10 +140,10 @@
           client_email: email,
 
           event_type: eventType,
-          event_date: eventDate,
-          location: document.getElementById("location").value.trim() || null,
-          guests: Number(document.getElementById("guests").value) || null,
-          details: document.getElementById("details").value.trim() || null,
+          event_date: eventDate, // guarda ISO na BD (normal)
+          location: location,
+          guests: guests,
+          details: details,
           status: "submetido"
         };
 
