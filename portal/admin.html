@@ -3,44 +3,67 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Admin — Orçamentos</title>
-  <link rel="stylesheet" href="styles.css" />
+  <title>Admin — Pedidos</title>
+  <style>
+    body{margin:0;font-family:system-ui;background:#071225;color:#eaf1ff}
+    .wrap{max-width:1100px;margin:0 auto;padding:28px 16px}
+    .top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .btn{padding:10px 14px;border-radius:12px;border:0;background:#7c5cff;color:#fff;cursor:pointer}
+    .btn2{padding:10px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.15);background:transparent;color:#eaf1ff;cursor:pointer}
+    .card{background:#0b1b35;border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:18px;margin-top:16px}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:10px 8px;border-bottom:1px solid rgba(255,255,255,.08);text-align:left;font-size:14px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    @media(max-width:860px){.grid{grid-template-columns:1fr}}
+    label{display:block;margin:12px 0 6px;font-size:13px;opacity:.9}
+    input,select,textarea{width:100%;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:#071225;color:#eaf1ff}
+    textarea{min-height:84px;resize:vertical}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .pill{display:inline-block;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.08);font-size:12px}
+    .msg{margin-top:10px;font-size:13px;opacity:.95;white-space:pre-wrap}
+    .right{display:flex;gap:10px;align-items:center}
+  </style>
 </head>
 <body>
-  <div class="container">
-    <div class="row" style="justify-content:space-between; margin-bottom:12px;">
-      <h1>Admin — Pedidos</h1>
-      <div class="row">
-        <button class="btn secondary" id="btnOut">Sair</button>
+  <div class="wrap">
+    <div class="top">
+      <h1 style="margin:0">Admin — Pedidos</h1>
+      <div class="right">
+        <span id="who" class="pill">…</span>
+        <button id="btnLogout" class="btn2">Sair</button>
       </div>
     </div>
 
     <div class="card">
-      <div class="row" style="margin-bottom:10px;">
-        <button class="btn secondary" id="btnRefresh">Atualizar</button>
-        <span class="small" id="msg"></span>
+      <div class="row">
+        <button id="btnRefresh" class="btn2">Atualizar</button>
+        <span class="pill" id="count">0 pedidos</span>
       </div>
-
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Criado</th>
-            <th>Cliente</th>
-            <th>Evento</th>
-            <th>Estado</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody id="rows"></tbody>
-      </table>
+      <div style="margin-top:10px;overflow:auto">
+        <table>
+          <thead>
+            <tr>
+              <th>Criado</th>
+              <th>Cliente</th>
+              <th>Evento</th>
+              <th>Estado</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+      <div class="msg" id="msgList"></div>
     </div>
 
-    <div class="card" style="margin-top:14px;">
-      <h2>Editar pedido</h2>
-      <div class="grid grid-2">
+    <div class="card">
+      <h2 style="margin:0 0 8px">Editar pedido</h2>
+      <div class="grid">
         <div>
           <label>ID</label>
-          <input id="qid" disabled />
+          <input id="id" type="text" readonly />
+          <label>Preço final (€)</label>
+          <input id="final_price" type="number" step="0.01" placeholder="Ex.: 450.00" />
         </div>
         <div>
           <label>Estado</label>
@@ -48,150 +71,205 @@
             <option value="submetido">submetido</option>
             <option value="em_analise">em_analise</option>
             <option value="aprovado">aprovado</option>
+            <option value="rejeitado">rejeitado</option>
             <option value="enviado">enviado</option>
           </select>
-        </div>
-      </div>
-
-      <div class="grid grid-2">
-        <div>
-          <label>Preço final (€)</label>
-          <input id="price" type="number" step="0.01" placeholder="Ex.: 450.00" />
-        </div>
-        <div>
           <label>Notas/condições (para o email)</label>
-          <input id="notes" placeholder="Ex.: validade 7 dias, sinal 30%..." />
+          <textarea id="admin_notes" placeholder="Ex.: validade 7 dias, sinal 30%..."></textarea>
         </div>
       </div>
 
-      <div class="row">
-        <button class="btn secondary" id="btnSave">Guardar</button>
-        <button class="btn" id="btnApproveSend">Aprovar e enviar (PDF)</button>
-        <span class="small" id="msg2"></span>
+      <div class="row" style="margin-top:12px">
+        <button id="btnSave" class="btn2">Guardar</button>
+        <button id="btnSend" class="btn">Aprovar e enviar (PDF)</button>
       </div>
+      <div class="msg" id="msgEdit"></div>
     </div>
   </div>
 
-  <script src="supabase-config.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="app.js"></script>
-  <script>
-    const msg = document.getElementById("msg");
-    const msg2 = document.getElementById("msg2");
-    document.getElementById("btnOut").onclick = LT.signOut;
+  <!-- Config com URL + ANON KEY -->
+  <script src="./supabase-config.js"></script>
 
-    async function guardAdmin() {
-      await LT.requireAuth();
-      const admin = await LT.isAdmin();
-      if (!admin) location.href = "my-requests.html";
+  <!-- SDK Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+    // ---------- helpers ----------
+    const $ = (id) => document.getElementById(id);
+    const setMsg = (el, t) => { el.textContent = t || ""; };
+
+    // Debug global (para nunca mais ficar "silencioso")
+    window.addEventListener("error", (e) => console.error("JS ERROR:", e.message, e));
+    window.addEventListener("unhandledrejection", (e) => console.error("PROMISE ERROR:", e.reason || e));
+
+    // ---------- supabase ----------
+    if (!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY) {
+      alert("Falta SUPABASE_URL / SUPABASE_ANON_KEY no supabase-config.js");
     }
 
-    async function load() {
-      msg.textContent = "A carregar…";
-      const { data, error } = await LT.sb
+    const sb = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+
+    let current = null; // pedido selecionado
+
+    async function requireSession() {
+      const { data } = await sb.auth.getSession();
+      if (!data.session) {
+        window.location.href = "./login.html"; // se não tiveres login.html, muda para a tua página de login
+        return null;
+      }
+      return data.session;
+    }
+
+    async function ensureAdmin(session) {
+      const { data: prof, error } = await sb
+        .from("profiles")
+        .select("role, name")
+        .eq("id", session.user.id)
+        .single();
+
+      if (error) throw error;
+      $("who").textContent = (prof?.name ? prof.name + " — " : "") + (prof?.role || "user");
+      if (prof?.role !== "admin") {
+        alert("Sem permissões de admin.");
+        await sb.auth.signOut();
+        window.location.href = "./login.html";
+        return false;
+      }
+      return true;
+    }
+
+    function fillForm(row) {
+      current = row;
+      $("id").value = row.id || "";
+      $("final_price").value = row.final_price ?? "";
+      $("status").value = row.status || "submetido";
+      $("admin_notes").value = row.admin_notes ?? "";
+      setMsg($("msgEdit"), "");
+    }
+
+    async function loadList() {
+      setMsg($("msgList"), "");
+      $("rows").innerHTML = "";
+      $("count").textContent = "a carregar...";
+
+      const { data, error } = await sb
         .from("quote_requests")
-        .select("id, created_at, event_type, status, user_id")
+        .select("id, created_at, user_id, event_type, status, final_price, admin_notes")
         .order("created_at", { ascending: false })
         .limit(50);
 
-      if (error) { msg.textContent = error.message; return; }
-      msg.textContent = "";
+      if (error) {
+        setMsg($("msgList"), "Erro a carregar: " + error.message);
+        $("count").textContent = "0 pedidos";
+        return;
+      }
 
-      const tbody = document.getElementById("rows");
-      tbody.innerHTML = data.map(r => {
-        const d = new Date(r.created_at).toLocaleString("pt-PT");
-        return `
-          <tr>
-            <td>${d}</td>
-            <td>${r.user_id}</td>
-            <td>${r.event_type}</td>
-            <td><span class="badge">${r.status}</span></td>
-            <td><button class="btn secondary" data-id="${r.id}">Abrir</button></td>
-          </tr>
+      $("count").textContent = `${data.length} pedidos`;
+
+      for (const r of data) {
+        const tr = document.createElement("tr");
+        const created = r.created_at ? new Date(r.created_at).toLocaleString("pt-PT") : "—";
+        tr.innerHTML = `
+          <td>${created}</td>
+          <td style="opacity:.9">${r.user_id}</td>
+          <td>${r.event_type || "—"}</td>
+          <td><span class="pill">${r.status || "—"}</span></td>
+          <td><button class="btn2" data-id="${r.id}">Abrir</button></td>
         `;
-      }).join("");
+        $("rows").appendChild(tr);
+      }
 
-      tbody.querySelectorAll("button[data-id]").forEach(btn => {
-        btn.onclick = async () => {
-          const id = btn.getAttribute("data-id");
-          const { data: one } = await LT.sb
+      // bind abrir
+      [...document.querySelectorAll("button[data-id]")].forEach((b) => {
+        b.onclick = async () => {
+          const id = b.getAttribute("data-id");
+          const { data: one, error: e2 } = await sb
             .from("quote_requests")
-            .select("id, status, final_price, admin_notes")
+            .select("id, created_at, user_id, event_type, event_date, location, guests, details, status, final_price, admin_notes")
             .eq("id", id)
             .single();
 
-          document.getElementById("qid").value = one.id;
-          document.getElementById("status").value = one.status;
-          document.getElementById("price").value = one.final_price ?? "";
-          document.getElementById("notes").value = one.admin_notes ?? "";
-          msg2.textContent = "";
+          if (e2) { setMsg($("msgList"), "Erro a abrir: " + e2.message); return; }
+          fillForm(one);
         };
       });
     }
 
-    document.getElementById("btnRefresh").onclick = load;
+    async function saveCurrent() {
+      if (!current?.id) { setMsg($("msgEdit"), "Seleciona um pedido primeiro."); return false; }
 
-    document.getElementById("btnSave").onclick = async () => {
-      msg2.textContent = "";
-      const id = document.getElementById("qid").value;
-      if (!id) { msg2.textContent = "Abre um pedido primeiro."; return; }
-
-      const payload = {
-        status: document.getElementById("status").value,
-        final_price: document.getElementById("price").value ? Number(document.getElementById("price").value) : null,
-        admin_notes: document.getElementById("notes").value || null
+      const patch = {
+        final_price: $("final_price").value === "" ? null : Number($("final_price").value),
+        status: $("status").value,
+        admin_notes: $("admin_notes").value || null,
       };
 
-      const { error } = await LT.sb.from("quote_requests").update(payload).eq("id", id);
-if (error) {
-  console.error("FULL ERROR:", error);
-  msg2.textContent =
-    error.context?.responseText ||
-    JSON.stringify(error, null, 2) ||
-    error.message ||
-    "Erro desconhecido";
-  return;
-      msg2.textContent = "Guardado ✅";
-      load();
+      const { error } = await sb
+        .from("quote_requests")
+        .update(patch)
+        .eq("id", current.id);
+
+      if (error) {
+        setMsg($("msgEdit"), "Erro a guardar: " + error.message);
+        return false;
+      }
+
+      setMsg($("msgEdit"), "Guardado.");
+      await loadList();
+      return true;
+    }
+
+    async function approveAndSend() {
+      setMsg($("msgEdit"), "");
+
+      if (!current?.id) { setMsg($("msgEdit"), "Seleciona um pedido primeiro."); return; }
+      if ($("final_price").value === "") { setMsg($("msgEdit"), "Define o preço final antes de enviar."); return; }
+
+      // 1) guardar primeiro
+      const ok = await saveCurrent();
+      if (!ok) return;
+
+      // 2) chamar Edge Function
+      try {
+        const { data, error } = await sb.functions.invoke("send-quote", {
+          body: { quote_request_id: current.id },
+        });
+
+        if (error) {
+          // Mostra o motivo real (responseText vem do body do erro)
+          console.error("invoke error:", error);
+          setMsg($("msgEdit"), error.context?.responseText || error.message || "Erro ao enviar.");
+          return;
+        }
+
+        setMsg($("msgEdit"), "Email enviado com PDF.");
+        // opcional: marcar como enviado
+        await sb.from("quote_requests").update({ status: "enviado" }).eq("id", current.id);
+        await loadList();
+
+      } catch (e) {
+        console.error(e);
+        setMsg($("msgEdit"), "Erro inesperado: " + (e?.message || e));
+      }
+    }
+
+    // ---------- wiring ----------
+    $("btnLogout").onclick = async () => {
+      await sb.auth.signOut();
+      window.location.href = "./login.html";
     };
 
-    document.getElementById("btnApproveSend").onclick = async () => {
-      msg2.textContent = "";
-      const id = document.getElementById("qid").value;
-      const price = document.getElementById("price").value;
-      if (!id) { msg2.textContent = "Abre um pedido primeiro."; return; }
-      if (!price) { msg2.textContent = "Define o preço final antes de enviar."; return; }
+    $("btnRefresh").onclick = loadList;
+    $("btnSave").onclick = saveCurrent;
+    $("btnSend").onclick = approveAndSend;
 
-      // marcar aprovado
-      await LT.sb.from("quote_requests").update({
-        status: "aprovado",
-        final_price: Number(price),
-        admin_notes: document.getElementById("notes").value || null
-      }).eq("id", id);
-
-      // chamar Edge Function que gera PDF e envia email
-      const { data, error } = await LT.sb.functions.invoke("send-quote", {
-  body: { quote_request_id: id }
-});
-
-if (error) {
-  console.error("invoke error:", error);
-  msg2.textContent =
-    error.context?.responseText ||
-    error.message ||
-    "Erro desconhecido";
-  return;
-}
-
-      msg2.textContent = "Email enviado com PDF ✅";
-      // marcar enviado
-      await LT.sb.from("quote_requests").update({ status: "enviado" }).eq("id", id);
-      load();
-    };
-
+    // ---------- init ----------
     (async () => {
-      await guardAdmin();
-      await load();
+      const session = await requireSession();
+      if (!session) return;
+      const isAdmin = await ensureAdmin(session);
+      if (!isAdmin) return;
+      await loadList();
     })();
   </script>
 </body>
