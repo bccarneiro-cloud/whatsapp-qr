@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Meus pedidos</title>
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    .pill{display:inline-block;padding:4px 10px;border-radius:999px;background:rgba(0,0,0,.06);font-size:12px}
+    .sub{font-size:12px;opacity:.75;margin-top:2px}
+    .readonly input,.readonly textarea{background:#f6f6f6}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media(max-width:760px){.grid-2{grid-template-columns:1fr}}
+  </style>
 </head>
 <body>
   <div class="container">
@@ -17,60 +24,175 @@
     </div>
 
     <div class="card">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Data</th>
-            <th>Evento</th>
-            <th>Estado</th>
-            <th>Preço</th>
-          </tr>
-        </thead>
-        <tbody id="rows"></tbody>
-      </table>
-      <div class="small" id="msg" style="margin-top:10px;"></div>
+      <div class="row" style="justify-content:space-between">
+        <button class="btn secondary" id="btnRefresh">Atualizar</button>
+        <div id="count" class="small">0 pedidos</div>
+      </div>
+
+      <div style="overflow:auto;margin-top:10px;">
+        <table class="table" style="width:100%">
+          <thead>
+            <tr>
+              <th>Criado</th>
+              <th>Evento</th>
+              <th>Data</th>
+              <th>Estado</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+
+      <div id="msgList" class="small"></div>
+    </div>
+
+    <div class="card readonly">
+      <h2 style="margin-top:0">Detalhe do pedido (leitura)</h2>
+
+      <div class="grid-2">
+        <div>
+          <label>ID</label>
+          <input id="rid" readonly />
+        </div>
+        <div>
+          <label>Estado</label>
+          <input id="rstatus" readonly />
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <label>Tipo de evento</label>
+          <input id="revent" readonly />
+        </div>
+        <div>
+          <label>Data do evento</label>
+          <input id="rdate" readonly />
+          <div class="sub">DD/MM/AAAA</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <label>Local</label>
+          <input id="rloc" readonly />
+        </div>
+        <div>
+          <label>Nº convidados</label>
+          <input id="rguests" readonly />
+        </div>
+      </div>
+
+      <div>
+        <label>Detalhes</label>
+        <textarea id="rdetails" readonly></textarea>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <label>Preço final (€)</label>
+          <input id="rprice" readonly />
+        </div>
+        <div>
+          <label>Notas do admin</label>
+          <textarea id="rnotes" readonly></textarea>
+        </div>
+      </div>
+
+      <div id="msgDetail" class="small"></div>
     </div>
   </div>
 
   <script src="supabase-config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="app.js"></script>
+
   <script>
+    const rows = document.getElementById("rows");
+    const msgList = document.getElementById("msgList");
+    const msgDetail = document.getElementById("msgDetail");
     document.getElementById("btnOut").onclick = LT.signOut;
 
-    (async () => {
-      await LT.requireAuth();
-      const { data, error } = await LT.sb
+    function fmtDatePT(dateISO){
+      if(!dateISO) return "—";
+      const d = new Date(dateISO);
+      if (isNaN(d.getTime())) return "—";
+      return d.toLocaleDateString("pt-PT");
+    }
+
+    function setDetail(r){
+      msgDetail.textContent = "";
+      document.getElementById("rid").value = r.id || "";
+      document.getElementById("rstatus").value = r.status || "—";
+      document.getElementById("revent").value = r.event_type || "—";
+      document.getElementById("rdate").value = fmtDatePT(r.event_date);
+      document.getElementById("rloc").value = r.location || "—";
+      document.getElementById("rguests").value = (r.guests == null ? "—" : String(r.guests));
+      document.getElementById("rdetails").value = r.details || "—";
+      document.getElementById("rprice").value = (r.final_price == null ? "—" : Number(r.final_price).toFixed(2));
+      document.getElementById("rnotes").value = r.admin_notes || "—";
+    }
+
+    async function loadMy(){
+      msgList.textContent = "";
+      rows.innerHTML = "";
+      document.getElementById("count").textContent = "a carregar...";
+
+      const me = await LT.requireAuth();
+
+      const res = await LT.sb
         .from("quote_requests")
-        .select("id, created_at, event_type, status, final_price")
-        .order("created_at", { ascending: false });
+        .select("id, created_at, event_type, event_date, status, location, guests, details, final_price, admin_notes")
+        .eq("user_id", me.id)
+        .order("created_at", { ascending: false })
+        .limit(100);
 
-      const msg = document.getElementById("msg");
-      if (error) { msg.textContent = error.message; return; }
-
-      const tbody = document.getElementById("rows");
-      if (!data.length) {
-        msg.textContent = "Ainda não tens pedidos. Clica em “Novo pedido”.";
+      if(res.error){
+        msgList.textContent = "Erro: " + res.error.message;
+        document.getElementById("count").textContent = "0 pedidos";
         return;
       }
 
-      tbody.innerHTML = data.map(r => {
-        const d = new Date(r.created_at).toLocaleDateString("pt-PT");
-        const badgeClass = (r.status === "aprovado" || r.status === "enviado") ? "ok" : "warn";
-        const price = (r.status === "aprovado" || r.status === "enviado") && r.final_price != null
-          ? `${Number(r.final_price).toFixed(2)} €`
-          : "—";
-        return `
-          <tr>
-            <td>${d}</td>
-            <td>${r.event_type}</td>
-            <td><span class="badge ${badgeClass}">${r.status}</span></td>
-            <td>${price}</td>
-          </tr>
-        `;
-      }).join("");
+      const data = res.data || [];
+      document.getElementById("count").textContent = data.length + " pedidos";
+
+      data.forEach((r) => {
+        const tr = document.createElement("tr");
+        const created = r.created_at ? new Date(r.created_at).toLocaleString("pt-PT") : "—";
+        tr.innerHTML =
+          "<td>" + created + "</td>" +
+          "<td>" + (r.event_type || "—") + "</td>" +
+          "<td>" + fmtDatePT(r.event_date) + "</td>" +
+          "<td><span class='pill'>" + (r.status || "—") + "</span></td>" +
+          "<td><button class='btn secondary' data-id='" + r.id + "'>Ver</button></td>";
+        rows.appendChild(tr);
+      });
+
+      document.querySelectorAll("button[data-id]").forEach((b) => {
+        b.onclick = async () => {
+          const id = b.getAttribute("data-id");
+          const one = await LT.sb
+            .from("quote_requests")
+            .select("id, created_at, event_type, event_date, status, location, guests, details, final_price, admin_notes")
+            .eq("id", id)
+            .single();
+
+          if(one.error){ msgDetail.textContent = "Erro a abrir: " + one.error.message; return; }
+          setDetail(one.data);
+        };
+      });
+
+      // se houver pelo menos 1 pedido, mostra o primeiro automaticamente
+      if(data.length > 0) setDetail(data[0]);
+    }
+
+    document.getElementById("btnRefresh").onclick = loadMy;
+
+    (async () => {
+      await LT.requireAuth();
+      await loadMy();
     })();
   </script>
 </body>
 </html>
-
