@@ -1,1 +1,55 @@
+<!doctype html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Portal — Login</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="card grid">
+      <h1>Little Things — Portal</h1>
+      <p class="small">Login com email e password</p>
+
+      <div class="grid">
+        <div>
+          <label>Email</label>
+          <input id="email" type="email" placeholder="teu@email.com" />
+        </div>
+        <div>
+          <label>Password</label>
+          <input id="password" type="password" placeholder="••••••••" />
+        </div>
+      </div>
+
+      <div class="row">
+        <button class="btn" id="btnLogin">Entrar</button>
+        <a class="link" href="register.html">Criar conta</a>
+      </div>
+
+      <div id="msg" class="small"></div>
+    </div>
+  </div>
+
+  <script src="supabase-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js"></script>
+  <script>
+    const msg = document.getElementById("msg");
+    document.getElementById("btnLogin").onclick = async () => {
+      msg.textContent = "";
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      const { data, error } = await LT.sb.auth.signInWithPassword({ email, password });
+      if (error) { msg.textContent = error.message; return; }
+
+      // admin vai para admin, cliente vai para pedidos
+      const admin = await LT.isAdmin();
+      location.href = admin ? "admin.html" : "my-requests.html";
+    };
+  </script>
+</body>
+</html>
 
