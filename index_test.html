@@ -1,367 +1,16 @@
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-YQN46F71DS"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-YQN46F71DS');
-  </script>
+<style>
+.slide img{
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  object-position: center;
+  background: #ffffff;
+}
+</style>
 
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Little Things</title>
-
-  <!-- ✅ Fonte "brush" para os botões -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Caveat+Brush&display=swap" rel="stylesheet">
-
-  <style>
-    :root{
-      --gap: 12px;
-
-      /* speeds */
-      --speedTop: 26s;
-      --speedBottom: 30s;
-
-      /* layout */
-      --minLogoBlock: 240px;
-      --minSlideBlock: 260px;
-
-      --shadow: 0 18px 55px rgba(0,0,0,0.18);
-      --radiusOuter: 26px;
-      --radiusInner: 18px;
-
-      /* ✅ fonte dos botões */
-      --btnFont: "Caveat Brush", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-
-      /* ✅ tamanho único (igual nos 3) */
-      --btnSize: 22px;
-    }
-
-    *{ box-sizing: border-box; }
-    html{ height: -webkit-fill-available; }
-    body{
-      margin: 0;
-      height: 100vh;
-      height: 100svh;
-      height: 100dvh;
-      height: -webkit-fill-available;
-      overflow: hidden;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: #fff;
-    }
-
-    /* subtle background */
-    .bg{
-      position: fixed;
-      inset: 0;
-      background:
-        radial-gradient(circle at 25% 10%, rgba(255,192,203,0.18), transparent 55%),
-        radial-gradient(circle at 80% 70%, rgba(255,182,193,0.14), transparent 60%),
-        #ffffff;
-      z-index: -2;
-    }
-
-    .page{
-      position: fixed;
-      inset: 0;
-      display: grid;
-      gap: var(--gap);
-      padding:
-        calc(10px + env(safe-area-inset-top))
-        12px
-        calc(10px + env(safe-area-inset-bottom))
-        12px;
-
-      grid-template-rows:
-        minmax(var(--minSlideBlock), 2fr)
-        minmax(var(--minLogoBlock), 1fr);
-    }
-
-    /* ===== SLIDESHOW: COM MOLDURA ===== */
-    .slideshow{
-      border-radius: var(--radiusOuter);
-      overflow: hidden;
-      background: rgba(255,255,255,0.12);
-      border: 1px solid rgba(255,255,255,0.45);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-
-      display: grid;
-      grid-template-rows: 1fr 1fr;
-      gap: 10px;
-      padding: 10px;
-      min-height: 0;
-    }
-
-    .lane{
-      position: relative;
-      overflow: hidden;
-      border-radius: var(--radiusInner);
-      background: rgba(255,255,255,0.18);
-      border: 1px solid rgba(255,255,255,0.45);
-    }
-
-    .track{
-      position: absolute;
-      inset: 0;
-      display: flex;
-      gap: 10px;
-      padding: 10px;
-      width: max-content;
-      align-items: center;
-      will-change: transform;
-    }
-
-    .lane.top .track{ animation: moveLeft var(--speedTop) linear infinite; }
-    .lane.bottom .track{ animation: moveRight var(--speedBottom) linear infinite; }
-
-    @keyframes moveLeft{
-      from { transform: translateX(0); }
-      to   { transform: translateX(calc(-1 * var(--shift))); }
-    }
-    @keyframes moveRight{
-      from { transform: translateX(calc(-1 * var(--shift))); }
-      to   { transform: translateX(0); }
-    }
-
-    .slide{
-      flex: 0 0 auto;
-      height: 100%;
-      width: min(46vw, 420px);
-      border-radius: var(--radiusInner);
-      overflow: hidden;
-      box-shadow: 0 10px 28px rgba(0,0,0,0.18);
-      background: transparent;
-    }
-
-    .slide img{
-      width: 100%;
-      height: 100%;
-      display: block;
-      object-fit: cover;
-      object-position: center;
-    }
-
-    /* ===== BOTTOM: branco total, sem border/card ===== */
-    .bottomBar{
-      width: 100%;
-      height: 100%;
-      background: #ffffff;
-      border: none;
-      border-radius: 0;
-      box-shadow: none;
-      padding: 0;
-      margin: 0;
-
-      display: grid;
-      grid-template-rows: 1fr auto;
-      align-items: center;
-      justify-items: center;
-      gap: 10px;
-      min-height: 0;
-    }
-
-    .logoWrap{
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: stretch;
-      justify-content: center;
-      min-height: 0;
-    }
-
-    .logoWrap img{
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      display: block;
-    }
-
-    .contactRow{
-      width: 100%;
-      display: flex;
-      justify-content: center;
-      padding: 0 12px 10px 12px;
-    }
-
-    .contactBtn{
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-
-      width: min(520px, 100%);
-      padding: 14px 16px;
-      border-radius: 999px;
-      text-decoration: none;
-
-      color: rgba(10,10,10,0.92);
-      background: #ffffff;
-      border: none;
-
-      box-shadow:
-        inset 0 2px 6px rgba(0,0,0,0.08),
-        0 10px 24px rgba(0,0,0,0.10);
-    }
-    .contactBtn:active{ transform: scale(0.985); }
-
-    @media (max-height: 700px){
-      :root{
-        --minLogoBlock: 210px;
-        --minSlideBlock: 240px;
-        --btnSize: 20px; /* ✅ igual, só um pouco menor em ecrãs baixos */
-      }
-      .slide{ width: min(52vw, 380px); }
-      .contactBtn{ padding: 12px 14px; }
-    }
-
-    /* =======================================================
-       ✅ 3 botões + ícones + brilho + tamanho igual (sem clamp)
-    ======================================================= */
-
-    .contactGroup{
-      width: min(980px, 100%);
-      display: flex;
-      gap: 14px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    .contactBtn{
-      flex: 1 1 240px;
-      max-width: 520px;
-
-      gap: 10px;
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-      user-select: none;
-      transition: transform .10s ease, filter .12s ease;
-
-      font-family: var(--btnFont);
-      font-weight: 400;
-      letter-spacing: .2px;
-      font-size: var(--btnSize);
-      line-height: 1.05;
-    }
-
-    .contactBtn *{
-      font-family: var(--btnFont);
-      font-weight: 400;
-      font-size: var(--btnSize);
-      line-height: 1.05;
-    }
-
-    .contactBtn:hover{ filter: brightness(1.02); }
-
-    button.contactBtn{
-      -webkit-appearance: none;
-      appearance: none;
-      font: inherit;
-      color: inherit;
-      background: #ffffff;
-      text-align: center;
-    }
-
-    .icon{
-      width: 18px;
-      height: 18px;
-      display: inline-block;
-      opacity: .9;
-      flex: 0 0 auto;
-    }
-
-    .glow{
-      animation-name: glowPulse;
-      animation-timing-function: ease-in-out;
-      animation-iteration-count: infinite;
-    }
-
-    @keyframes glowPulse{
-      0%{
-        box-shadow:
-          inset 0 2px 6px rgba(0,0,0,0.08),
-          0 10px 24px rgba(0,0,0,0.10);
-      }
-      50%{
-        box-shadow:
-          inset 0 2px 6px rgba(0,0,0,0.08),
-          0 14px 34px rgba(255,105,180,0.22);
-      }
-      100%{
-        box-shadow:
-          inset 0 2px 6px rgba(0,0,0,0.08),
-          0 10px 24px rgba(0,0,0,0.10);
-      }
-    }
-
-    /* ✅ ÚNICA MUDANÇA: letras (span) do Instagram + Contactos alinhadas ao tamanho visual do Email */
-    #btnInsta span,
-    #btnContacts span{
-      font-size: calc(var(--btnSize) - 2px);
-    }
-  </style>
-</head>
-
-<body>
-  <div class="bg" aria-hidden="true"></div>
-
-  <div class="page">
-
-    <section class="slideshow" aria-label="Slideshow">
-      <div class="lane top">
-        <div class="track" id="trackTop"></div>
-      </div>
-
-      <div class="lane bottom">
-        <div class="track" id="trackBottom"></div>
-      </div>
-    </section>
-
-    <section class="bottomBar" aria-label="Logo and contacts">
-      <div class="logoWrap">
-        <img src="./background.png" alt="Little Things" />
-      </div>
-
-      <div class="contactRow">
-        <div class="contactGroup">
-
-          <a class="contactBtn glow" id="btnInsta"
-             href="https://www.instagram.com/little.things.artdecor"
-             target="_blank" rel="noopener">
-            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-              <path fill="currentColor" d="M7.5 2h9A5.5 5.5 0 0 1 22 7.5v9A5.5 5.5 0 0 1 16.5 22h-9A5.5 5.5 0 0 1 2 16.5v-9A5.5 5.5 0 0 1 7.5 2Zm0 2A3.5 3.5 0 0 0 4 7.5v9A3.5 3.5 0 0 0 7.5 20h9a3.5 3.5 0 0 0 3.5-3.5v-9A3.5 3.5 0 0 0 16.5 4h-9Zm11.25 1.75a1 1 0 1 1 0 2a1 1 0 0 1 0-2ZM12 7a5 5 0 1 1 0 10a5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6a3 3 0 0 0 0-6Z"/>
-            </svg>
-            <span>Instagram</span>
-          </a>
-
-          <a class="contactBtn glow" id="btnContacts" href="./qr_contact/">
-            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-              <path fill="currentColor" d="M12 12a4 4 0 1 0-4-4a4 4 0 0 0 4 4Zm0 2c-4.42 0-8 2.01-8 4.5V20h16v-1.5c0-2.49-3.58-4.5-8-4.5Z"/>
-            </svg>
-            <span>Contactos / Contacts</span>
-          </a>
-
-          <button class="contactBtn glow" id="emailBtn" type="button">
-            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-              <path fill="currentColor" d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2Zm0 4.2l-8 5.3l-8-5.3V6l8 5.3L20 6v2.2Z"/>
-            </svg>
-            <span id="emailText">info@littlethings.events</span>
-          </button>
-
-        </div>
-      </div>
-
-    </section>
-
-  </div>
-
-  <script>
-    const topPhotos = [
+<script>
+  const topPhotos = [
     "./assets/photo01.jpg",
     "./assets/photo02.jpg",
     "./assets/photo03.jpg",
@@ -385,9 +34,9 @@
     "./assets/photo21.jpg",
     "./assets/photo22.jpg",
     "./assets/photo23.jpg",
-    ];
+  ];
 
-    const bottomPhotos = [
+  const bottomPhotos = [
     "./assets/photo24.jpg",
     "./assets/photo25.jpg",
     "./assets/photo26.jpg",
@@ -411,119 +60,126 @@
     "./assets/photo44.jpg",
     "./assets/photo45.jpg",
     "./assets/photo46.jpg",
-    ];
+  ];
 
-    function makeSlide(src){
-      const wrap = document.createElement("div");
-      wrap.className = "slide";
+  function makeSlide(src){
+    const wrap = document.createElement("div");
+    wrap.className = "slide";
 
-      const img = document.createElement("img");
-      img.src = src;
-      img.alt = "Little Things";
-      img.loading = "eager";
+    const img = document.createElement("img");
+    img.src = src;
+    img.alt = "Little Things";
+    img.loading = "eager";
 
-      wrap.appendChild(img);
-      return { wrap, img };
-    }
+    wrap.appendChild(img);
+    return { wrap, img };
+  }
 
-    function restartAnimation(trackEl){
-      const anim = getComputedStyle(trackEl).animationName;
-      trackEl.style.animation = "none";
-      trackEl.offsetHeight;
-      trackEl.style.animation = "";
-    }
+  function restartAnimation(trackEl){
+    const anim = getComputedStyle(trackEl).animationName;
+    trackEl.style.animation = "none";
+    trackEl.offsetHeight;
+    trackEl.style.animation = "";
+  }
 
-    function recalcShift(trackEl){
-      const fullWidth = trackEl.scrollWidth;
-      const shift = fullWidth / 2;
-      trackEl.style.setProperty("--shift", shift + "px");
-      restartAnimation(trackEl);
-    }
+  function recalcShift(trackEl){
+    const fullWidth = trackEl.scrollWidth;
+    const shift = fullWidth / 2;
+    trackEl.style.setProperty("--shift", shift + "px");
+    restartAnimation(trackEl);
+  }
 
-    function fillTrack(trackEl, photos){
-      trackEl.innerHTML = "";
-      const seq = photos.concat(photos);
+  function shuffleArray(array){
+    return array
+      .map(value => ({ value, sort: Math.random() }))
+      .sort((a, b) => a.sort - b.sort)
+      .map(({ value }) => value);
+  }
 
-      const imgs = [];
-      seq.forEach(src => {
-        const { wrap, img } = makeSlide(src);
-        imgs.push(img);
-        trackEl.appendChild(wrap);
-      });
+  function fillTrack(trackEl, photos){
+    trackEl.innerHTML = "";
 
-      let pending = imgs.length;
-      const doneOne = () => {
-        pending--;
-        if (pending <= 0) requestAnimationFrame(() => recalcShift(trackEl));
-      };
+    const randomPhotos = shuffleArray(photos);
+    const seq = randomPhotos.concat(randomPhotos);
 
-      imgs.forEach(img => {
-        if (img.complete) doneOne();
-        else{
-          img.addEventListener("load", doneOne, { once: true });
-          img.addEventListener("error", doneOne, { once: true });
-        }
-      });
+    const imgs = [];
+    seq.forEach(src => {
+      const { wrap, img } = makeSlide(src);
+      imgs.push(img);
+      trackEl.appendChild(wrap);
+    });
 
-      setTimeout(() => recalcShift(trackEl), 1200);
-    }
+    let pending = imgs.length;
+    const doneOne = () => {
+      pending--;
+      if (pending <= 0) requestAnimationFrame(() => recalcShift(trackEl));
+    };
 
-    function init(){
-      fillTrack(document.getElementById("trackTop"), topPhotos);
-      fillTrack(document.getElementById("trackBottom"), bottomPhotos);
+    imgs.forEach(img => {
+      if (img.complete) doneOne();
+      else{
+        img.addEventListener("load", doneOne, { once: true });
+        img.addEventListener("error", doneOne, { once: true });
+      }
+    });
 
-      syncGlow();
-      setTimeout(syncGlow, 1300);
-    }
+    setTimeout(() => recalcShift(trackEl), 1200);
+  }
 
-    window.addEventListener("load", init);
-    window.addEventListener("resize", init);
+  function init(){
+    fillTrack(document.getElementById("trackTop"), topPhotos);
+    fillTrack(document.getElementById("trackBottom"), bottomPhotos);
 
-    function parseSeconds(val){
-      const s = String(val).trim();
-      if (s.endsWith("ms")) return parseFloat(s) / 1000;
-      if (s.endsWith("s")) return parseFloat(s);
-      const num = parseFloat(s);
-      return Number.isFinite(num) ? num : 3.5;
-    }
+    syncGlow();
+    setTimeout(syncGlow, 1300);
+  }
 
-    function syncGlow(){
-      const root = getComputedStyle(document.documentElement);
-      const speedTop = parseSeconds(root.getPropertyValue("--speedTop")) || 26;
+  window.addEventListener("load", init);
+  window.addEventListener("resize", init);
 
-      const ids = ["btnInsta", "btnContacts", "emailBtn"];
-      const els = ids.map(id => document.getElementById(id)).filter(Boolean);
-      if (!els.length) return;
+  function parseSeconds(val){
+    const s = String(val).trim();
+    if (s.endsWith("ms")) return parseFloat(s) / 1000;
+    if (s.endsWith("s")) return parseFloat(s);
+    const num = parseFloat(s);
+    return Number.isFinite(num) ? num : 3.5;
+  }
 
-      els.forEach((el, idx) => {
-        el.style.animationDuration = speedTop + "s";
-        el.style.animationDelay = ((speedTop / 3) * idx) + "s";
+  function syncGlow(){
+    const root = getComputedStyle(document.documentElement);
+    const speedTop = parseSeconds(root.getPropertyValue("--speedTop")) || 26;
 
-        el.style.animationName = "none";
-        el.offsetHeight;
-        el.style.animationName = "glowPulse";
-      });
-    }
+    const ids = ["btnInsta", "btnContacts", "emailBtn"];
+    const els = ids.map(id => document.getElementById(id)).filter(Boolean);
+    if (!els.length) return;
 
-    (function bindEmailCopy(){
-      const emailBtn = document.getElementById("emailBtn");
-      const emailText = document.getElementById("emailText");
-      if (!emailBtn || !emailText) return;
+    els.forEach((el, idx) => {
+      el.style.animationDuration = speedTop + "s";
+      el.style.animationDelay = ((speedTop / 3) * idx) + "s";
 
-      const email = "info@littlethings.events";
-      const original = emailText.textContent;
+      el.style.animationName = "none";
+      el.offsetHeight;
+      el.style.animationName = "glowPulse";
+    });
+  }
 
-      emailBtn.addEventListener("click", async () => {
-        try{
-          await navigator.clipboard.writeText(email);
-          emailText.textContent = "Copiado / Copied";
-          setTimeout(() => { emailText.textContent = original; }, 1500);
-        }catch{
-          emailText.textContent = "Erro";
-          setTimeout(() => { emailText.textContent = original; }, 1500);
-        }
-      });
-    })();
-  </script>
-</body>
-</html>
+  (function bindEmailCopy(){
+    const emailBtn = document.getElementById("emailBtn");
+    const emailText = document.getElementById("emailText");
+    if (!emailBtn || !emailText) return;
+
+    const email = "info@littlethings.events";
+    const original = emailText.textContent;
+
+    emailBtn.addEventListener("click", async () => {
+      try{
+        await navigator.clipboard.writeText(email);
+        emailText.textContent = "Copiado / Copied";
+        setTimeout(() => { emailText.textContent = original; }, 1500);
+      }catch{
+        emailText.textContent = "Erro";
+        setTimeout(() => { emailText.textContent = original; }, 1500);
+      }
+    });
+  })();
+</script>
