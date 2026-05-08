@@ -214,15 +214,11 @@
       :root{
         --minLogoBlock: 210px;
         --minSlideBlock: 240px;
-        --btnSize: 20px; /* ✅ igual, só um pouco menor em ecrãs baixos */
+        --btnSize: 20px;
       }
       .slide{ width: min(52vw, 380px); }
       .contactBtn{ padding: 12px 14px; }
     }
-
-    /* =======================================================
-       ✅ 3 botões + ícones + brilho + tamanho igual (sem clamp)
-    ======================================================= */
 
     .contactGroup{
       width: min(980px, 100%);
@@ -299,7 +295,6 @@
       }
     }
 
-    /* ✅ ÚNICA MUDANÇA: letras (span) do Instagram + Contactos alinhadas ao tamanho visual do Email */
     #btnInsta span,
     #btnContacts span{
       font-size: calc(var(--btnSize) - 2px);
@@ -362,55 +357,55 @@
 
   <script>
     const topPhotos = [
-    "./assets/photo01.jpg",
-    "./assets/photo02.jpg",
-    "./assets/photo03.jpg",
-    "./assets/photo04.jpg",
-    "./assets/photo05.jpg",
-    "./assets/photo06.jpg",
-    "./assets/photo07.jpg",
-    "./assets/photo08.jpg",
-    "./assets/photo09.jpg",
-    "./assets/photo10.jpg",
-    "./assets/photo11.jpg",
-    "./assets/photo12.jpg",
-    "./assets/photo13.jpg",
-    "./assets/photo14.jpg",
-    "./assets/photo15.jpg",
-    "./assets/photo16.jpg",
-    "./assets/photo17.jpg",
-    "./assets/photo18.jpg",
-    "./assets/photo19.jpg",
-    "./assets/photo20.jpg",
-    "./assets/photo21.jpg",
-    "./assets/photo22.jpg",
-    "./assets/photo23.jpg",
+      "./assets/photo01.jpg",
+      "./assets/photo02.jpg",
+      "./assets/photo03.jpg",
+      "./assets/photo04.jpg",
+      "./assets/photo05.jpg",
+      "./assets/photo06.jpg",
+      "./assets/photo07.jpg",
+      "./assets/photo08.jpg",
+      "./assets/photo09.jpg",
+      "./assets/photo10.jpg",
+      "./assets/photo11.jpg",
+      "./assets/photo12.jpg",
+      "./assets/photo13.jpg",
+      "./assets/photo14.jpg",
+      "./assets/photo15.jpg",
+      "./assets/photo16.jpg",
+      "./assets/photo17.jpg",
+      "./assets/photo18.jpg",
+      "./assets/photo19.jpg",
+      "./assets/photo20.jpg",
+      "./assets/photo21.jpg",
+      "./assets/photo22.jpg",
+      "./assets/photo23.jpg",
     ];
 
     const bottomPhotos = [
-    "./assets/photo24.jpg",
-    "./assets/photo25.jpg",
-    "./assets/photo26.jpg",
-    "./assets/photo27.jpg",
-    "./assets/photo28.jpg",
-    "./assets/photo29.jpg",
-    "./assets/photo30.jpg",
-    "./assets/photo31.jpg",
-    "./assets/photo32.jpg",
-    "./assets/photo33.jpg",
-    "./assets/photo34.jpg",
-    "./assets/photo35.jpg",
-    "./assets/photo36.jpg",
-    "./assets/photo37.jpg",
-    "./assets/photo38.jpg",
-    "./assets/photo39.jpg",
-    "./assets/photo40.jpg",
-    "./assets/photo41.jpg",
-    "./assets/photo42.jpg",
-    "./assets/photo43.jpg",
-    "./assets/photo44.jpg",
-    "./assets/photo45.jpg",
-    "./assets/photo46.jpg",
+      "./assets/photo24.jpg",
+      "./assets/photo25.jpg",
+      "./assets/photo26.jpg",
+      "./assets/photo27.jpg",
+      "./assets/photo28.jpg",
+      "./assets/photo29.jpg",
+      "./assets/photo30.jpg",
+      "./assets/photo31.jpg",
+      "./assets/photo32.jpg",
+      "./assets/photo33.jpg",
+      "./assets/photo34.jpg",
+      "./assets/photo35.jpg",
+      "./assets/photo36.jpg",
+      "./assets/photo37.jpg",
+      "./assets/photo38.jpg",
+      "./assets/photo39.jpg",
+      "./assets/photo40.jpg",
+      "./assets/photo41.jpg",
+      "./assets/photo42.jpg",
+      "./assets/photo43.jpg",
+      "./assets/photo44.jpg",
+      "./assets/photo45.jpg",
+      "./assets/photo46.jpg",
     ];
 
     function makeSlide(src){
