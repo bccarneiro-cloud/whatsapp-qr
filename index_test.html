@@ -14,7 +14,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Little Things</title>
 
-  <!-- ✅ Fonte "brush" para os botões -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Caveat+Brush&display=swap" rel="stylesheet">
@@ -23,11 +22,9 @@
     :root{
       --gap: 12px;
 
-      /* speeds */
       --speedTop: 26s;
       --speedBottom: 30s;
 
-      /* layout */
       --minLogoBlock: 210px;
       --minSlideBlock: 320px;
 
@@ -39,8 +36,13 @@
       --btnSize: 22px;
     }
 
-    *{ box-sizing: border-box; }
-    html{ height: -webkit-fill-available; }
+    *{
+      box-sizing: border-box;
+    }
+
+    html{
+      height: -webkit-fill-available;
+    }
 
     body{
       margin: 0;
@@ -114,17 +116,32 @@
       will-change: transform;
     }
 
-    .lane.top .track{ animation: moveLeft var(--speedTop) linear infinite; }
-    .lane.bottom .track{ animation: moveRight var(--speedBottom) linear infinite; }
+    .lane.top .track{
+      animation: moveLeft var(--speedTop) linear infinite;
+    }
+
+    .lane.bottom .track{
+      animation: moveRight var(--speedBottom) linear infinite;
+    }
 
     @keyframes moveLeft{
-      from { transform: translateX(0); }
-      to   { transform: translateX(calc(-1 * var(--shift))); }
+      from{
+        transform: translateX(0);
+      }
+
+      to{
+        transform: translateX(calc(-1 * var(--shift)));
+      }
     }
 
     @keyframes moveRight{
-      from { transform: translateX(calc(-1 * var(--shift))); }
-      to   { transform: translateX(0); }
+      from{
+        transform: translateX(calc(-1 * var(--shift)));
+      }
+
+      to{
+        transform: translateX(0);
+      }
     }
 
     .slide{
@@ -156,7 +173,7 @@
       margin: 0;
 
       display: grid;
-      grid-template-rows: 1fr auto;
+      grid-template-rows: minmax(150px, 1fr) auto;
       align-items: center;
       justify-items: center;
       gap: 10px;
@@ -166,10 +183,10 @@
     .logoWrap{
       width: 100%;
       height: 100%;
+      min-height: 150px;
       display: flex;
       align-items: stretch;
       justify-content: center;
-      min-height: 0;
     }
 
     .logoWrap img{
@@ -186,12 +203,28 @@
       padding: 0 12px 10px 12px;
     }
 
+    .contactGroup{
+      width: min(980px, 100%);
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
     .contactBtn{
       display: inline-flex;
       align-items: center;
       justify-content: center;
 
-      width: min(520px, 100%);
+      flex: 1 1 240px;
+      max-width: 520px;
+
+      gap: 10px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      transition: transform .10s ease, filter .12s ease;
+
       padding: 14px 16px;
       border-radius: 999px;
       text-decoration: none;
@@ -203,41 +236,6 @@
       box-shadow:
         inset 0 2px 6px rgba(0,0,0,0.08),
         0 10px 24px rgba(0,0,0,0.10);
-    }
-
-    .contactBtn:active{ transform: scale(0.985); }
-
-    @media (max-height: 700px){
-      :root{
-        --minLogoBlock: 180px;
-        --minSlideBlock: 300px;
-        --btnSize: 20px;
-      }
-
-      .slide{ width: min(44vw, 360px); }
-
-      .contactBtn{
-        padding: 12px 14px;
-      }
-    }
-
-    .contactGroup{
-      width: min(980px, 100%);
-      display: flex;
-      gap: 14px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    .contactBtn{
-      flex: 1 1 240px;
-      max-width: 520px;
-
-      gap: 10px;
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-      user-select: none;
-      transition: transform .10s ease, filter .12s ease;
 
       font-family: var(--btnFont);
       font-weight: 400;
@@ -257,6 +255,10 @@
       filter: brightness(1.02);
     }
 
+    .contactBtn:active{
+      transform: scale(0.985);
+    }
+
     button.contactBtn{
       -webkit-appearance: none;
       appearance: none;
@@ -267,8 +269,8 @@
     }
 
     .icon{
-      width: 18px;
-      height: 18px;
+      width: 28px;
+      height: 28px;
       display: inline-block;
       opacity: .9;
       flex: 0 0 auto;
@@ -303,6 +305,105 @@
     #btnInsta span,
     #btnContacts span{
       font-size: calc(var(--btnSize) - 2px);
+    }
+
+    @media (max-height: 700px){
+      :root{
+        --minLogoBlock: 180px;
+        --minSlideBlock: 300px;
+        --btnSize: 20px;
+      }
+
+      .slide{
+        width: min(44vw, 360px);
+      }
+
+      .contactBtn{
+        padding: 12px 14px;
+      }
+    }
+
+    @media (max-width: 768px){
+      :root{
+        --btnSize: 21px;
+      }
+
+      .page{
+        grid-template-rows:
+          minmax(280px, 1.55fr)
+          minmax(270px, 1fr);
+      }
+
+      .slideshow{
+        gap: 8px;
+        padding: 8px;
+      }
+
+      .track{
+        gap: 8px;
+        padding: 8px;
+      }
+
+      .slide{
+        width: min(72vw, 300px);
+      }
+
+      .bottomBar{
+        grid-template-rows: minmax(165px, 1fr) auto;
+        gap: 12px;
+      }
+
+      .logoWrap{
+        min-height: 165px;
+        max-height: 230px;
+      }
+
+      .logoWrap img{
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+
+      .contactRow{
+        padding: 0 8px 10px 8px;
+      }
+
+      .contactGroup{
+        gap: 10px;
+      }
+
+      .contactBtn{
+        flex: 1 1 100%;
+        max-width: 520px;
+        padding: 13px 16px;
+      }
+
+      .icon{
+        width: 32px;
+        height: 32px;
+      }
+    }
+
+    @media (max-width: 420px){
+      .page{
+        grid-template-rows:
+          minmax(260px, 1.35fr)
+          minmax(290px, 1fr);
+      }
+
+      .bottomBar{
+        grid-template-rows: minmax(180px, 1fr) auto;
+      }
+
+      .logoWrap{
+        min-height: 180px;
+        max-height: 250px;
+      }
+
+      .icon{
+        width: 34px;
+        height: 34px;
+      }
     }
   </style>
 </head>
@@ -446,8 +547,6 @@
     }
 
     function restartAnimation(trackEl){
-      const anim = getComputedStyle(trackEl).animationName;
-
       trackEl.style.animation = "none";
       trackEl.offsetHeight;
       trackEl.style.animation = "";
@@ -470,7 +569,6 @@
     }
 
     function fillTrack(trackEl, photos){
-
       trackEl.innerHTML = "";
 
       const randomPhotos = shuffleArray(photos);
@@ -479,7 +577,6 @@
       const imgs = [];
 
       seq.forEach(src => {
-
         const { wrap, img } = makeSlide(src);
 
         imgs.push(img);
@@ -490,23 +587,17 @@
       let pending = imgs.length;
 
       const doneOne = () => {
-
         pending--;
 
         if (pending <= 0){
-
           requestAnimationFrame(() => recalcShift(trackEl));
         }
       };
 
       imgs.forEach(img => {
-
         if (img.complete){
-
           doneOne();
-
-        }else{
-
+        } else {
           img.addEventListener("load", doneOne, { once: true });
           img.addEventListener("error", doneOne, { once: true });
         }
@@ -516,9 +607,7 @@
     }
 
     function init(){
-
       fillTrack(document.getElementById("trackTop"), topPhotos);
-
       fillTrack(document.getElementById("trackBottom"), bottomPhotos);
 
       syncGlow();
@@ -527,15 +616,12 @@
     }
 
     window.addEventListener("load", init);
-
     window.addEventListener("resize", init);
 
     function parseSeconds(val){
-
       const s = String(val).trim();
 
       if (s.endsWith("ms")) return parseFloat(s) / 1000;
-
       if (s.endsWith("s")) return parseFloat(s);
 
       const num = parseFloat(s);
@@ -544,69 +630,51 @@
     }
 
     function syncGlow(){
-
       const root = getComputedStyle(document.documentElement);
-
       const speedTop = parseSeconds(root.getPropertyValue("--speedTop")) || 26;
 
       const ids = ["btnInsta", "btnContacts", "emailBtn"];
-
       const els = ids.map(id => document.getElementById(id)).filter(Boolean);
 
       if (!els.length) return;
 
       els.forEach((el, idx) => {
-
         el.style.animationDuration = speedTop + "s";
-
         el.style.animationDelay = ((speedTop / 3) * idx) + "s";
 
         el.style.animationName = "none";
-
         el.offsetHeight;
-
         el.style.animationName = "glowPulse";
       });
     }
 
     (function bindEmailCopy(){
-
       const emailBtn = document.getElementById("emailBtn");
-
       const emailText = document.getElementById("emailText");
 
       if (!emailBtn || !emailText) return;
 
       const email = "info@littlethings.events";
-
       const original = emailText.textContent;
 
       emailBtn.addEventListener("click", async () => {
-
         try{
-
           await navigator.clipboard.writeText(email);
 
           emailText.textContent = "Copiado / Copied";
 
           setTimeout(() => {
-
             emailText.textContent = original;
-
           }, 1500);
 
         }catch{
-
           emailText.textContent = "Erro";
 
           setTimeout(() => {
-
             emailText.textContent = original;
-
           }, 1500);
         }
       });
-
     })();
   </script>
 
