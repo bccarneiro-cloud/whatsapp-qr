@@ -7,13 +7,12 @@
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-
     gtag('config', 'G-YQN46F71DS');
   </script>
 
   <meta charset="UTF-8" />
-  <title>WhatsApp Contact</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Little Things</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,18 +20,24 @@
 
   <style>
     :root{
-      --wa: #25D366;
+      --gap: 12px;
 
-      --glass: rgba(255,255,255,.30);
-      --glass-border: rgba(255,255,255,.35);
-      --shadow: 0 18px 50px rgba(0,0,0,.18);
+      --speedTop: 26s;
+      --speedBottom: 30s;
 
-      --text: rgba(0,0,0,.92);
+      --minLogoBlock: 210px;
+      --minSlideBlock: 320px;
 
-      --overlay1: rgba(255,255,255,.04);
-      --overlay2: rgba(0,0,0,.10);
+      --shadow: 0 18px 55px rgba(0,0,0,0.18);
+      --radiusOuter: 26px;
+      --radiusInner: 18px;
 
-      --font: "Caveat Brush", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      --btnFont: "Caveat Brush", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      --btnSize: 22px;
+    }
+
+    *{
+      box-sizing: border-box;
     }
 
     html{
@@ -40,345 +45,709 @@
     }
 
     body{
-      margin:0;
-
+      margin: 0;
       height: 100vh;
       height: 100svh;
       height: 100dvh;
-      min-height: -webkit-fill-available;
-
-      display:flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      align-items: center;
-
-      font-family: var(--font);
-      color: var(--text);
-
-      background: url("./background.png") center / cover no-repeat;
-
-      padding-top:    calc(10px + env(safe-area-inset-top));
-      padding-left:   calc(14px + env(safe-area-inset-left));
-      padding-right:  calc(14px + env(safe-area-inset-right));
-      padding-bottom: calc(22px + env(safe-area-inset-bottom));
-
-      position: relative;
-      overflow-x: hidden;
+      height: -webkit-fill-available;
+      overflow: hidden;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: #fff;
     }
 
-    body::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      background: radial-gradient(
-        circle at 50% 40%,
-        var(--overlay1),
-        rgba(255,255,255,.02) 40%,
-        var(--overlay2) 100%
-      );
-      pointer-events:none;
+    .bg{
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(circle at 25% 10%, rgba(255,192,203,0.18), transparent 55%),
+        radial-gradient(circle at 80% 70%, rgba(255,182,193,0.14), transparent 60%),
+        #ffffff;
+      z-index: -2;
     }
 
-    .card{
-      position:relative;
-      width:min(420px, 92vw);
-      padding: 12px 14px 14px;
+    .page{
+      position: fixed;
+      inset: 0;
+      display: grid;
+      gap: var(--gap);
+      padding:
+        calc(10px + env(safe-area-inset-top))
+        12px
+        calc(10px + env(safe-area-inset-bottom))
+        12px;
 
-      background: var(--glass);
-      border: 1px solid var(--glass-border);
+      grid-template-rows:
+        minmax(var(--minSlideBlock), 2.5fr)
+        minmax(var(--minLogoBlock), 0.8fr);
+    }
 
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-
-      border-radius: 18px;
+    .slideshow{
+      border-radius: var(--radiusOuter);
+      overflow: hidden;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.45);
       box-shadow: var(--shadow);
-      margin-bottom: 6px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+
+      display: grid;
+      grid-template-rows: 1fr 1fr;
+      gap: 10px;
+      padding: 10px;
+      min-height: 0;
     }
 
-    .btn{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:10px;
-
-      margin: 10px 0;
-      padding: 12px 12px;
-
-      border-radius: 12px;
-      text-decoration:none;
-
-      font-family: var(--font);
-      font-weight: 400;
-      letter-spacing: .2px;
-      font-size: clamp(20px, 2.6vw, 26px);
-      line-height: 1.05;
-
-      background: rgba(37, 211, 102, .88);
-      border: 1px solid rgba(255,255,255,.35);
-      color: white;
-
-      box-shadow: 0 10px 22px rgba(37, 211, 102, .22);
-      transition: transform .08s ease, filter .12s ease;
-      -webkit-tap-highlight-color: transparent;
-      user-select:none;
-      cursor:pointer;
+    .lane{
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--radiusInner);
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.45);
     }
 
-    .btn:hover{
-      filter: brightness(1.03);
+    .track{
+      position: absolute;
+      inset: 0;
+      display: flex;
+      gap: 10px;
+      padding: 10px;
+      width: max-content;
+      align-items: center;
+      will-change: transform;
     }
 
-    .btn:active{
-      transform: scale(.985);
+    .lane.top .track{
+      animation: moveLeft var(--speedTop) linear infinite;
     }
 
-    button.btn{
-      -webkit-appearance: none;
-      appearance: none;
-      font: inherit;
-      text-align: center;
-      width: 100%;
+    .lane.bottom .track{
+      animation: moveRight var(--speedBottom) linear infinite;
     }
 
-    .btn-homepage,
-    .btn-email,
-    .btn-instagram{
-      margin-top: 0;
-      margin-bottom: 12px;
-
-      background: rgba(255,255,255,.50);
-      color: rgba(0,0,0,.92);
-      border: 1px solid rgba(255,255,255,.55);
-      box-shadow: 0 10px 22px rgba(0,0,0,.10);
-    }
-
-    .btn-homepage{
-      margin-bottom: 10px;
-    }
-
-    .btn-email{
-      margin-bottom: 10px;
-
-      width: 100%;
-      justify-content: center;
-      text-align: center;
-    }
-
-    .btn-email span{
-      display:inline-block;
-      text-align:center;
-    }
-
-    .ig-icon{
-      width: 22px;
-      height: 22px;
-      object-fit: contain;
-      border-radius: 6px;
-      animation: igspin 2.8s linear infinite;
-    }
-
-    @keyframes igspin{
+    @keyframes moveLeft{
       from{
-        transform: rotate(0deg);
+        transform: translateX(0);
       }
 
       to{
-        transform: rotate(360deg);
+        transform: translateX(calc(-1 * var(--shift)));
       }
     }
 
-    .header{
-      text-align:center;
-      margin-bottom: 10px;
-      font-family: var(--font);
+    @keyframes moveRight{
+      from{
+        transform: translateX(calc(-1 * var(--shift)));
+      }
+
+      to{
+        transform: translateX(0);
+      }
     }
 
-    .lang-row{
-      display:grid;
-      grid-template-columns: 1fr 1fr 1fr;
+    .slide{
+      flex: 0 0 auto;
+      height: 100%;
+      width: min(40vw, 380px);
+      border-radius: var(--radiusInner);
+      overflow: hidden;
+      box-shadow: 0 10px 28px rgba(0,0,0,0.18);
+      background: transparent;
+    }
+
+    .slide img{
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+      object-position: center;
+    }
+
+    .bottomBar{
+      width: 100%;
+      height: 100%;
+      background: #ffffff;
+      border: none;
+      border-radius: 0;
+      box-shadow: none;
+      padding: 0;
+      margin: 0;
+
+      display: grid;
+      grid-template-rows: minmax(150px, 1fr) auto;
+      align-items: center;
+      justify-items: center;
       gap: 10px;
-      align-items:center;
-      margin-bottom: 6px;
+      min-height: 0;
     }
 
-    .lang-row .item{
-      display:flex;
-      justify-content:center;
+    .logoWrap{
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      min-height: 0;
     }
 
-    .lang-row .wrap{
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
+    .logoWrap img{
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
     }
 
-    .lang-row img{
-      width: 18px;
-      height: auto;
-      flex-shrink: 0;
-      border-radius: 3px;
-      box-shadow: 0 2px 6px rgba(0,0,0,.12);
+    .contactRow{
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      padding: 0 12px 10px 12px;
     }
 
-    .lang-row .wrap span{
-      display:inline-block;
-      font-family: var(--font);
+    .contactGroup{
+      width: min(980px, 100%);
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .contactBtn{
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+
+      flex: 1 1 240px;
+      max-width: 520px;
+
+      gap: 10px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      transition: transform .10s ease, filter .12s ease;
+
+      padding: 14px 16px;
+      border-radius: 999px;
+      text-decoration: none;
+
+      color: rgba(10,10,10,0.92);
+      background: #ffffff;
+      border: none;
+
+      box-shadow:
+        inset 0 2px 6px rgba(0,0,0,0.08),
+        0 10px 24px rgba(0,0,0,0.10);
+
+      font-family: var(--btnFont);
       font-weight: 400;
-      font-size: clamp(16px, 2.2vw, 20px);
+      letter-spacing: .2px;
+      font-size: var(--btnSize);
       line-height: 1.05;
-      color: rgba(0,0,0,.92);
-      text-align:center;
-      white-space: normal;
-      max-width: 140px;
     }
 
-    .subtitle{
-      font-family: var(--font);
+    .contactBtn *{
+      font-family: var(--btnFont);
       font-weight: 400;
-      font-size: clamp(18px, 2.2vw, 22px);
-      opacity: .72;
-      margin: 2px 0 0;
-      text-align:center;
-      color: rgba(0,0,0,.85);
+      font-size: var(--btnSize);
+      line-height: 1.05;
     }
 
-    @media (max-width: 380px){
-      .lang-row{
-        gap: 8px;
+    .contactBtn:hover{
+      filter: brightness(1.02);
+    }
+
+    .contactBtn:active{
+      transform: scale(0.985);
+    }
+
+    button.contactBtn{
+      -webkit-appearance: none;
+      appearance: none;
+      font: inherit;
+      color: inherit;
+      background: #ffffff;
+      text-align: center;
+    }
+
+    .icon{
+      width: 28px;
+      height: 28px;
+      display: inline-block;
+      opacity: .9;
+      flex: 0 0 auto;
+    }
+
+    .glow{
+      animation-name: glowPulse;
+      animation-timing-function: ease-in-out;
+      animation-iteration-count: infinite;
+    }
+
+    @keyframes glowPulse{
+      0%{
+        box-shadow:
+          inset 0 2px 6px rgba(0,0,0,0.08),
+          0 10px 24px rgba(0,0,0,0.10);
       }
 
-      .lang-row .wrap span{
-        max-width: 120px;
+      50%{
+        box-shadow:
+          inset 0 2px 6px rgba(0,0,0,0.08),
+          0 14px 34px rgba(255,105,180,0.22);
       }
 
-      .btn{
-        padding: 11px 11px;
-      }
-
-      .ig-icon{
-        width: 20px;
-        height: 20px;
+      100%{
+        box-shadow:
+          inset 0 2px 6px rgba(0,0,0,0.08),
+          0 10px 24px rgba(0,0,0,0.10);
       }
     }
 
-    @media (min-width: 900px){
-      body{
-        justify-content: center;
+    #btnInsta span,
+    #btnContacts span{
+      font-size: calc(var(--btnSize) - 2px);
+    }
 
-        background:
-          radial-gradient(circle at center, rgba(255,255,255,.25), rgba(255,255,255,.08)),
-          url("./background.png") center / contain no-repeat;
-      }
-
+    @media (max-height: 700px){
       :root{
-        --glass: rgba(255,255,255,.22);
-        --glass-border: rgba(255,255,255,.32);
-        --overlay1: rgba(255,255,255,.02);
-        --overlay2: rgba(0,0,0,.08);
+        --minLogoBlock: 180px;
+        --minSlideBlock: 300px;
+        --btnSize: 20px;
       }
 
-      .card{
-        width: 520px;
-        padding: 16px 16px 16px;
-        transform: translateY(270px);
+      .slide{
+        width: min(44vw, 360px);
       }
 
-      .lang-row img{
-        width: 20px;
+      .contactBtn{
+        padding: 12px 14px;
+      }
+    }
+
+    @media (max-width: 768px){
+      :root{
+        --btnSize: 19px;
       }
 
-      .ig-icon{
+      .page{
+        grid-template-rows:
+          minmax(340px, 1.8fr)
+          minmax(250px, 0.85fr);
+      }
+
+      .slideshow{
+        gap: 8px;
+        padding: 8px;
+      }
+
+      .track{
+        gap: 8px;
+        padding: 8px;
+      }
+
+      .slide{
+        width: min(72vw, 300px);
+      }
+
+      .bottomBar{
+        grid-template-rows: minmax(130px, 1fr) auto;
+        gap: 6px;
+      }
+
+      .logoWrap{
+        min-height: 130px;
+        max-height: 170px;
+      }
+
+      .logoWrap img{
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+
+      .contactRow{
+        padding: 0 6px 6px 6px;
+      }
+
+      .contactGroup{
+        gap: 6px;
+      }
+
+      .contactBtn{
+        flex: 1 1 100%;
+        max-width: 520px;
+        padding: 8px 14px;
+        min-height: 40px;
+      }
+
+      .icon{
         width: 24px;
         height: 24px;
       }
+
+      #emailText{
+        font-size: 16px;
+      }
     }
 
-    @media (orientation: landscape) and (max-height: 430px){
-      body{
-        justify-content: center;
+    @media (max-width: 420px){
+      :root{
+        --btnSize: 18px;
       }
 
-      .card{
-        margin-bottom: 0;
+      .page{
+        grid-template-rows:
+          minmax(330px, 1.75fr)
+          minmax(240px, 0.8fr);
+      }
+
+      .bottomBar{
+        grid-template-rows: minmax(120px, 150px) auto;
+        gap: 5px;
+      }
+
+      .logoWrap{
+        min-height: 120px;
+        max-height: 150px;
+      }
+
+      .contactRow{
+        padding: 0 5px 6px 5px;
+      }
+
+      .contactGroup{
+        gap: 5px;
+      }
+
+      .contactBtn{
+        padding: 7px 12px;
+        min-height: 38px;
+      }
+
+      .icon{
+        width: 22px;
+        height: 22px;
+      }
+
+      #emailText{
+        font-size: 15px;
+      }
+    }
+
+    @media (max-width: 360px){
+      :root{
+        --btnSize: 16px;
+      }
+
+      .page{
+        grid-template-rows:
+          minmax(320px, 1.75fr)
+          minmax(225px, 0.75fr);
+      }
+
+      .bottomBar{
+        grid-template-rows: minmax(105px, 130px) auto;
+      }
+
+      .logoWrap{
+        min-height: 105px;
+        max-height: 130px;
+      }
+
+      .contactBtn{
+        padding: 6px 10px;
+        min-height: 36px;
+      }
+
+      .icon{
+        width: 20px;
+        height: 20px;
+      }
+
+      #emailText{
+        font-size: 14px;
       }
     }
   </style>
 </head>
 
 <body>
-  <div class="card">
 
-    <a class="btn btn-homepage"
-       href="https://www.littlethings.events/index.html">
-      <span>Homepage</span>
-    </a>
+  <div class="bg" aria-hidden="true"></div>
 
-    <button class="btn btn-email" id="emailBtn" type="button">
-      <span>info@littlethings.events</span>
-    </button>
+  <div class="page">
 
-    <a class="btn btn-instagram"
-       href="https://www.instagram.com/little.things.artdecor"
-       target="_blank"
-       rel="noopener">
-      <img class="ig-icon" src="./instagram.gif" alt="Instagram">
-      <span>Instagram</span>
-    </a>
+    <section class="slideshow" aria-label="Slideshow">
 
-    <div class="header">
-      <div class="lang-row">
-        <div class="item">
-          <div class="wrap">
-            <img src="./flag-pt.png" alt="PT">
-            <span>Escolhe o teu idioma</span>
-          </div>
-        </div>
-
-        <div class="item">
-          <div class="wrap">
-            <img src="./flag-es.png" alt="ES">
-            <span>Elige tu idioma</span>
-          </div>
-        </div>
-
-        <div class="item">
-          <div class="wrap">
-            <img src="./flag-gb.png" alt="EN">
-            <span>Choose your language</span>
-          </div>
-        </div>
+      <div class="lane top">
+        <div class="track" id="trackTop"></div>
       </div>
 
-      <p class="subtitle">WhatsApp</p>
-    </div>
+      <div class="lane bottom">
+        <div class="track" id="trackBottom"></div>
+      </div>
 
-    <a class="btn" href="https://wa.me/351918373423?text=Ol%C3%A1%2C%20gostaria%20de%20mais%20informa%C3%A7%C3%B5es.">Português</a>
+    </section>
 
-    <a class="btn" href="https://wa.me/351918373423?text=Hola%2C%20me%20gustar%C3%ADa%20recibir%20m%C3%A1s%20informaci%C3%B3n.">Español</a>
+    <section class="bottomBar" aria-label="Logo and contacts">
 
-    <a class="btn" href="https://wa.me/351918373423?text=Hello%2C%20I%20would%20like%20more%20information.">English</a>
+      <div class="logoWrap">
+        <img src="./background.png" alt="Little Things" />
+      </div>
+
+      <div class="contactRow">
+
+        <div class="contactGroup">
+
+          <a class="contactBtn glow"
+             id="btnInsta"
+             href="https://www.instagram.com/little.things.artdecor"
+             target="_blank"
+             rel="noopener">
+
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="currentColor" d="M7.5 2h9A5.5 5.5 0 0 1 22 7.5v9A5.5 5.5 0 0 1 16.5 22h-9A5.5 5.5 0 0 1 2 16.5v-9A5.5 5.5 0 0 1 7.5 2Zm0 2A3.5 3.5 0 0 0 4 7.5v9A3.5 3.5 0 0 0 7.5 20h9a3.5 3.5 0 0 0 3.5-3.5v-9A3.5 3.5 0 0 0 16.5 4h-9Zm11.25 1.75a1 1 0 1 1 0 2a1 1 0 0 1 0-2ZM12 7a5 5 0 1 1 0 10a5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6a3 3 0 0 0 0-6Z"/>
+            </svg>
+
+            <span>Instagram</span>
+          </a>
+
+          <a class="contactBtn glow"
+             id="btnContacts"
+             href="./qr_contact/">
+
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="currentColor" d="M12 12a4 4 0 1 0-4-4a4 4 0 0 0 4 4Zm0 2c-4.42 0-8 2.01-8 4.5V20h16v-1.5c0-2.49-3.58-4.5-8-4.5Z"/>
+            </svg>
+
+            <span>Contactos / Contacts</span>
+          </a>
+
+          <button class="contactBtn glow"
+                  id="emailBtn"
+                  type="button">
+
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="currentColor" d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2Zm0 4.2l-8 5.3l-8-5.3V6l8 5.3L20 6v2.2Z"/>
+            </svg>
+
+            <span id="emailText">info@littlethings.events</span>
+          </button>
+
+        </div>
+
+      </div>
+
+    </section>
 
   </div>
 
   <script>
-    const emailBtn = document.getElementById("emailBtn");
-    const email = "info@littlethings.events";
-    const originalHTML = emailBtn.innerHTML;
+    const topPhotos = [
+      "./assets/photo01.jpg",
+      "./assets/photo02.jpg",
+      "./assets/photo03.jpg",
+      "./assets/photo04.jpg",
+      "./assets/photo05.jpg",
+      "./assets/photo06.jpg",
+      "./assets/photo07.jpg",
+      "./assets/photo08.jpg",
+      "./assets/photo09.jpg",
+      "./assets/photo10.jpg",
+      "./assets/photo11.jpg",
+      "./assets/photo12.jpg",
+      "./assets/photo13.jpg",
+      "./assets/photo14.jpg",
+      "./assets/photo15.jpg",
+      "./assets/photo16.jpg",
+      "./assets/photo17.jpg",
+      "./assets/photo18.jpg",
+      "./assets/photo19.jpg",
+      "./assets/photo20.jpg",
+      "./assets/photo21.jpg",
+      "./assets/photo22.jpg",
+      "./assets/photo23.jpg",
+    ];
 
-    emailBtn.addEventListener("click", async () => {
-      try {
-        await navigator.clipboard.writeText(email);
+    const bottomPhotos = [
+      "./assets/photo24.jpg",
+      "./assets/photo25.jpg",
+      "./assets/photo26.jpg",
+      "./assets/photo27.jpg",
+      "./assets/photo28.jpg",
+      "./assets/photo29.jpg",
+      "./assets/photo30.jpg",
+      "./assets/photo31.jpg",
+      "./assets/photo32.jpg",
+      "./assets/photo33.jpg",
+      "./assets/photo34.jpg",
+      "./assets/photo35.jpg",
+      "./assets/photo36.jpg",
+      "./assets/photo37.jpg",
+      "./assets/photo38.jpg",
+      "./assets/photo39.jpg",
+      "./assets/photo40.jpg",
+      "./assets/photo41.jpg",
+      "./assets/photo42.jpg",
+      "./assets/photo43.jpg",
+      "./assets/photo44.jpg",
+      "./assets/photo45.jpg",
+      "./assets/photo46.jpg",
+    ];
 
-        emailBtn.innerHTML = "<span>Copiado / Copied</span>";
+    function makeSlide(src){
+      const wrap = document.createElement("div");
+      wrap.className = "slide";
 
-        setTimeout(() => {
-          emailBtn.innerHTML = originalHTML;
-        }, 1500);
+      const img = document.createElement("img");
+      img.src = src;
+      img.alt = "Little Things";
+      img.loading = "eager";
 
-      } catch {
-        emailBtn.innerHTML = "<span>Erro</span>";
-      }
+      wrap.appendChild(img);
+
+      return { wrap, img };
+    }
+
+    function restartAnimation(trackEl){
+      trackEl.style.animation = "none";
+      trackEl.offsetHeight;
+      trackEl.style.animation = "";
+    }
+
+    function recalcShift(trackEl){
+      const fullWidth = trackEl.scrollWidth;
+      const shift = fullWidth / 2;
+
+      trackEl.style.setProperty("--shift", shift + "px");
+
+      restartAnimation(trackEl);
+    }
+
+    function shuffleArray(array){
+      return array
+        .map(value => ({ value, sort: Math.random() }))
+        .sort((a, b) => a.sort - b.sort)
+        .map(({ value }) => value);
+    }
+
+    function fillTrack(trackEl, photos){
+      trackEl.innerHTML = "";
+
+      const randomPhotos = shuffleArray(photos);
+      const seq = randomPhotos.concat(randomPhotos);
+
+      const imgs = [];
+
+      seq.forEach(src => {
+        const { wrap, img } = makeSlide(src);
+
+        imgs.push(img);
+
+        trackEl.appendChild(wrap);
+      });
+
+      let pending = imgs.length;
+
+      const doneOne = () => {
+        pending--;
+
+        if (pending <= 0){
+          requestAnimationFrame(() => recalcShift(trackEl));
+        }
+      };
+
+      imgs.forEach(img => {
+        if (img.complete){
+          doneOne();
+        } else {
+          img.addEventListener("load", doneOne, { once: true });
+          img.addEventListener("error", doneOne, { once: true });
+        }
+      });
+
+      setTimeout(() => recalcShift(trackEl), 1200);
+    }
+
+    let resizeTimer;
+
+    function init(){
+      fillTrack(document.getElementById("trackTop"), topPhotos);
+      fillTrack(document.getElementById("trackBottom"), bottomPhotos);
+
+      syncGlow();
+
+      setTimeout(syncGlow, 1300);
+    }
+
+    window.addEventListener("load", init);
+
+    window.addEventListener("resize", () => {
+      clearTimeout(resizeTimer);
+
+      resizeTimer = setTimeout(() => {
+        init();
+      }, 250);
     });
+
+    function parseSeconds(val){
+      const s = String(val).trim();
+
+      if (s.endsWith("ms")) return parseFloat(s) / 1000;
+      if (s.endsWith("s")) return parseFloat(s);
+
+      const num = parseFloat(s);
+
+      return Number.isFinite(num) ? num : 3.5;
+    }
+
+    function syncGlow(){
+      const root = getComputedStyle(document.documentElement);
+      const speedTop = parseSeconds(root.getPropertyValue("--speedTop")) || 26;
+
+      const ids = ["btnInsta", "btnContacts", "emailBtn"];
+      const els = ids.map(id => document.getElementById(id)).filter(Boolean);
+
+      if (!els.length) return;
+
+      els.forEach((el, idx) => {
+        el.style.animationDuration = speedTop + "s";
+        el.style.animationDelay = ((speedTop / 3) * idx) + "s";
+
+        el.style.animationName = "none";
+        el.offsetHeight;
+        el.style.animationName = "glowPulse";
+      });
+    }
+
+    (function bindEmailCopy(){
+      const emailBtn = document.getElementById("emailBtn");
+      const emailText = document.getElementById("emailText");
+
+      if (!emailBtn || !emailText) return;
+
+      const email = "info@littlethings.events";
+      const original = emailText.textContent;
+
+      emailBtn.addEventListener("click", async () => {
+        try{
+          await navigator.clipboard.writeText(email);
+
+          emailText.textContent = "Copiado / Copied";
+
+          setTimeout(() => {
+            emailText.textContent = original;
+          }, 1500);
+
+        }catch{
+          emailText.textContent = "Erro";
+
+          setTimeout(() => {
+            emailText.textContent = original;
+          }, 1500);
+        }
+      });
+    })();
   </script>
+
 </body>
 </html>
