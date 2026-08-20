@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="es">
 <head>
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-YQN46F71DS"></script>
@@ -516,11 +516,11 @@
 <body id="home">
   <header class="site-header">
     <div class="container">
-      <nav class="nav" aria-label="Main navigation">
+      <nav class="nav" aria-label="Navegación principal">
         <a class="active" href="#home">Home</a>
-        <a href="#about">About</a>
-        <a href="#gallery">Gallery</a>
-        <a href="#contact">Contact</a>
+        <a href="#about">Sobre nosotros</a>
+        <a href="#gallery">Galería</a>
+        <a href="#contact">Contacto</a>
       </nav>
     </div>
   </header>
@@ -535,12 +535,12 @@
 
         <div class="hero-copy">
           <h1 class="brand-script">Little Things</h1>
-          <h2>Pequenos detalhes, grandes momentos</h2>
+          <h2>Pequeños detalles, grandes momentos</h2>
           <p>
-            Decoração delicada, detalhes personalizados e momentos pensados
-            para serem lembrados.
+            Decoración delicada, detalles personalizados y momentos pensados
+            para ser recordados.
           </p>
-          <a class="btn" href="#about">Saber Mais</a>
+          <a class="btn" href="#about">Saber más</a>
         </div>
       </div>
     </section>
@@ -552,42 +552,42 @@
         </div>
 
         <div class="about-copy">
-          <h2 class="script-heading">About Little Things</h2>
+          <h2 class="script-heading">Sobre Little Things</h2>
           <p>
-            Acreditamos que são os pequenos detalhes que transformam um momento
-            bonito numa memória inesquecível. Aqui podes descobrir alguns dos
-            nossos trabalhos, inspirações e criações.
+            Creemos que son los pequeños detalles los que transforman un momento
+            bonito en un recuerdo inolvidable. Aquí puedes descubrir algunos de
+            nuestros trabajos, inspiraciones y creaciones.
           </p>
-          <a class="btn" href="#gallery">Ver Galeria</a>
+          <a class="btn" href="#gallery">Ver galería</a>
         </div>
       </div>
     </section>
 
     <section class="section featured" id="gallery">
       <div class="container">
-        <h2 class="section-title">Featured Creations</h2>
+        <h2 class="section-title">Creaciones destacadas</h2>
 
         <div class="posts-grid">
           <a class="post-card" href="./assets/photo02.jpg" target="_blank">
             <img src="./assets/photo02.jpg" alt="Little Things creation">
-            <h3>Celebrating Every Detail</h3>
-            <span>View More</span>
+            <h3>Celebrando cada detalle</h3>
+            <span>Ver más</span>
           </a>
 
           <a class="post-card" href="./assets/photo03.jpg" target="_blank">
             <img src="./assets/photo03.jpg" alt="Little Things creation">
-            <h3>Creating Joyful Spaces</h3>
-            <span>View More</span>
+            <h3>Creando espacios llenos de alegría</h3>
+            <span>Ver más</span>
           </a>
 
           <a class="post-card" href="./assets/photo04.jpg" target="_blank">
             <img src="./assets/photo04.jpg" alt="Little Things creation">
-            <h3>Made With Love</h3>
-            <span>View More</span>
+            <h3>Hecho con amor</h3>
+            <span>Ver más</span>
           </a>
         </div>
 
-        <div class="mini-grid" aria-label="More Little Things photos">
+        <div class="mini-grid" aria-label="Más fotos de Little Things">
           <img src="./assets/photo05.jpg" alt="Little Things gallery image">
           <img src="./assets/photo06.jpg" alt="Little Things gallery image">
           <img src="./assets/photo07.jpg" alt="Little Things gallery image">
@@ -602,10 +602,10 @@
 
     <section class="contact-section" id="contact">
       <div class="container">
-        <h2 class="section-title">Let's create something beautiful</h2>
+        <h2 class="section-title">Creemos algo bonito juntos</h2>
         <p>
-          Encontra-nos no Instagram, consulta os contactos ou copia o nosso
-          endereço de email.
+          Encuéntranos en Instagram, consulta nuestros datos de contacto o copia
+          nuestra dirección de correo electrónico.
         </p>
 
         <div class="contact-actions">
@@ -614,7 +614,7 @@
           </a>
 
           <a class="btn secondary" href="./qr_contact/">
-            Contactos / Contacts
+            Contacto
           </a>
 
           <button class="btn secondary" id="emailBtn" type="button">
@@ -626,7 +626,7 @@
   </main>
 
   <footer>
-    <div class="container">Little Things · Made with care</div>
+    <div class="container">Little Things · Creado con cariño</div>
   </footer>
 
   <script>
@@ -641,7 +641,7 @@
         const original = emailText.textContent;
         try{
           await navigator.clipboard.writeText(email);
-          emailText.textContent = "Copiado / Copied";
+          emailText.textContent = "Copiado";
         }catch{
           emailText.textContent = email;
         }
