@@ -331,6 +331,72 @@
       object-fit: cover;
     }
 
+
+    /* COMPLETE RANDOMIZED GALLERY */
+    .all-gallery-title{
+      margin-top: 88px;
+      margin-bottom: 34px;
+    }
+
+    .all-gallery-grid{
+      column-count: 4;
+      column-gap: 18px;
+    }
+
+    .gallery-item{
+      display: block;
+      width: 100%;
+      margin: 0 0 18px;
+      break-inside: avoid;
+      overflow: hidden;
+      background: #f8edef;
+      text-decoration: none;
+    }
+
+    .gallery-item img{
+      display: block;
+      width: 100%;
+      height: auto;
+      transition: transform .35s ease, filter .35s ease;
+    }
+
+    .gallery-item:hover img{
+      transform: scale(1.025);
+      filter: saturate(1.04);
+    }
+
+    .gallery-loading{
+      grid-column: 1 / -1;
+      text-align: center;
+      color: #a2868d;
+      font-family: var(--serif);
+      font-size: 20px;
+      padding: 30px 0;
+    }
+
+    @media (max-width: 1000px){
+      .all-gallery-grid{
+        column-count: 3;
+      }
+    }
+
+    @media (max-width: 700px){
+      .all-gallery-grid{
+        column-count: 2;
+        column-gap: 12px;
+      }
+
+      .gallery-item{
+        margin-bottom: 12px;
+      }
+    }
+
+    @media (max-width: 430px){
+      .all-gallery-grid{
+        column-count: 1;
+      }
+    }
+
     /* CONTACT */
     .contact-section{
       margin-top: 42px;
@@ -567,36 +633,15 @@
       <div class="container">
         <h2 class="section-title">Creaciones destacadas</h2>
 
-        <div class="posts-grid">
-          <a class="post-card" href="./assets/photo02.jpg" target="_blank">
-            <img src="./assets/photo02.jpg" alt="Little Things creation">
-            <h3>Celebrando cada detalle</h3>
-            <span>Ver más</span>
-          </a>
+        <!--
+          Las 3 fotos destacadas se eligen aleatoriamente en cada carga.
+          El resto aparece debajo, también en orden aleatorio.
+          Todas las fotos válidas se muestran una sola vez.
+        -->
+        <div class="posts-grid" id="featuredGrid"></div>
 
-          <a class="post-card" href="./assets/photo03.jpg" target="_blank">
-            <img src="./assets/photo03.jpg" alt="Little Things creation">
-            <h3>Creando espacios llenos de alegría</h3>
-            <span>Ver más</span>
-          </a>
-
-          <a class="post-card" href="./assets/photo04.jpg" target="_blank">
-            <img src="./assets/photo04.jpg" alt="Little Things creation">
-            <h3>Hecho con amor</h3>
-            <span>Ver más</span>
-          </a>
-        </div>
-
-        <div class="mini-grid" aria-label="Más fotos de Little Things">
-          <img src="./assets/photo05.jpg" alt="Little Things gallery image">
-          <img src="./assets/photo06.jpg" alt="Little Things gallery image">
-          <img src="./assets/photo07.jpg" alt="Little Things gallery image">
-          <img src="./assets/photo08.jpg" alt="Little Things gallery image">
-          <img src="./assets/photo09.jpg" alt="Little Things gallery image">
-          <img src="./assets/photo10.jpg" alt="Little Things gallery image">
-          <img src="./assets/photo11.jpg" alt="Little Things gallery image">
-          <img src="./assets/photo12.jpg" alt="Little Things gallery image">
-        </div>
+        <h2 class="section-title all-gallery-title">Todas nuestras creaciones</h2>
+        <div class="all-gallery-grid" id="allGalleryGrid" aria-label="Galería completa de Little Things"></div>
       </div>
     </section>
 
@@ -630,7 +675,154 @@
   </footer>
 
   <script>
-    (function(){
+    /*
+      GALERÍA AUTOMÁTICA Y ALEATORIA
+
+      No hace falta mantener una lista manual de fotos.
+
+      El script prueba automáticamente:
+        ./assets/photo01.jpg
+        ./assets/photo02.jpg
+        ...
+        ./assets/photo80.jpg
+
+      Las que existan se cargan, las que no existan se ignoran.
+      Después se mezclan aleatoriamente en cada visita/recarga.
+
+      Si algún día tienes más de 80 fotos, solo aumenta MAX_PHOTOS.
+    */
+    const MAX_PHOTOS = 80;
+
+    function shuffle(array){
+      const copy = [...array];
+
+      // Fisher-Yates shuffle
+      for(let i = copy.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+
+      return copy;
+    }
+
+    function photoPath(number){
+      return `./assets/photo${String(number).padStart(2, "0")}.jpg`;
+    }
+
+    function checkImage(src){
+      return new Promise(resolve => {
+        const img = new Image();
+
+        img.onload = () => resolve(src);
+        img.onerror = () => resolve(null);
+
+        img.src = src;
+      });
+    }
+
+    async function discoverPhotos(){
+      const candidates = [];
+
+      for(let i = 1; i <= MAX_PHOTOS; i++){
+        candidates.push(photoPath(i));
+      }
+
+      const results = await Promise.all(candidates.map(checkImage));
+      return results.filter(Boolean);
+    }
+
+    function makeFeaturedCard(src, index){
+      const titles = [
+        "Celebrando cada detalle",
+        "Creando espacios llenos de alegría",
+        "Hecho con amor"
+      ];
+
+      const card = document.createElement("a");
+      card.className = "post-card";
+      card.href = src;
+      card.target = "_blank";
+      card.rel = "noopener";
+
+      const img = document.createElement("img");
+      img.src = src;
+      img.alt = "Creación de Little Things";
+      img.loading = "eager";
+
+      const title = document.createElement("h3");
+      title.textContent = titles[index] || "Little Things";
+
+      const more = document.createElement("span");
+      more.textContent = "Ver más";
+
+      card.append(img, title, more);
+      return card;
+    }
+
+    function makeGalleryItem(src, index){
+      const link = document.createElement("a");
+      link.className = "gallery-item";
+      link.href = src;
+      link.target = "_blank";
+      link.rel = "noopener";
+      link.setAttribute("aria-label", `Abrir foto ${index + 1}`);
+
+      const img = document.createElement("img");
+      img.src = src;
+      img.alt = `Galería Little Things ${index + 1}`;
+      img.loading = "lazy";
+
+      link.appendChild(img);
+      return link;
+    }
+
+    async function initGallery(){
+      const featuredGrid = document.getElementById("featuredGrid");
+      const allGalleryGrid = document.getElementById("allGalleryGrid");
+
+      if(!featuredGrid || !allGalleryGrid) return;
+
+      featuredGrid.innerHTML = '<div class="gallery-loading">Cargando galería…</div>';
+
+      const photos = await discoverPhotos();
+
+      if(!photos.length){
+        featuredGrid.innerHTML =
+          '<div class="gallery-loading">No se han encontrado fotos en la carpeta assets.</div>';
+        return;
+      }
+
+      const randomized = shuffle(photos);
+
+      // The first 3 random photos are featured.
+      const featured = randomized.slice(0, Math.min(3, randomized.length));
+
+      // The remaining photos are shown below.
+      // Together, both sections show EVERY discovered photo exactly once.
+      const remaining = randomized.slice(featured.length);
+
+      featuredGrid.innerHTML = "";
+      featured.forEach((src, index) => {
+        featuredGrid.appendChild(makeFeaturedCard(src, index));
+      });
+
+      allGalleryGrid.innerHTML = "";
+
+      // To make absolutely all photos visible, the featured photos are
+      // followed by the rest. No duplicate images are created.
+      remaining.forEach((src, index) => {
+        allGalleryGrid.appendChild(makeGalleryItem(src, index));
+      });
+
+      // If there are 3 photos or fewer, avoid leaving a meaningless title.
+      const fullGalleryTitle = document.querySelector(".all-gallery-title");
+      if(fullGalleryTitle && remaining.length === 0){
+        fullGalleryTitle.style.display = "none";
+      }
+    }
+
+    /* EMAIL COPY */
+    (function bindEmailCopy(){
       const emailBtn = document.getElementById("emailBtn");
       const emailText = document.getElementById("emailText");
       const email = "info@littlethings.events";
@@ -639,17 +831,21 @@
 
       emailBtn.addEventListener("click", async () => {
         const original = emailText.textContent;
+
         try{
           await navigator.clipboard.writeText(email);
           emailText.textContent = "Copiado";
         }catch{
           emailText.textContent = email;
         }
+
         setTimeout(() => {
           emailText.textContent = original;
         }, 1600);
       });
     })();
+
+    window.addEventListener("DOMContentLoaded", initGallery);
   </script>
 </body>
 </html>
