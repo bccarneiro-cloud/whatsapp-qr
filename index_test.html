@@ -289,6 +289,14 @@
     .post-card{
       text-decoration: none;
       display: block;
+      width: 100%;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      text-align: left;
+      cursor: pointer;
+      font: inherit;
+      color: inherit;
     }
 
     .post-card img{
@@ -347,10 +355,13 @@
       display: block;
       width: 100%;
       margin: 0 0 18px;
+      padding: 0;
+      border: 0;
       break-inside: avoid;
       overflow: hidden;
       background: #f8edef;
       text-decoration: none;
+      cursor: pointer;
     }
 
     .gallery-item img{
@@ -394,6 +405,95 @@
     @media (max-width: 430px){
       .all-gallery-grid{
         column-count: 1;
+      }
+    }
+
+
+    /* LIGHTBOX / IMAGE POPUP */
+    .lightbox{
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: rgba(20, 12, 15, .86);
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+    }
+
+    .lightbox.open{
+      display: flex;
+    }
+
+    .lightbox-content{
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: min(94vw, 1400px);
+      height: min(92vh, 1000px);
+    }
+
+    .lightbox img{
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      border-radius: 6px;
+      box-shadow: 0 24px 70px rgba(0,0,0,.4);
+      background: white;
+    }
+
+    .lightbox-close{
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      width: 46px;
+      height: 46px;
+      border: none;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      color: white;
+      background: rgba(182, 76, 104, .96);
+      font-size: 30px;
+      line-height: 1;
+      font-family: Arial, sans-serif;
+      box-shadow: 0 8px 25px rgba(0,0,0,.25);
+      transition: transform .2s ease, background .2s ease;
+    }
+
+    .lightbox-close:hover{
+      transform: scale(1.06);
+      background: var(--rose-dark);
+    }
+
+    .lightbox-close:focus-visible{
+      outline: 3px solid white;
+      outline-offset: 3px;
+    }
+
+    body.lightbox-open{
+      overflow: hidden;
+    }
+
+    @media (max-width: 620px){
+      .lightbox{
+        padding: 14px;
+      }
+
+      .lightbox-content{
+        width: 96vw;
+        height: 90vh;
+      }
+
+      .lightbox-close{
+        top: 2px;
+        right: 2px;
+        width: 42px;
+        height: 42px;
       }
     }
 
@@ -658,7 +758,7 @@
             Instagram
           </a>
 
-          <a class="btn secondary" href="./qr_contact/index_test.html">
+          <a class="btn secondary" href="./qr_contact/">
             Contacto
           </a>
 
@@ -669,6 +769,14 @@
       </div>
     </section>
   </main>
+
+
+  <div class="lightbox" id="lightbox" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Vista ampliada de la imagen">
+    <div class="lightbox-content">
+      <img id="lightboxImage" src="" alt="Vista ampliada">
+      <button class="lightbox-close" id="lightboxClose" type="button" aria-label="Cerrar imagen">&times;</button>
+    </div>
+  </div>
 
   <footer>
     <div class="container">Little Things · Creado con cariño</div>
@@ -738,11 +846,11 @@
         "Hecho con amor"
       ];
 
-      const card = document.createElement("a");
-      card.className = "post-card";
-      card.href = src;
-      card.target = "_blank";
-      card.rel = "noopener";
+      const card = document.createElement("button");
+      card.className = "post-card image-popup-trigger";
+      card.type = "button";
+      card.dataset.lightboxSrc = src;
+      card.setAttribute("aria-label", "Abrir imagen");
 
       const img = document.createElement("img");
       img.src = src;
@@ -760,11 +868,10 @@
     }
 
     function makeGalleryItem(src, index){
-      const link = document.createElement("a");
-      link.className = "gallery-item";
-      link.href = src;
-      link.target = "_blank";
-      link.rel = "noopener";
+      const link = document.createElement("button");
+      link.className = "gallery-item image-popup-trigger";
+      link.type = "button";
+      link.dataset.lightboxSrc = src;
       link.setAttribute("aria-label", `Abrir foto ${index + 1}`);
 
       const img = document.createElement("img");
@@ -842,6 +949,59 @@
         setTimeout(() => {
           emailText.textContent = original;
         }, 1600);
+      });
+    })();
+
+
+    /* LIGHTBOX */
+    (function bindLightbox(){
+      const lightbox = document.getElementById("lightbox");
+      const lightboxImage = document.getElementById("lightboxImage");
+      const closeBtn = document.getElementById("lightboxClose");
+
+      if(!lightbox || !lightboxImage || !closeBtn) return;
+
+      let lastFocused = null;
+
+      function openLightbox(src){
+        lastFocused = document.activeElement;
+        lightboxImage.src = src;
+        lightbox.classList.add("open");
+        lightbox.setAttribute("aria-hidden", "false");
+        document.body.classList.add("lightbox-open");
+        closeBtn.focus();
+      }
+
+      function closeLightbox(){
+        lightbox.classList.remove("open");
+        lightbox.setAttribute("aria-hidden", "true");
+        document.body.classList.remove("lightbox-open");
+        lightboxImage.src = "";
+
+        if(lastFocused && typeof lastFocused.focus === "function"){
+          lastFocused.focus();
+        }
+      }
+
+      document.addEventListener("click", event => {
+        const trigger = event.target.closest(".image-popup-trigger");
+
+        if(trigger){
+          openLightbox(trigger.dataset.lightboxSrc);
+          return;
+        }
+
+        if(event.target === lightbox){
+          closeLightbox();
+        }
+      });
+
+      closeBtn.addEventListener("click", closeLightbox);
+
+      document.addEventListener("keydown", event => {
+        if(event.key === "Escape" && lightbox.classList.contains("open")){
+          closeLightbox();
+        }
       });
     })();
 
