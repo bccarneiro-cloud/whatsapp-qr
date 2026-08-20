@@ -11,485 +11,643 @@
   </script>
 
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#fffaf9" />
   <title>Little Things</title>
 
-  <!-- ✅ Fonte "brush" para os botões -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Caveat+Brush&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Allura&family=Cormorant+Garamond:wght@400;500;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
 
   <style>
     :root{
-      --gap: 12px;
-
-      /* speeds */
-      --speedTop: 26s;
-      --speedBottom: 30s;
-
-      /* layout */
-      --minLogoBlock: 240px;
-      --minSlideBlock: 260px;
-
-      --shadow: 0 18px 55px rgba(0,0,0,0.18);
-      --radiusOuter: 26px;
-      --radiusInner: 18px;
-
-      /* ✅ fonte dos botões */
-      --btnFont: "Caveat Brush", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-
-      /* ✅ tamanho único (igual nos 3) */
-      --btnSize: 22px;
+      --rose: #b64c68;
+      --rose-dark: #9f3d58;
+      --rose-soft: #dca0aa;
+      --rose-pale: #f6e1e5;
+      --paper: #fffdfc;
+      --ink: #555051;
+      --muted: #837a7c;
+      --line: rgba(182, 76, 104, .18);
+      --serif: "Cormorant Garamond", Georgia, serif;
+      --script: "Allura", cursive;
+      --sans: "Montserrat", system-ui, sans-serif;
+      --max: 1180px;
     }
 
     *{ box-sizing: border-box; }
-    html{ height: -webkit-fill-available; }
+
+    html{
+      scroll-behavior: smooth;
+    }
+
     body{
       margin: 0;
-      height: 100vh;
-      height: 100svh;
-      height: 100dvh;
-      height: -webkit-fill-available;
-      overflow: hidden;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: #fff;
-    }
-
-    /* subtle background */
-    .bg{
-      position: fixed;
-      inset: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+      color: var(--ink);
       background:
-        radial-gradient(circle at 25% 10%, rgba(255,192,203,0.18), transparent 55%),
-        radial-gradient(circle at 80% 70%, rgba(255,182,193,0.14), transparent 60%),
-        #ffffff;
-      z-index: -2;
+        radial-gradient(circle at 12% 5%, rgba(244, 192, 201, .22), transparent 26rem),
+        radial-gradient(circle at 88% 42%, rgba(249, 221, 226, .18), transparent 24rem),
+        var(--paper);
+      font-family: var(--sans);
+      font-weight: 300;
+      line-height: 1.7;
     }
 
-    .page{
-      position: fixed;
-      inset: 0;
-      display: grid;
-      gap: var(--gap);
-      padding:
-        calc(10px + env(safe-area-inset-top))
-        12px
-        calc(10px + env(safe-area-inset-bottom))
-        12px;
-
-      grid-template-rows:
-        minmax(var(--minSlideBlock), 2fr)
-        minmax(var(--minLogoBlock), 1fr);
-    }
-
-    /* ===== SLIDESHOW: COM MOLDURA ===== */
-    .slideshow{
-      border-radius: var(--radiusOuter);
-      overflow: hidden;
-      background: rgba(255,255,255,0.12);
-      border: 1px solid rgba(255,255,255,0.45);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-
-      display: grid;
-      grid-template-rows: 1fr 1fr;
-      gap: 10px;
-      padding: 10px;
-      min-height: 0;
-    }
-
-    .lane{
-      position: relative;
-      overflow: hidden;
-      border-radius: var(--radiusInner);
-      background: rgba(255,255,255,0.18);
-      border: 1px solid rgba(255,255,255,0.45);
-    }
-
-    .track{
-      position: absolute;
-      inset: 0;
-      display: flex;
-      gap: 10px;
-      padding: 10px;
-      width: max-content;
-      align-items: center;
-      will-change: transform;
-    }
-
-    .lane.top .track{ animation: moveLeft var(--speedTop) linear infinite; }
-    .lane.bottom .track{ animation: moveRight var(--speedBottom) linear infinite; }
-
-    @keyframes moveLeft{
-      from { transform: translateX(0); }
-      to   { transform: translateX(calc(-1 * var(--shift))); }
-    }
-    @keyframes moveRight{
-      from { transform: translateX(calc(-1 * var(--shift))); }
-      to   { transform: translateX(0); }
-    }
-
-    .slide{
-      flex: 0 0 auto;
-      height: 100%;
-      width: min(46vw, 420px);
-      border-radius: var(--radiusInner);
-      overflow: hidden;
-      box-shadow: 0 10px 28px rgba(0,0,0,0.18);
-      background: transparent;
-    }
-
-    .slide img{
-      width: 100%;
-      height: 100%;
+    img{
       display: block;
-      object-fit: cover;
-      object-position: center;
+      max-width: 100%;
     }
 
-    /* ===== BOTTOM: branco total, sem border/card ===== */
-    .bottomBar{
-      width: 100%;
-      height: 100%;
-      background: #ffffff;
-      border: none;
-      border-radius: 0;
-      box-shadow: none;
-      padding: 0;
-      margin: 0;
-
-      display: grid;
-      grid-template-rows: 1fr auto;
-      align-items: center;
-      justify-items: center;
-      gap: 10px;
-      min-height: 0;
-    }
-
-    .logoWrap{
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: stretch;
-      justify-content: center;
-      min-height: 0;
-    }
-
-    .logoWrap img{
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      display: block;
-    }
-
-    .contactRow{
-      width: 100%;
-      display: flex;
-      justify-content: center;
-      padding: 0 12px 10px 12px;
-    }
-
-    .contactBtn{
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-
-      width: min(520px, 100%);
-      padding: 14px 16px;
-      border-radius: 999px;
-      text-decoration: none;
-
-      color: rgba(10,10,10,0.92);
-      background: #ffffff;
-      border: none;
-
-      box-shadow:
-        inset 0 2px 6px rgba(0,0,0,0.08),
-        0 10px 24px rgba(0,0,0,0.10);
-    }
-    .contactBtn:active{ transform: scale(0.985); }
-
-    @media (max-height: 700px){
-      :root{
-        --minLogoBlock: 210px;
-        --minSlideBlock: 240px;
-        --btnSize: 20px; /* ✅ igual, só um pouco menor em ecrãs baixos */
-      }
-      .slide{ width: min(52vw, 380px); }
-      .contactBtn{ padding: 12px 14px; }
-    }
-
-    /* =======================================================
-       ✅ 3 botões + ícones + brilho + tamanho igual (sem clamp)
-    ======================================================= */
-
-    .contactGroup{
-      width: min(980px, 100%);
-      display: flex;
-      gap: 14px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    .contactBtn{
-      flex: 1 1 240px;
-      max-width: 520px;
-
-      gap: 10px;
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-      user-select: none;
-      transition: transform .10s ease, filter .12s ease;
-
-      font-family: var(--btnFont);
-      font-weight: 400;
-      letter-spacing: .2px;
-      font-size: var(--btnSize);
-      line-height: 1.05;
-    }
-
-    .contactBtn *{
-      font-family: var(--btnFont);
-      font-weight: 400;
-      font-size: var(--btnSize);
-      line-height: 1.05;
-    }
-
-    .contactBtn:hover{ filter: brightness(1.02); }
-
-    button.contactBtn{
-      -webkit-appearance: none;
-      appearance: none;
-      font: inherit;
+    a{
       color: inherit;
-      background: #ffffff;
+    }
+
+    .container{
+      width: min(var(--max), calc(100% - 42px));
+      margin-inline: auto;
+    }
+
+    /* HEADER */
+    .site-header{
+      position: relative;
+      z-index: 20;
+      padding: 30px 0 4px;
+    }
+
+    .nav{
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 34px;
+      font-family: var(--serif);
+      font-size: 18px;
+      color: #b17381;
+    }
+
+    .nav a{
+      position: relative;
+      text-decoration: none;
+      padding: 7px 0;
+      transition: color .2s ease;
+    }
+
+    .nav a:hover,
+    .nav a.active{
+      color: var(--rose-dark);
+    }
+
+    .nav a.active::after{
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 1px;
+      background: currentColor;
+    }
+
+    /* HERO */
+    .hero{
+      min-height: 610px;
+      display: grid;
+      align-items: center;
+      padding: 18px 0 64px;
+    }
+
+    .hero-inner{
+      position: relative;
+      display: grid;
+      grid-template-columns: .95fr 1.35fr;
+      align-items: center;
+      gap: 36px;
+    }
+
+    .hero-art{
+      position: relative;
+      min-height: 410px;
+      display: grid;
+      place-items: center;
+    }
+
+    .hero-art::before,
+    .hero-art::after{
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(2px);
+      z-index: -1;
+    }
+
+    .hero-art::before{
+      width: 330px;
+      height: 330px;
+      background: rgba(247, 202, 210, .28);
+      left: 0;
+      top: 10px;
+    }
+
+    .hero-art::after{
+      width: 245px;
+      height: 245px;
+      background: rgba(255, 232, 236, .75);
+      right: 10px;
+      bottom: 10px;
+    }
+
+    .brand-image{
+      width: min(430px, 96%);
+      max-height: 405px;
+      object-fit: contain;
+      filter: drop-shadow(0 16px 28px rgba(166, 89, 111, .12));
+    }
+
+    .hero-copy{
+      padding-top: 42px;
       text-align: center;
     }
 
-    .icon{
-      width: 18px;
-      height: 18px;
-      display: inline-block;
-      opacity: .9;
-      flex: 0 0 auto;
+    .brand-script{
+      margin: 0;
+      color: var(--rose);
+      font-family: var(--script);
+      font-size: clamp(76px, 8vw, 128px);
+      font-weight: 400;
+      line-height: .9;
+      letter-spacing: .01em;
     }
 
-    .glow{
-      animation-name: glowPulse;
-      animation-timing-function: ease-in-out;
-      animation-iteration-count: infinite;
+    .hero-copy h2{
+      margin: 48px 0 10px;
+      color: var(--rose-dark);
+      font-family: var(--serif);
+      font-size: clamp(34px, 4vw, 54px);
+      font-weight: 500;
+      line-height: 1.1;
     }
 
-    @keyframes glowPulse{
-      0%{
-        box-shadow:
-          inset 0 2px 6px rgba(0,0,0,0.08),
-          0 10px 24px rgba(0,0,0,0.10);
+    .hero-copy p{
+      max-width: 660px;
+      margin: 0 auto;
+      color: #8f8687;
+      font-size: 15px;
+      letter-spacing: .01em;
+    }
+
+    .btn{
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 150px;
+      margin-top: 28px;
+      padding: 12px 24px;
+      border: 0;
+      border-radius: 8px;
+      text-decoration: none;
+      font: 400 14px/1 var(--sans);
+      color: white;
+      background: var(--rose-soft);
+      box-shadow: 0 9px 22px rgba(182, 76, 104, .14);
+      transition: transform .2s ease, background .2s ease, box-shadow .2s ease;
+    }
+
+    .btn:hover{
+      transform: translateY(-2px);
+      background: var(--rose);
+      box-shadow: 0 12px 28px rgba(182, 76, 104, .2);
+    }
+
+    /* GENERIC SECTION */
+    .section{
+      padding: 74px 0;
+    }
+
+    .section-title{
+      margin: 0 0 36px;
+      color: var(--rose-dark);
+      text-align: center;
+      font-family: var(--serif);
+      font-size: clamp(38px, 4vw, 54px);
+      font-weight: 500;
+      line-height: 1.1;
+    }
+
+    .script-heading{
+      margin: 0 0 12px;
+      color: var(--rose);
+      font-family: var(--script);
+      font-size: clamp(54px, 5.2vw, 78px);
+      font-weight: 400;
+      line-height: .95;
+    }
+
+    /* ABOUT */
+    .about{
+      display: grid;
+      grid-template-columns: 1fr 1.1fr;
+      gap: 72px;
+      align-items: center;
+    }
+
+    .about-photo{
+      position: relative;
+    }
+
+    .about-photo::before{
+      content: "";
+      position: absolute;
+      inset: 22px -22px -22px 22px;
+      background: var(--rose-pale);
+      z-index: -1;
+    }
+
+    .about-photo img{
+      width: 100%;
+      aspect-ratio: 1.34 / 1;
+      object-fit: cover;
+    }
+
+    .about-copy p{
+      margin: 0;
+      color: #82797b;
+      max-width: 560px;
+      font-size: 14px;
+    }
+
+    /* FEATURED */
+    .featured{
+      padding-top: 92px;
+    }
+
+    .posts-grid{
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 34px;
+    }
+
+    .post-card{
+      text-decoration: none;
+      display: block;
+    }
+
+    .post-card img{
+      width: 100%;
+      aspect-ratio: 1.08 / 1;
+      object-fit: cover;
+      transition: transform .35s ease, filter .35s ease;
+    }
+
+    .post-card:hover img{
+      transform: translateY(-3px);
+      filter: saturate(1.05);
+    }
+
+    .post-card h3{
+      margin: 18px 0 4px;
+      color: var(--rose-dark);
+      font-family: var(--serif);
+      font-size: 28px;
+      font-weight: 500;
+      line-height: 1.15;
+    }
+
+    .post-card span{
+      color: #d49aa6;
+      font-family: var(--serif);
+      font-size: 17px;
+    }
+
+    .mini-grid{
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin-top: 46px;
+    }
+
+    .mini-grid img{
+      width: 100%;
+      aspect-ratio: 1 / .83;
+      object-fit: cover;
+    }
+
+    /* CONTACT */
+    .contact-section{
+      margin-top: 42px;
+      padding: 82px 0 90px;
+      background: linear-gradient(180deg, rgba(250,239,241,.55), rgba(255,255,255,.9));
+      border-top: 1px solid var(--line);
+    }
+
+    .contact-section p{
+      max-width: 620px;
+      margin: -18px auto 0;
+      text-align: center;
+      color: #887f80;
+      font-size: 14px;
+    }
+
+    .contact-actions{
+      margin-top: 32px;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .contact-actions a,
+    .contact-actions button{
+      min-width: 190px;
+      margin: 0;
+      cursor: pointer;
+      font-family: var(--sans);
+    }
+
+    .contact-actions .secondary{
+      color: var(--rose);
+      background: white;
+      border: 1px solid var(--rose-soft);
+      box-shadow: none;
+    }
+
+    footer{
+      padding: 26px 0 34px;
+      text-align: center;
+      color: #aa8d94;
+      font-family: var(--serif);
+      font-size: 15px;
+    }
+
+    @media (max-width: 900px){
+      .site-header{
+        padding-top: 20px;
       }
-      50%{
-        box-shadow:
-          inset 0 2px 6px rgba(0,0,0,0.08),
-          0 14px 34px rgba(255,105,180,0.22);
+
+      .nav{
+        justify-content: center;
+        gap: 20px;
+        flex-wrap: wrap;
+        font-size: 16px;
       }
-      100%{
-        box-shadow:
-          inset 0 2px 6px rgba(0,0,0,0.08),
-          0 10px 24px rgba(0,0,0,0.10);
+
+      .hero{
+        min-height: auto;
+        padding-top: 20px;
+      }
+
+      .hero-inner{
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+
+      .hero-art{
+        min-height: 320px;
+      }
+
+      .brand-image{
+        width: min(380px, 92%);
+      }
+
+      .hero-copy{
+        padding-top: 0;
+      }
+
+      .brand-script{
+        font-size: clamp(70px, 18vw, 108px);
+      }
+
+      .hero-copy h2{
+        margin-top: 34px;
+      }
+
+      .about{
+        grid-template-columns: 1fr;
+        gap: 48px;
+      }
+
+      .posts-grid{
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .post-card:last-child{
+        grid-column: 1 / -1;
+        width: calc(50% - 17px);
+        justify-self: center;
+      }
+
+      .mini-grid{
+        grid-template-columns: 1fr 1fr;
       }
     }
 
-    /* ✅ ÚNICA MUDANÇA: letras (span) do Instagram + Contactos alinhadas ao tamanho visual do Email */
-    #btnInsta span,
-    #btnContacts span{
-      font-size: calc(var(--btnSize) - 2px);
+    @media (max-width: 620px){
+      .container{
+        width: min(100% - 28px, var(--max));
+      }
+
+      .nav{
+        gap: 14px 20px;
+      }
+
+      .hero{
+        padding-bottom: 38px;
+      }
+
+      .hero-art{
+        min-height: 250px;
+      }
+
+      .hero-art::before{
+        width: 240px;
+        height: 240px;
+      }
+
+      .hero-art::after{
+        width: 170px;
+        height: 170px;
+      }
+
+      .brand-image{
+        max-height: 280px;
+      }
+
+      .hero-copy p{
+        font-size: 13px;
+      }
+
+      .section{
+        padding: 54px 0;
+      }
+
+      .about-photo::before{
+        inset: 14px -10px -14px 10px;
+      }
+
+      .posts-grid{
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+
+      .post-card:last-child{
+        grid-column: auto;
+        width: 100%;
+      }
+
+      .post-card h3{
+        font-size: 26px;
+      }
+
+      .mini-grid{
+        gap: 12px;
+      }
+
+      .contact-actions{
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
+      .contact-actions .btn{
+        width: 100%;
+      }
     }
   </style>
 </head>
 
-<body>
-  <div class="bg" aria-hidden="true"></div>
+<body id="home">
+  <header class="site-header">
+    <div class="container">
+      <nav class="nav" aria-label="Main navigation">
+        <a class="active" href="#home">Home</a>
+        <a href="#about">About</a>
+        <a href="#gallery">Gallery</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </div>
+  </header>
 
-  <div class="page">
+  <main>
+    <section class="hero">
+      <div class="container hero-inner">
+        <div class="hero-art">
+          <!-- Reuses your current logo/brand image -->
+          <img class="brand-image" src="./background.png" alt="Little Things">
+        </div>
 
-    <section class="slideshow" aria-label="Slideshow">
-      <div class="lane top">
-        <div class="track" id="trackTop"></div>
-      </div>
-
-      <div class="lane bottom">
-        <div class="track" id="trackBottom"></div>
-      </div>
-    </section>
-
-    <section class="bottomBar" aria-label="Logo and contacts">
-      <div class="logoWrap">
-        <img src="./background.png" alt="Little Things" />
-      </div>
-
-      <div class="contactRow">
-        <div class="contactGroup">
-
-          <a class="contactBtn glow" id="btnInsta"
-             href="https://www.instagram.com/little.things.artdecor"
-             target="_blank" rel="noopener">
-            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-              <path fill="currentColor" d="M7.5 2h9A5.5 5.5 0 0 1 22 7.5v9A5.5 5.5 0 0 1 16.5 22h-9A5.5 5.5 0 0 1 2 16.5v-9A5.5 5.5 0 0 1 7.5 2Zm0 2A3.5 3.5 0 0 0 4 7.5v9A3.5 3.5 0 0 0 7.5 20h9a3.5 3.5 0 0 0 3.5-3.5v-9A3.5 3.5 0 0 0 16.5 4h-9Zm11.25 1.75a1 1 0 1 1 0 2a1 1 0 0 1 0-2ZM12 7a5 5 0 1 1 0 10a5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6a3 3 0 0 0 0-6Z"/>
-            </svg>
-            <span>Instagram</span>
-          </a>
-
-          <a class="contactBtn glow" id="btnContacts" href="./qr_contact/">
-            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-              <path fill="currentColor" d="M12 12a4 4 0 1 0-4-4a4 4 0 0 0 4 4Zm0 2c-4.42 0-8 2.01-8 4.5V20h16v-1.5c0-2.49-3.58-4.5-8-4.5Z"/>
-            </svg>
-            <span>Contactos / Contacts</span>
-          </a>
-
-          <button class="contactBtn glow" id="emailBtn" type="button">
-            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-              <path fill="currentColor" d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2Zm0 4.2l-8 5.3l-8-5.3V6l8 5.3L20 6v2.2Z"/>
-            </svg>
-            <span id="emailText">info@littlethings.events</span>
-          </button>
-
+        <div class="hero-copy">
+          <h1 class="brand-script">Little Things</h1>
+          <h2>Pequenos detalhes, grandes momentos</h2>
+          <p>
+            Decoração delicada, detalhes personalizados e momentos pensados
+            para serem lembrados.
+          </p>
+          <a class="btn" href="#about">Saber Mais</a>
         </div>
       </div>
-
     </section>
 
-  </div>
+    <section class="section" id="about">
+      <div class="container about">
+        <div class="about-photo">
+          <img src="./assets/photo01.jpg" alt="Little Things">
+        </div>
+
+        <div class="about-copy">
+          <h2 class="script-heading">About Little Things</h2>
+          <p>
+            Acreditamos que são os pequenos detalhes que transformam um momento
+            bonito numa memória inesquecível. Aqui podes descobrir alguns dos
+            nossos trabalhos, inspirações e criações.
+          </p>
+          <a class="btn" href="#gallery">Ver Galeria</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section featured" id="gallery">
+      <div class="container">
+        <h2 class="section-title">Featured Creations</h2>
+
+        <div class="posts-grid">
+          <a class="post-card" href="./assets/photo02.jpg" target="_blank">
+            <img src="./assets/photo02.jpg" alt="Little Things creation">
+            <h3>Celebrating Every Detail</h3>
+            <span>View More</span>
+          </a>
+
+          <a class="post-card" href="./assets/photo03.jpg" target="_blank">
+            <img src="./assets/photo03.jpg" alt="Little Things creation">
+            <h3>Creating Joyful Spaces</h3>
+            <span>View More</span>
+          </a>
+
+          <a class="post-card" href="./assets/photo04.jpg" target="_blank">
+            <img src="./assets/photo04.jpg" alt="Little Things creation">
+            <h3>Made With Love</h3>
+            <span>View More</span>
+          </a>
+        </div>
+
+        <div class="mini-grid" aria-label="More Little Things photos">
+          <img src="./assets/photo05.jpg" alt="Little Things gallery image">
+          <img src="./assets/photo06.jpg" alt="Little Things gallery image">
+          <img src="./assets/photo07.jpg" alt="Little Things gallery image">
+          <img src="./assets/photo08.jpg" alt="Little Things gallery image">
+          <img src="./assets/photo09.jpg" alt="Little Things gallery image">
+          <img src="./assets/photo10.jpg" alt="Little Things gallery image">
+          <img src="./assets/photo11.jpg" alt="Little Things gallery image">
+          <img src="./assets/photo12.jpg" alt="Little Things gallery image">
+        </div>
+      </div>
+    </section>
+
+    <section class="contact-section" id="contact">
+      <div class="container">
+        <h2 class="section-title">Let's create something beautiful</h2>
+        <p>
+          Encontra-nos no Instagram, consulta os contactos ou copia o nosso
+          endereço de email.
+        </p>
+
+        <div class="contact-actions">
+          <a class="btn" href="https://www.instagram.com/little.things.artdecor" target="_blank" rel="noopener">
+            Instagram
+          </a>
+
+          <a class="btn secondary" href="./qr_contact/">
+            Contactos / Contacts
+          </a>
+
+          <button class="btn secondary" id="emailBtn" type="button">
+            <span id="emailText">info@littlethings.events</span>
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">Little Things · Made with care</div>
+  </footer>
 
   <script>
-    const topPhotos = [
-      "./assets/photo01.jpg",
-      "./assets/photo02.jpg",
-      "./assets/photo03.jpg",
-      "./assets/photo04.jpg",
-      "./assets/photo05.jpg",
-      "./assets/photo06.jpg",
-      "./assets/photo07.jpg",
-      "./assets/photo08.jpg",
-    ];
-
-    const bottomPhotos = [
-      "./assets/photo09.jpg",
-      "./assets/photo10.jpg",
-      "./assets/photo11.jpg",
-      "./assets/photo12.jpg",
-      "./assets/photo13.jpg",
-      "./assets/photo14.jpg",
-    ];
-
-    function makeSlide(src){
-      const wrap = document.createElement("div");
-      wrap.className = "slide";
-
-      const img = document.createElement("img");
-      img.src = src;
-      img.alt = "Little Things";
-      img.loading = "eager";
-
-      wrap.appendChild(img);
-      return { wrap, img };
-    }
-
-    function restartAnimation(trackEl){
-      const anim = getComputedStyle(trackEl).animationName;
-      trackEl.style.animation = "none";
-      trackEl.offsetHeight;
-      trackEl.style.animation = "";
-    }
-
-    function recalcShift(trackEl){
-      const fullWidth = trackEl.scrollWidth;
-      const shift = fullWidth / 2;
-      trackEl.style.setProperty("--shift", shift + "px");
-      restartAnimation(trackEl);
-    }
-
-    function fillTrack(trackEl, photos){
-      trackEl.innerHTML = "";
-      const seq = photos.concat(photos);
-
-      const imgs = [];
-      seq.forEach(src => {
-        const { wrap, img } = makeSlide(src);
-        imgs.push(img);
-        trackEl.appendChild(wrap);
-      });
-
-      let pending = imgs.length;
-      const doneOne = () => {
-        pending--;
-        if (pending <= 0) requestAnimationFrame(() => recalcShift(trackEl));
-      };
-
-      imgs.forEach(img => {
-        if (img.complete) doneOne();
-        else{
-          img.addEventListener("load", doneOne, { once: true });
-          img.addEventListener("error", doneOne, { once: true });
-        }
-      });
-
-      setTimeout(() => recalcShift(trackEl), 1200);
-    }
-
-    function init(){
-      fillTrack(document.getElementById("trackTop"), topPhotos);
-      fillTrack(document.getElementById("trackBottom"), bottomPhotos);
-
-      syncGlow();
-      setTimeout(syncGlow, 1300);
-    }
-
-    window.addEventListener("load", init);
-    window.addEventListener("resize", init);
-
-    function parseSeconds(val){
-      const s = String(val).trim();
-      if (s.endsWith("ms")) return parseFloat(s) / 1000;
-      if (s.endsWith("s")) return parseFloat(s);
-      const num = parseFloat(s);
-      return Number.isFinite(num) ? num : 3.5;
-    }
-
-    function syncGlow(){
-      const root = getComputedStyle(document.documentElement);
-      const speedTop = parseSeconds(root.getPropertyValue("--speedTop")) || 26;
-
-      const ids = ["btnInsta", "btnContacts", "emailBtn"];
-      const els = ids.map(id => document.getElementById(id)).filter(Boolean);
-      if (!els.length) return;
-
-      els.forEach((el, idx) => {
-        el.style.animationDuration = speedTop + "s";
-        el.style.animationDelay = ((speedTop / 3) * idx) + "s";
-
-        el.style.animationName = "none";
-        el.offsetHeight;
-        el.style.animationName = "glowPulse";
-      });
-    }
-
-    (function bindEmailCopy(){
+    (function(){
       const emailBtn = document.getElementById("emailBtn");
       const emailText = document.getElementById("emailText");
+      const email = "info@littlethings.events";
+
       if (!emailBtn || !emailText) return;
 
-      const email = "info@littlethings.events";
-      const original = emailText.textContent;
-
       emailBtn.addEventListener("click", async () => {
+        const original = emailText.textContent;
         try{
           await navigator.clipboard.writeText(email);
           emailText.textContent = "Copiado / Copied";
-          setTimeout(() => { emailText.textContent = original; }, 1500);
         }catch{
-          emailText.textContent = "Erro";
-          setTimeout(() => { emailText.textContent = original; }, 1500);
+          emailText.textContent = email;
         }
+        setTimeout(() => {
+          emailText.textContent = original;
+        }, 1600);
       });
     })();
   </script>
