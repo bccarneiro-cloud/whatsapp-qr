@@ -477,8 +477,9 @@
     .raffleButton{border:0;border-radius:99px;padding:14px 22px;background:#c63e89;color:white;font:24px var(--btnFont);cursor:pointer;width:100%;margin-top:12px}
     .raffleButton:disabled{opacity:.6;cursor:default}
     .wheelWrap{position:relative;width:min(290px,78vw);aspect-ratio:1;margin:20px auto}
-    .wheel{width:100%;height:100%;border:9px solid #f6d3e5;border-radius:50%;background:conic-gradient(#f7afd0 0 60deg,#fce8a8 60deg 120deg,#f7afd0 120deg 180deg,#fce8a8 180deg 240deg,#f7afd0 240deg 300deg,#fce8a8 300deg 360deg);display:grid;place-items:center;box-shadow:0 8px 25px #0002;transition:transform 5s cubic-bezier(.12,.75,.12,1)}
-    .wheel::after{content:'🎁';font-size:74px;background:white;border-radius:50%;width:110px;height:110px;display:grid;place-items:center;box-shadow:0 4px 12px #0002}
+    .wheel{position:relative;width:100%;height:100%;border:9px solid #f6d3e5;border-radius:50%;background:conic-gradient(#f7afd0 0deg 72deg,#fce8a8 72deg 144deg,#f7afd0 144deg 216deg,#fce8a8 216deg 288deg,#b9e9d6 288deg 360deg);box-shadow:0 8px 25px #0002;transition:transform 5s cubic-bezier(.12,.75,.12,1)}
+    .wheelLabel{position:absolute;top:50%;left:50%;width:76px;margin-left:-38px;margin-top:-10px;text-align:center;font-weight:800;font-size:14px;color:#61304f;transform:rotate(var(--angle)) translateY(-90px) rotate(calc(-1 * var(--angle)));pointer-events:none}
+    .wheelHub{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:65px;height:65px;border-radius:50%;background:white;display:grid;place-items:center;font-size:35px;box-shadow:0 4px 12px #0002;pointer-events:none}
     .wheelPointer{position:absolute;z-index:2;top:-15px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:18px solid transparent;border-right:18px solid transparent;border-top:33px solid #ad2e75}
     #raffleResult{font-weight:700;font-size:22px;color:#a92d73}
     .raffleClose{position:absolute;right:14px;top:10px;background:transparent;border:0;font-size:27px;cursor:pointer;color:#6c5064}
@@ -564,7 +565,7 @@
       <button class="raffleClose" id="raffleClose" aria-label="Cerrar">×</button>
       <h2 id="raffleTitle">¡Descubre tu regalo!</h2>
       <p id="raffleIntro">Síguenos en Instagram y vuelve aquí para descubrir tu sorpresa.</p>
-      <div class="wheelWrap" id="wheelWrap" hidden><div class="wheelPointer"></div><div id="raffleWheel" class="wheel"></div></div>
+      <div class="wheelWrap" id="wheelWrap" hidden><div class="wheelPointer"></div><div id="raffleWheel" class="wheel"><span class="wheelLabel" style="--angle:36deg">Sigue<br>intentando</span><span class="wheelLabel" style="--angle:108deg">Sin premio</span><span class="wheelLabel" style="--angle:180deg">Otra vez<br>será</span><span class="wheelLabel" style="--angle:252deg">Sin premio</span><span class="wheelLabel" style="--angle:324deg">🎁 Premio</span><span class="wheelHub">✨</span></div></div>
       <p id="raffleResult" aria-live="polite"></p>
       <button class="raffleButton" id="raffleFollow">Seguir en Instagram ♡</button>
       <button class="raffleButton" id="raffleReturn" hidden>Ya he vuelto · Girar ruleta</button>
@@ -798,7 +799,9 @@
       const wrap=document.getElementById('wheelWrap');
       const result=document.getElementById('raffleResult');
       const intro=document.getElementById('raffleIntro');
-      const key='littlethings_raffle_played_v1';
+      const key='littlethings_raffle_played_v2';
+      // 5 sectores iguales: 1 premio y 4 sin premio = 20% de probabilidad.
+      const sectors=5;
       if(!new URLSearchParams(location.search).has('sorteo'))return;
       overlay.hidden=false;
       let waiting=false, started=false, away=false;
@@ -817,12 +820,24 @@
         if(started||!waiting)return;
         started=true;follow.hidden=true;ret.hidden=true;wrap.hidden=false;
         intro.textContent='¡Mucha suerte!';
-        wheel.style.transform='rotate('+(1800+Math.floor(Math.random()*360))+'deg)';
+        // Sorteo uniforme con un generador aleatorio del navegador.
+        const random=new Uint32Array(1);crypto.getRandomValues(random);
+        const selected=Math.floor((random[0]/4294967296)*sectors);
+        const winning=selected===4;
+        // La flecha apunta arriba; centra el sector elegido bajo ella.
+        const center=selected*72+36;
+        const rotation=2160+(360-center);
+        wheel.style.transform='rotate('+rotation+'deg)';
         setTimeout(()=>{
-          // Regalo fijo: cambia este texto por el premio que entregarás.
-          result.textContent='🎉 ¡Enhorabuena! ¡Has ganado un regalo sorpresa!';
-          intro.textContent='Enseña esta pantalla para recoger tu regalo.';
-          localStorage.setItem(key,'yes');celebrate();
+          if(winning){
+            result.textContent='🎉 ¡Enhorabuena! ¡Has ganado un regalo sorpresa!';
+            intro.textContent='Enseña esta pantalla para recoger tu regalo.';
+            celebrate();
+          }else{
+            result.textContent='Esta vez no ha habido suerte 💗';
+            intro.textContent='¡Gracias por participar y seguir a Little Things!';
+          }
+          localStorage.setItem(key,'yes');
         },5200);
       }
       follow.addEventListener('click',()=>{
