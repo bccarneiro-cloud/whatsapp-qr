@@ -476,7 +476,7 @@
     .raffleCard p{line-height:1.45}
     .raffleButton{border:0;border-radius:99px;padding:14px 22px;background:#c63e89;color:white;font:24px var(--btnFont);cursor:pointer;width:100%;margin-top:12px}
     .raffleButton:disabled{opacity:.6;cursor:default}
-    .wheelWrap{position:relative;width:min(290px,78vw);aspect-ratio:1;margin:20px auto}
+    .wheelWrap{cursor:pointer;position:relative;width:min(290px,78vw);aspect-ratio:1;margin:20px auto}
     .wheel{position:relative;width:100%;height:100%;border:9px solid #f6d3e5;border-radius:50%;background:conic-gradient(#f7afd0 0deg 72deg,#fce8a8 72deg 144deg,#f7afd0 144deg 216deg,#fce8a8 216deg 288deg,#b9e9d6 288deg 360deg);box-shadow:0 8px 25px #0002;transition:transform 5s cubic-bezier(.12,.75,.12,1)}
     .wheelLabel{position:absolute;top:50%;left:50%;width:76px;margin-left:-38px;margin-top:-10px;text-align:center;font-weight:800;font-size:14px;color:#61304f;transform:rotate(var(--angle)) translateY(-90px) rotate(calc(-1 * var(--angle)));pointer-events:none}
     .wheelHub{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:65px;height:65px;border-radius:50%;background:white;display:grid;place-items:center;font-size:35px;box-shadow:0 4px 12px #0002;pointer-events:none}
@@ -565,10 +565,10 @@
       <button class="raffleClose" id="raffleClose" aria-label="Cerrar">×</button>
       <h2 id="raffleTitle">¡Descubre tu regalo!</h2>
       <p id="raffleIntro">Síguenos en Instagram y vuelve aquí para descubrir tu sorpresa.</p>
-      <div class="wheelWrap" id="wheelWrap" hidden><div class="wheelPointer"></div><div id="raffleWheel" class="wheel"><span class="wheelLabel" style="--angle:36deg">Sigue<br>intentando</span><span class="wheelLabel" style="--angle:108deg">Sin premio</span><span class="wheelLabel" style="--angle:180deg">Otra vez<br>será</span><span class="wheelLabel" style="--angle:252deg">Sin premio</span><span class="wheelLabel" style="--angle:324deg">🎁 Premio</span><span class="wheelHub">✨</span></div></div>
+      <div class="wheelWrap" id="wheelWrap"><div class="wheelPointer"></div><div id="raffleWheel" class="wheel"><span class="wheelLabel" style="--angle:36deg">Sigue<br>intentando</span><span class="wheelLabel" style="--angle:108deg">Sin premio</span><span class="wheelLabel" style="--angle:180deg">Otra vez<br>será</span><span class="wheelLabel" style="--angle:252deg">Sin premio</span><span class="wheelLabel" style="--angle:324deg">🎁 Premio</span><span class="wheelHub">✨</span></div></div>
       <p id="raffleResult" aria-live="polite"></p>
       <button class="raffleButton" id="raffleFollow">Seguir en Instagram ♡</button>
-      <button class="raffleButton" id="raffleReturn" hidden>Ya he vuelto · Girar ruleta</button>
+      <button class="raffleButton" id="raffleReturn" hidden>🎡 ¡GIRAR LA RULETA!</button>
     </div>
   </div>
   <script>
@@ -804,9 +804,9 @@
       const sectors=5;
       if(!new URLSearchParams(location.search).has('sorteo'))return;
       overlay.hidden=false;
-      let waiting=false, started=false, away=false;
+      let waiting=false, started=false;
       const alreadyPlayed=localStorage.getItem(key)==='yes';
-      if(alreadyPlayed){follow.hidden=true;intro.textContent='Ya has participado en este dispositivo.';return;}
+      if(alreadyPlayed){follow.hidden=true;ret.hidden=true;intro.textContent='Ya has participado en este dispositivo.';return;}
       function celebrate(){
         const colors=['#ff6cad','#ffd76e','#ad77e5','#82d5bd'];
         for(let i=0;i<55;i++){
@@ -818,7 +818,7 @@
       }
       function spin(){
         if(started||!waiting)return;
-        started=true;follow.hidden=true;ret.hidden=true;wrap.hidden=false;
+        started=true;follow.hidden=true;ret.disabled=true;ret.textContent='La ruleta está girando…';
         intro.textContent='¡Mucha suerte!';
         // Sorteo uniforme con un generador aleatorio del navegador.
         const random=new Uint32Array(1);crypto.getRandomValues(random);
@@ -838,20 +838,17 @@
             intro.textContent='¡Gracias por participar y seguir a Little Things!';
           }
           localStorage.setItem(key,'yes');
+          ret.hidden=true;
         },5200);
       }
       follow.addEventListener('click',()=>{
         waiting=true;ret.hidden=false;
-        intro.textContent='Cuando vuelvas de Instagram, tu ruleta comenzará. Si no empieza, pulsa el botón de abajo.';
+        intro.textContent='Cuando vuelvas de Instagram, toca la ruleta o pulsa ¡GIRAR LA RULETA!';
         // Enlace abierto por gesto del usuario; la pestaña original permanece disponible.
         window.open('https://www.instagram.com/little.things.artdecor/','_blank','noopener');
       });
       ret.addEventListener('click',spin);
-      document.addEventListener('visibilitychange',()=>{
-        if(document.hidden&&waiting)away=true;
-        if(!document.hidden&&away&&waiting)spin();
-      });
-      window.addEventListener('focus',()=>{if(away&&waiting)spin();});
+      wrap.addEventListener('click',spin);
       document.getElementById('raffleClose').addEventListener('click',()=>overlay.hidden=true);
     })();
   </script>
